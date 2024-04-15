@@ -18,18 +18,22 @@ int main() {
         }
     };
     game_state.num_moves = 0;
-    game_state.stencils.push_back({3, 3, {{false, true, false}, {true, true, true}, {true, true, false}}});
+    game_state.stencils.push_back({3, 3, {{false, true, false}, {true, false, true}, {true, true, false}}});
 
-
-
+    
     // Display the game state
     cout << "Initial Game State:" << endl;
     display_game_state(game_state);
 
     apply_stencil(game_state, 25, 1, 2, 0);
     display_game_state(game_state);
-
-    // exmple test case
+    apply_stencil(game_state, 25, 1, 2, 1);
+    display_game_state(game_state);
+    apply_stencil(game_state, 25, 1, 2, 2);
+    display_game_state(game_state);
+    apply_stencil(game_state, 25, 1, 2, 3);
+    display_game_state(game_state);
+    // example test case
     /*
     game_state.board.width = 32;
     game_state.board.height = 32;
