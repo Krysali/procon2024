@@ -2,6 +2,8 @@
 #define TYPES_H
 
 #include <vector>
+#include <string>
+#include "json.hpp"
 
 const int MAX_DIMENSION = 256;
 
@@ -22,10 +24,16 @@ struct Board {
 // Structure to represent the entire game state
 struct GameState {
     Board board;
+    Board goal_state;
     std::vector<Stencil> stencils;  // Includes both fixed and general stencils
     int num_moves;
-    Board goal_state;
 };
+
+// Function to read json file
+std::string ReadJsonFile(const std::string& file_path);
+
+// Function to parse json
+GameState ParseJson(const std::string& problem_json);
 
 // Function to generate stencils
 std::vector<Stencil> GenerateStencils();

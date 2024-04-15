@@ -1,6 +1,4 @@
 #include "ops.h"
-#include <iostream>
-#include <algorithm>
 
 void apply_stencil(GameState& game_state, int stencil_index, int x, int y, int direction) {
     const Stencil& stencil = game_state.stencils[stencil_index];
@@ -30,10 +28,10 @@ void apply_stencil(GameState& game_state, int stencil_index, int x, int y, int d
             } 
         }
     } 
-
+    
     // Shift pieces
     shift_pieces(board, direction);
-    
+
     // Reinsert punched pieces
     switch (direction) {
         case 0:
