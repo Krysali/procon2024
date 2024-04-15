@@ -1,6 +1,7 @@
 #include "ops.h"
 #include <iostream>
 #include <queue>
+#include <algorithm>
 
 void apply_stencil(GameState& game_state, int stencil_index, int x, int y, int direction) {
     const Stencil& stencil = game_state.stencils[stencil_index];
@@ -13,29 +14,75 @@ void apply_stencil(GameState& game_state, int stencil_index, int x, int y, int d
     int overlap_y_end = std::min(board.height, y + stencil.height);
 
     // Store punched-out pieces
-    std::queue<int> punched_pieces; 
+    struct Piece {
+        int x;
+        int y;
+        int value;
+    };
+    std::vector<Piece> punched_pieces;
+
     for (int i = overlap_y_start; i < overlap_y_end; ++i) {
         for (int j = overlap_x_start; j < overlap_x_end; ++j) {
             int stencil_i = i - y;
             int stencil_j = j - x;
             if (stencil.cells[stencil_i][stencil_j]) {
-                punched_pieces.push(board.pieces[i][j]);
+                punched_pieces.push_back({i, j, board.pieces[i][j]});
                 board.pieces[i][j] = -1; // Mark as empty
             } 
         }
     } 
-    display_game_state(game_state);
+
     // Shift pieces
     shift_pieces(board, direction);
-    display_game_state(game_state);
+
     // Reinsert punched pieces
-    for (int i = 0; i < board.height; ++i) {
-        for (int j = 0; j < board.width; ++j) {
-            if (board.pieces[i][j] == -1) {
-                board.pieces[i][j] = punched_pieces.front();
-                punched_pieces.pop(); 
+    switch (direction) {
+        case 0:
+            std::reverse(punched_pieces.begin(), punched_pieces.end());
+            for (int i = 0; i < board.width; ++i) {
+                int current_y = board.height - 1;
+                for (auto& piece : punched_pieces) {
+                    if (piece.y == i) {
+                        board.pieces[current_y][i] = piece.value;
+                        current_y--;
+                    }
+                }
             }
-        }
+        break;
+        case 1:
+            for (int i = 0; i < board.width; ++i) {
+                int current_y = 0;
+                for (auto& piece : punched_pieces) {
+                    if (piece.y == i) {
+                        board.pieces[current_y][i] = piece.value;
+                        current_y++;
+                    }
+                }
+            }
+        break;
+        case 2:
+        std::reverse(punched_pieces.begin(), punched_pieces.end());
+            for (int i = 0; i < board.height; ++i) {
+                int current_x = board.width - 1;
+                for (auto& piece : punched_pieces) {
+                    if (piece.x == i) {
+                        board.pieces[i][current_x] = piece.value;
+                        current_x--;
+                    }
+                }
+            }
+        break;
+        case 3:
+            for (int i = 0; i < board.height; ++i) {
+                int current_x = 0;
+                for (auto& piece : punched_pieces) {
+                    if (piece.x == i) {
+                        board.pieces[i][current_x] = piece.value;
+                        current_x++;
+                    }
+                }
+            }
+        break;
     }
     game_state.num_moves++;
 }

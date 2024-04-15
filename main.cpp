@@ -3,9 +3,11 @@
 using namespace std;
 
 int main() {
+    
     // Create a GameState
     GameState game_state;
     game_state.stencils = GenerateStencils();
+    
     game_state.board = {7, 6, {
             {1, 0, 1, 1, 2, 2, 1},
             {2, 3, 1, 1, 0, 0, 2},
@@ -16,7 +18,7 @@ int main() {
         }
     };
     game_state.num_moves = 0;
-    game_state.stencils.push_back({3, 3, {{false, true, false}, {true, false, true}, {true, true, false}}});
+    game_state.stencils.push_back({3, 3, {{false, true, false}, {true, true, true}, {true, true, false}}});
 
 
 
@@ -24,9 +26,11 @@ int main() {
     cout << "Initial Game State:" << endl;
     display_game_state(game_state);
 
-    apply_stencil(game_state, 25, 1, 2, 1);
+    apply_stencil(game_state, 25, 1, 2, 0);
     display_game_state(game_state);
-    /* example test case
+
+    // exmple test case
+    /*
     game_state.board.width = 32;
     game_state.board.height = 32;
     game_state.board.pieces = {
@@ -66,9 +70,7 @@ int main() {
     game_state.num_moves = 0;
 
     display_game_state(game_state);
-    apply_stencil(game_state, 15, -6, 0, 2);
     
-
     display_game_state(game_state);
     */
     return 0;

@@ -1,0 +1,27 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cppbuild",
+			"label": "Build main.cpp",
+			"command": "c:\\msys64\\ucrt64\\bin\\g++.exe",
+			"args": [
+				"-fdiagnostics-color=always",
+				"-g",
+				"${fileDirname}\\main.cpp",
+				"${fileDirname}\\ops.cpp",
+				"${fileDirname}\\types.cpp",
+				"-o",
+				"${fileDirname}\\prog.exe"
+			],
+			"options": {
+				"cwd": "c:\\msys64\\ucrt64\\bin"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build",
+			"detail": "compiler: c:\\msys64\\ucrt64\\bin\\g++.exe"
+		}
+	]
+}
