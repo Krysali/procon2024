@@ -1,6 +1,5 @@
 #include "ops.h"
 #include <iostream>
-#include <queue>
 #include <algorithm>
 
 void apply_stencil(GameState& game_state, int stencil_index, int x, int y, int direction) {
