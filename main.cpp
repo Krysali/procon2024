@@ -33,6 +33,7 @@ int main() {
     display_game_state(game_state);
     apply_stencil(game_state, 25, 1, 2, 3);
     display_game_state(game_state);
+
     // example test case
     /*
     game_state.board.width = 32;
@@ -74,7 +75,10 @@ int main() {
     game_state.num_moves = 0;
 
     display_game_state(game_state);
-    
+    // performance test
+    for (int i = 0; i < 10000; i++)
+        for (int j = 0; j < 3; j++)
+            apply_stencil(game_state, 14+j, 0, 0, j);
     display_game_state(game_state);
     */
     return 0;

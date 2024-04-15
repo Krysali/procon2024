@@ -30,19 +30,18 @@ void apply_stencil(GameState& game_state, int stencil_index, int x, int y, int d
             } 
         }
     } 
-    display_game_state(game_state);
+
     // Shift pieces
     shift_pieces(board, direction);
-    display_game_state(game_state);
+    
     // Reinsert punched pieces
     switch (direction) {
         case 0:
-            std::reverse(punched_pieces.begin(), punched_pieces.end());
-            for (int i = 0; i < board.width; ++i) {
+            for (int x_index = 0; x_index < board.width; ++x_index) {
                 int current_y = board.height - 1;
-                for (auto& piece : punched_pieces) {
-                    if (piece.y == i) {
-                        board.pieces[current_y][i] = piece.value;
+                for (int piece_index = punched_pieces.size() - 1; piece_index >= 0; --piece_index){
+                    if (punched_pieces[piece_index].y == x_index) {
+                        board.pieces[current_y][x_index] = punched_pieces[piece_index].value;
                         current_y--;
                     }
                 }
@@ -51,21 +50,20 @@ void apply_stencil(GameState& game_state, int stencil_index, int x, int y, int d
         case 1:
             for (int i = 0; i < board.width; ++i) {
                 int current_y = 0;
-                for (auto& piece : punched_pieces) {
-                    if (piece.y == i) {
-                        board.pieces[current_y][i] = piece.value;
+                for (int j = 0; j < punched_pieces.size(); ++j) {
+                    if (punched_pieces[j].y == i) {
+                        board.pieces[current_y][i] = punched_pieces[j].value;
                         current_y++;
                     }
                 }
             }
         break;
         case 2:
-        std::reverse(punched_pieces.begin(), punched_pieces.end());
             for (int i = 0; i < board.height; ++i) {
                 int current_x = board.width - 1;
-                for (auto& piece : punched_pieces) {
-                    if (piece.x == i) {
-                        board.pieces[i][current_x] = piece.value;
+                for (int j = punched_pieces.size() - 1; j >= 0; --j) {
+                    if (punched_pieces[j].x == i) {
+                        board.pieces[i][current_x] = punched_pieces[j].value;
                         current_x--;
                     }
                 }
@@ -74,9 +72,9 @@ void apply_stencil(GameState& game_state, int stencil_index, int x, int y, int d
         case 3:
             for (int i = 0; i < board.height; ++i) {
                 int current_x = 0;
-                for (auto& piece : punched_pieces) {
-                    if (piece.x == i) {
-                        board.pieces[i][current_x] = piece.value;
+                for (int j = 0; j < punched_pieces.size(); ++j) {
+                    if (punched_pieces[j].x == i) {
+                        board.pieces[i][current_x] = punched_pieces[j].value;
                         current_x++;
                     }
                 }
