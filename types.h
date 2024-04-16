@@ -9,16 +9,20 @@ const int MAX_DIMENSION = 256;
 
 // Structure to represent a stencil
 struct Stencil {
-    int width;
-    int height;
+    int width, height;
     std::vector<std::vector<bool>> cells;  // Use bool for 0/1 values
 };
 
 // Structure to represent the game board
 struct Board {
-    int width;
-    int height;
+    int width, height;
     std::vector<std::vector<int>> pieces;
+};
+
+struct Move {
+    int stencil_index;
+    int x, y;
+    int direction;
 };
 
 // Structure to represent the entire game state
@@ -27,6 +31,7 @@ struct GameState {
     Board goal_state;
     std::vector<Stencil> stencils;  // Includes both fixed and general stencils
     int num_moves;
+    std::vector<Move> moves;
 };
 
 // Function to read json file
