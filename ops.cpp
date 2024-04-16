@@ -3,7 +3,7 @@
 void apply_stencil(GameState& game_state, int stencil_index, int x, int y, int direction) {
     const Stencil& stencil = game_state.stencils[stencil_index];
     Board& board = game_state.board;
-
+    
     // Calculate overlap boundaries
     int overlap_x_start = std::max(0, x);
     int overlap_y_start = std::max(0, y); 
@@ -28,10 +28,10 @@ void apply_stencil(GameState& game_state, int stencil_index, int x, int y, int d
             } 
         }
     } 
-    
+    display_game_state(game_state);
     // Shift pieces
     shift_pieces(board, direction);
-
+    display_game_state(game_state);
     // Reinsert punched pieces
     switch (direction) {
         case 0:
@@ -83,69 +83,48 @@ void apply_stencil(GameState& game_state, int stencil_index, int x, int y, int d
 }
 
 void shift_pieces(Board& board, int direction) {
-    switch (direction) {
-        case 0: // Up
-            for (int j = 0; j < board.width; ++j) {
-                int write_index = 0;
-                for (int i = 0; i < board.height; ++i) {
-                    if (board.pieces[i][j] != -1) {
-                        board.pieces[write_index][j] = board.pieces[i][j];
-                        write_index++;
-                    }
-                }
-                // Fill remaining spaces with -1
-                for (int i = write_index; i < board.height; ++i) {
-                    board.pieces[i][j] = -1;
-                }
-            }
-            break;
-        case 1: // Down
-            for (int j = 0; j < board.width; ++j) {
-                int write_index = board.height - 1;
-                for (int i = board.height - 1; i >= 0; --i) {
-                    if (board.pieces[i][j] != -1) {
-                        board.pieces[write_index][j] = board.pieces[i][j];
-                        write_index--;
-                    }
-                }
-                // Fill remaining spaces with -1
-                for (int i = write_index; i >= 0; --i) {
-                    board.pieces[i][j] = -1;
-                }
-            }
-            break;
+    int start, end, step, write_index;
 
-        case 2: // Left
-            for (int i = 0; i < board.height; ++i) {
-                int write_index = 0;
-                for (int j = 0; j < board.width; ++j) {
-                    if (board.pieces[i][j] != -1) {
-                        board.pieces[i][write_index] = board.pieces[i][j];
-                        write_index++;
-                    }
-                }
-                // Fill remaining spaces with -1
-                for (int j = write_index; j < board.width; ++j) {
-                    board.pieces[i][j] = -1;
-                } 
-            }
-            break;
+    if (direction % 2 == 0) { 
+        start = 0;
+        end = (direction == 0) ? board.height : board.width;
+        step = 1;
+    } else {
+        start = (direction == 1) ? board.height - 1 : board.width - 1;
+        end = -1;
+        step = -1;
+    }
 
-        case 3: // Right
-            for (int i = 0; i < board.height; ++i) {
-                int write_index = board.width - 1;
-                for (int j = board.width - 1; j >= 0; --j) {
-                    if (board.pieces[i][j] != -1) {
-                        board.pieces[i][write_index] = board.pieces[i][j];
-                        write_index--;
-                    }
-                }
-                // Fill remaining spaces with -1
-                for (int j = write_index; j >= 0; --j) { 
-                    board.pieces[i][j] = -1;
+    if (direction < 2) { // Vertical shift
+        for (int j = 0; j < board.width; ++j) {
+            write_index = (direction == 0) ? 0 : board.height - 1;
+            for (int i = start; i != end; i += step) {
+                if (board.pieces[i][j] != -1) {
+                    board.pieces[write_index][j] = board.pieces[i][j];
+                    write_index += step;
                 }
             }
-            break;
+            // Fill remaining spaces with -1
+            while (write_index != end) {
+                board.pieces[write_index][j] = -1;
+                write_index += step;
+            }
+        }
+    } else { // Horizontal shift
+        for (int i = 0; i < board.height; ++i) {
+            write_index = (direction == 2) ? 0 : board.width - 1;
+            for (int j = start; j != end; j += step) {
+                if (board.pieces[i][j] != -1) {
+                    board.pieces[i][write_index] = board.pieces[i][j];
+                    write_index += step;
+                }
+            }
+            // Fill remaining spaces with -1
+            while (write_index != end) {
+                board.pieces[i][write_index] = -1;
+                write_index += step;
+            }
+        }
     }
 }
 
