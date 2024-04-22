@@ -7,3 +7,6 @@ use launch.json and tasks.json inside vscode or do:
 for `algo_impl` branch:
 > ```g++ main.cpp types.cpp ops.cpp astar.cpp -o <output_filename>.exe```
 
+## function documentation
+
+> TODO
