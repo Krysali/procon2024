@@ -7,8 +7,8 @@
 
 const int MAX_DIMENSION = 256;
 
-// Structure to represent a stencil
-struct Stencil {
+// Structure to represent a die
+struct Die {
     int width, height;
     std::vector<std::vector<bool>> cells;  // Use bool for 0/1 values
 };
@@ -20,7 +20,7 @@ struct Board {
 };
 
 struct Move {
-    int stencil_index;
+    int die_index;
     int x, y;
     int direction;
 };
@@ -29,7 +29,7 @@ struct Move {
 struct GameState {
     Board board;
     Board goal_state;
-    std::vector<Stencil> stencils;  // Includes both fixed and general stencils
+    std::vector<Die> dies;  // Includes both fixed and general dies
     int num_moves;
     std::vector<Move> moves;
 };
@@ -40,7 +40,7 @@ std::string ReadJsonFile(const std::string& file_path);
 // Function to parse json
 GameState ParseJson(const std::string& problem_json);
 
-// Function to generate stencils
-std::vector<Stencil> GenerateStencils();
+// Function to generate dies
+std::vector<Die> GenerateFixedDies();
 
 #endif // TYPES_H

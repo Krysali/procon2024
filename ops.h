@@ -4,8 +4,8 @@
 #include "types.h"
 #include <iostream>
 
-// Function to apply a stencil to the board
-void apply_stencil(GameState& game_state, int stencil_index, int x, int y, int direction);
+// Function to apply a die to the board
+void apply_die(GameState& game_state, int die_index, int x, int y, int direction);
 
 // Function to shift pieces on the board in a given direction
 void shift_pieces(Board& board, int direction);

@@ -19,7 +19,7 @@ std::string ReadJsonFile(const std::string& file_path) {
 
 GameState ParseJson(const std::string& problem_json) {
     GameState game_state;
-    game_state.stencils = GenerateStencils();
+    game_state.dies = GenerateFixedDies();
     auto json_data = nlohmann::json::parse(problem_json);
     auto board_data = json_data["board"];
 
@@ -47,18 +47,18 @@ GameState ParseJson(const std::string& problem_json) {
     }
     game_state.goal_state = {board_data["width"], board_data["height"], goal_pieces};
 
-    // Parse stencil data
-    auto general_stencils_data = json_data["general"];
-    for (auto& stencil : general_stencils_data["patterns"]) {
-        std::vector<std::vector<bool>> general_stencil_cells;
-        for (auto& row : stencil["cells"]) {
-            std::vector<bool> stencil_row;
+    // Parse die data
+    auto general_dies_data = json_data["general"];
+    for (auto& die : general_dies_data["patterns"]) {
+        std::vector<std::vector<bool>> general_die_cells;
+        for (auto& row : die["cells"]) {
+            std::vector<bool> die_row;
             for (char& c : row.get<std::string>()) {
-                stencil_row.push_back(c == '1');
+                die_row.push_back(c == '1');
             }
-            general_stencil_cells.push_back(stencil_row);
+            general_die_cells.push_back(die_row);
         }
-        game_state.stencils.push_back({stencil["width"], stencil["height"], general_stencil_cells});
+        game_state.dies.push_back({die["width"], die["height"], general_die_cells});
     }
 
     game_state.num_moves = 0;
@@ -66,46 +66,46 @@ GameState ParseJson(const std::string& problem_json) {
     return game_state;
 }
 
-std::vector<Stencil> GenerateStencils() {
-    std::vector<Stencil> stencils;
+std::vector<Die> GenerateFixedDies() {
+    std::vector<Die> dies;
 
     for (int size = 1; size <= MAX_DIMENSION; size *= 2) {
-        // Type I Stencil: All cells are 1
-        Stencil type1_stencil;
-        type1_stencil.width = size;
-        type1_stencil.height = size;
-        type1_stencil.cells.resize(size, std::vector<bool>(size, true));
-        stencils.push_back(type1_stencil);
+        // Type I Die: All cells are 1
+        Die type1_die;
+        type1_die.width = size;
+        type1_die.height = size;
+        type1_die.cells.resize(size, std::vector<bool>(size, true));
+        dies.push_back(type1_die);
 
-        // Type II Stencil: Even rows are 1, odd rows are 0
-        Stencil type2_stencil;
-        type2_stencil.width = size;
-        type2_stencil.height = size;
-        type2_stencil.cells.resize(size);
+        // Type II Die: Even rows are 1, odd rows are 0
+        Die type2_die;
+        type2_die.width = size;
+        type2_die.height = size;
+        type2_die.cells.resize(size);
         if (size != 1) {
             for (int i = 0; i < size; ++i) {
-                type2_stencil.cells[i].resize(size);
+                type2_die.cells[i].resize(size);
                 for (int j = 0; j < size; ++j) {
-                    type2_stencil.cells[i][j] = (i % 2 == 0);
+                    type2_die.cells[i][j] = (i % 2 == 0);
                 }
             }
-            stencils.push_back(type2_stencil);
+            dies.push_back(type2_die);
         }
-        // Type III Stencil: Even columns are 1, odd columns are 0
-        Stencil type3_stencil;
-        type3_stencil.width = size;
-        type3_stencil.height = size;
-        type3_stencil.cells.resize(size);
+        // Type III Die: Even columns are 1, odd columns are 0
+        Die type3_die;
+        type3_die.width = size;
+        type3_die.height = size;
+        type3_die.cells.resize(size);
         if (size != 1) {
             for (int i = 0; i < size; ++i) {
-                type3_stencil.cells[i].resize(size);
+                type3_die.cells[i].resize(size);
                 for (int j = 0; j < size; ++j) {
-                    type3_stencil.cells[i][j] = (j % 2 == 0);
+                    type3_die.cells[i][j] = (j % 2 == 0);
                 }
             }
-        stencils.push_back(type3_stencil);
+        dies.push_back(type3_die);
         }
     }
 
-    return stencils;
+    return dies;
 }

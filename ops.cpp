@@ -1,14 +1,14 @@
 #include "ops.h"
 
-void apply_stencil(GameState& game_state, int stencil_index, int x, int y, int direction) {
-    const Stencil& stencil = game_state.stencils[stencil_index];
+void apply_die(GameState& game_state, int die_index, int x, int y, int direction) {
+    const Die& die = game_state.dies[die_index];
     Board& board = game_state.board;
     
     // Calculate overlap boundaries
     int overlap_x_start = std::max(0, x);
     int overlap_y_start = std::max(0, y); 
-    int overlap_x_end = std::min(board.width, x + stencil.width);
-    int overlap_y_end = std::min(board.height, y + stencil.height);
+    int overlap_x_end = std::min(board.width, x + die.width);
+    int overlap_y_end = std::min(board.height, y + die.height);
 
     // Store punched-out pieces
     struct Piece {
@@ -20,9 +20,9 @@ void apply_stencil(GameState& game_state, int stencil_index, int x, int y, int d
 
     for (int i = overlap_y_start; i < overlap_y_end; ++i) {
         for (int j = overlap_x_start; j < overlap_x_end; ++j) {
-            int stencil_i = i - y;
-            int stencil_j = j - x;
-            if (stencil.cells[stencil_i][stencil_j]) {
+            int die_i = i - y;
+            int die_j = j - x;
+            if (die.cells[die_i][die_j]) {
                 punched_pieces.push_back({i, j, board.pieces[i][j]});
                 board.pieces[i][j] = -1; // Mark as empty
             } 

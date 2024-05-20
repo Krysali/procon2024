@@ -11,7 +11,7 @@ int main() {
     cout << "Initial Game State:" << endl;
     display_game_state(game_state);
 
-    apply_stencil(game_state, 25, 1, 1, 2);
+    apply_die(game_state, 25, 1, 1, 2);
 
     display_game_state(game_state);
 
