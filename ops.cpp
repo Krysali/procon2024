@@ -28,10 +28,10 @@ void apply_die(GameState& game_state, int die_index, int x, int y, int direction
             } 
         }
     } 
-    display_game_state(game_state);
+
     // Shift pieces
     shift_pieces(board, direction);
-    display_game_state(game_state);
+    
     // Reinsert punched pieces
     switch (direction) {
         case 0:
