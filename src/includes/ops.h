@@ -1,7 +1,7 @@
 #ifndef OPS_H
 #define OPS_H
 
-#include "types.h"
+#include <types.h>
 #include <iostream>
 
 // Function to apply a die to the board

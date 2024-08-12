@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include "json.hpp"
+#include <json.hpp>
 
 const int MAX_DIMENSION = 256;
 

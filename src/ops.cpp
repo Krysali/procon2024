@@ -1,4 +1,4 @@
-#include "ops.h"
+#include <ops.h>
 
 void apply_die(GameState& game_state, int die_index, int x, int y, int direction) {
     const Die& die = game_state.dies[die_index];
