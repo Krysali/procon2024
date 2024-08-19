@@ -1,28 +1,47 @@
 #include <bits/stdc++.h>
-#include <vector>
-#include <queue>
-#include <unordered_map>
+#include<iostream>
+#include<map>
+#include<set>
+#include<cmath>
+#include<queue>
+#include<deque>
+#include<stack>
+#include<string>
+#include<math.h>
+#include<vector>
+#include<stdio.h>
+#include<utility>
+#include<iomanip>
+#include<string.h>
+#include<limits.h>
+#include<algorithm>
+#include<functional>
+#include<unordered_map> 
+using namespace std;
 
-using namespace std ; 
+#pragma GCC target("popcnt")
+#define MOD 1000000007
+// #define int long long
+#define ss second
+#define ff first
+#define endl '\n'
+
 const int DOWN = 0;
 const int UP = 1;
 const int LEFT = 2;
 const int RIGHT = 3;
 
-
-
 struct Node {
-    std::vector<std::vector<int>> board;
-    std::vector<Node*> neighbors;
+    vector<vector<int>> board;
+    vector<Node*> neighbors;
 };
-
 
 struct PathNode {
     Node* node;
-    std::vector<std::tuple<int, int, int, int>> path;
+    vector<tuple<int, int, int, int>> path;
 };
 
-void shift_pieces(std::vector<std::vector<int>>& board, int direction) {
+void shift_pieces(vector<vector<int>>& board, int direction) {
     int board_width = board[0].size();
     int board_height = board.size();
     int start, end, step, write_index;
@@ -70,27 +89,23 @@ void shift_pieces(std::vector<std::vector<int>>& board, int direction) {
     }
 }
 
-
-
-void apply_die(std::vector<std::vector<int>>& board, const std::vector<std::vector<int>>& die, int x, int y, int direction) {
+void apply_die(vector<vector<int>>& board, const vector<vector<int>>& die, int x, int y, int direction) {
     int board_width = board[0].size();
     int board_height = board.size();
     int die_width = die[0].size();
     int die_height = die.size();
     
-
-    int overlap_x_start = std::max(0, x);
-    int overlap_y_start = std::max(0, y); 
-    int overlap_x_end = std::min(board_width, x + die_width);
-    int overlap_y_end = std::min(board_height, y + die_height);
-
+    int overlap_x_start = max(0, x);
+    int overlap_y_start = max(0, y); 
+    int overlap_x_end = min(board_width, x + die_width);
+    int overlap_y_end = min(board_height, y + die_height);
 
     struct Piece {
         int x;
         int y;
         int value;
     };
-    std::vector<Piece> punched_pieces;
+    vector<Piece> punched_pieces;
 
     for (int i = overlap_y_start; i < overlap_y_end; ++i) {
         for (int j = overlap_x_start; j < overlap_x_end; ++j) {
@@ -98,15 +113,13 @@ void apply_die(std::vector<std::vector<int>>& board, const std::vector<std::vect
             int die_j = j - x;
             if (die[die_i][die_j]) {
                 punched_pieces.push_back({i, j, board[i][j]});
-                board[i][j] = -1; // Mark as empty
+                board[i][j] = -1; 
             } 
         }
     } 
 
-
     shift_pieces(board, direction);
     
-
     switch (direction) {
         case DOWN:
             for (int x_index = 0; x_index < board_width; ++x_index) {
@@ -155,30 +168,26 @@ void apply_die(std::vector<std::vector<int>>& board, const std::vector<std::vect
     }
 }
 
-
-
-std::string board_to_string(const std::vector<std::vector<int>>& board) {
-    std::string result;
+string board_to_string(const vector<vector<int>>& board) {
+    string result;
     for (const auto& row : board) {
         for (int cell : row) {
-            result += std::to_string(cell) + ",";
+            result += to_string(cell) + ",";
         }
         result += ";";
     }
     return result;
 }
 
-
 int poooo= 0 ; 
 
-std::vector<std::tuple<int, int, int, int>> bfs_find_path(const std::vector<std::vector<int>>& startBoard,
-                                                          const std::vector<std::vector<int>>& finalBoard,
-                                                          const std::vector<std::vector<std::vector<int>>>& dies) {
-    std::unordered_map<std::string, Node*> graph;
-    std::queue<PathNode> to_visit;
-    std::unordered_map<std::string, bool> visited;
+vector<tuple<int, int, int, int>> bfs_find_path(const vector<vector<int>>& startBoard,
+                                                const vector<vector<int>>& finalBoard,
+                                                const vector<vector<vector<int>>>& dies) {
+    unordered_map<string, Node*> graph;
+    queue<PathNode> to_visit;
+    unordered_map<string, bool> visited;
 
-    // Initialize the start node
     Node* start_node = new Node{startBoard, {}};
     graph[board_to_string(startBoard)] = start_node;
     to_visit.push({start_node, {}});
@@ -188,20 +197,17 @@ std::vector<std::tuple<int, int, int, int>> bfs_find_path(const std::vector<std:
         Node* current_node = current_path_node.node;
         to_visit.pop();
 
-        std::string current_board_str = board_to_string(current_node->board);
+        string current_board_str = board_to_string(current_node->board);
         if (visited[current_board_str]) continue;
         visited[current_board_str] = true;
 
-        // Check if the current state is the final state
         if (current_node->board == finalBoard) {
-            // Clean up
             for (auto& entry : graph) {
                 delete entry.second;
             }
-            return current_path_node.path;  // Return the path to the final state
+            return current_path_node.path; 
         }
 
-     
         for (int die_index = 0; die_index < dies.size(); ++die_index) {
             const auto& die = dies[die_index];
             int board_width = current_node->board[0].size();
@@ -210,12 +216,11 @@ std::vector<std::tuple<int, int, int, int>> bfs_find_path(const std::vector<std:
             for (int x = 0; x < board_width; ++x) {
                 for (int y = 0; y < board_height; ++y) {
                     for (int direction = DOWN; direction <= RIGHT; ++direction) {
-                        std::vector<std::vector<int>> new_board = current_node->board;
+                        vector<vector<int>> new_board = current_node->board;
                         apply_die(new_board, die, x, y, direction);
 
-                        std::string new_board_str = board_to_string(new_board);
+                        string new_board_str = board_to_string(new_board);
 
-                     
                         if (graph.find(new_board_str) == graph.end()) {
                             Node* new_node = new Node{new_board, {}};
 
@@ -223,14 +228,14 @@ std::vector<std::tuple<int, int, int, int>> bfs_find_path(const std::vector<std:
                             cout << "Suudriin huvilbar : "<< poooo;
                             cout << endl ;  
                             for (const auto& row : new_board) {
-                                 for (int cell : row) {
-                	                cout << cell<<"  " ;
+                                for (int cell : row) {
+                                    cout << cell<<"  " ;
                                 }
                                 cout << endl ; 
                             }
                             graph[new_board_str] = new_node;
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
-                            std::vector<std::tuple<int, int, int, int>> new_path = current_path_node.path;
+                            vector<tuple<int, int, int, int>> new_path = current_path_node.path;
                             new_path.emplace_back(x, y, die_index, direction);
 
                             to_visit.push({new_node, new_path});
@@ -241,7 +246,6 @@ std::vector<std::tuple<int, int, int, int>> bfs_find_path(const std::vector<std:
         }
     }
 
-    // Clean up
     for (auto& entry : graph) {
         delete entry.second;
     }
@@ -251,7 +255,7 @@ std::vector<std::tuple<int, int, int, int>> bfs_find_path(const std::vector<std:
 
 int main() {
 
-    std::vector<std::vector<int>> startBoard = {  
+    vector<vector<int>> startBoard = {  
         {3,3,2,3},
         {3,3,2,0},
         {3,3,2,3},
@@ -260,7 +264,7 @@ int main() {
         // {1 ,0}   
         };
        
-    std::vector<std::vector<int>> finalBoard = {   
+    vector<vector<int>> finalBoard = {   
         {3,3,3,3},
         {2,2,2,2},
         {3,3,3,3},
@@ -269,8 +273,7 @@ int main() {
         // {1, 3}
         };
 
-
-    std::vector<std::vector<std::vector<int>>> dies = { 
+    vector<vector<vector<int>>> dies = {
         {{1}},
         {{1,1}, {1,1}},
         {{1,1}, {0,0}},
@@ -278,21 +281,14 @@ int main() {
         {{1,1,1,1}, {1,1,1,1}, {1,1,1,1}, {1,1,1,1}},
         {{1,1,1,1}, {0,0,0,0}, {1,1,1,1}, {0,0,0,0}},
         {{1,0,1,0}, {1,0,1,0}, {1,0,1,0}, {1,0,1,0}}
-       
     };
 
-  
-    std::vector<std::tuple<int, int, int, int>> path = bfs_find_path(startBoard, finalBoard, dies);
+    vector<tuple<int, int, int, int>> path = bfs_find_path(startBoard, finalBoard, dies);
 
-    if (path.empty()) {
-        std::cout << "bandi " << std::endl;
-    } else {
-        std::cout << " Oldtsooon bndi " << std::endl;
-        for (const auto& step : path) {
-            int x, y, die_index, direction;
-            std::tie(x, y, die_index, direction) = step;
-            std::cout << "Die  " << die_index << " bairlal (" << x << ", " << y << ")  direction " << direction << std::endl;
-        }
+    for (const auto& step : path) {
+        int x, y, die_index, direction;
+        tie(x, y, die_index, direction) = step;
+        cout << "X: " << x << " Y: " << y << " Die Index: " << die_index << " Direction: " << direction << endl;
     }
 
     return 0;
