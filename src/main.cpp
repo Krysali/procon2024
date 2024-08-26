@@ -3,7 +3,6 @@
 using namespace std;
 
 int main() {
-    cout << "compiled using CMake on 2024-08-12" << endl;
     // Read the JSON file
     GameState game_state = ParseJson(ReadJsonFile("problem.json"));
 
