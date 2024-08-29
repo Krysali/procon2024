@@ -25,12 +25,19 @@ std::string GetRequest(const std::string& url, const std::string& token) {
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
         res = curl_easy_perform(curl);
+
+        int http_code = 0;
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
+        std::cout << "HTTP Code: " << http_code << std::endl;
+        
         curl_slist_free_all(headers);
         curl_easy_cleanup(curl);
 
         if (res != CURLE_OK) {
             throw std::runtime_error("curl_easy_perform() failed: " + std::string(curl_easy_strerror(res)));
-        }  else if (readData == "AccessTimeError") {
+        } else if (http_code != 200) {
+            throw std::runtime_error("HTTP Error: " + std::to_string(http_code));
+        } else if (readData == "AccessTimeError") {
             throw std::runtime_error("Access Time Error");
         }
     }
@@ -57,11 +64,18 @@ std::string PostRequest(const std::string& url, const std::string& token, const 
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
         res = curl_easy_perform(curl);
+
+        int http_code = 0;
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
+        std::cout << "HTTP Code: " << http_code << std::endl;
+
         curl_slist_free_all(headers);
         curl_easy_cleanup(curl);
 
         if (res != CURLE_OK) {
             throw std::runtime_error("curl_easy_perform() failed: " + std::string(curl_easy_strerror(res)));
+        } else if (http_code != 200) {
+            throw std::runtime_error("HTTP Error: " + std::to_string(http_code));
         }
     }
 

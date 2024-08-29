@@ -14,11 +14,14 @@ int main() {
     // Display the game state
     cout << "Initial Game State:" << endl;
     display_game_state(game_state);
-    for (int i = 0; i < 9000; i++)
-        apply_die(game_state, 25, 1, 1, i % 4);
+
+    // example die application
+    apply_die(game_state, 25, 6, 1, 0);
 
     display_game_state(game_state);
 
+    // Post the answer and get the revision
+    cout << OutputJson(game_state) << endl;
     auto revision = PostRequest(serverUrl + "/answer", teamToken, OutputJson(game_state));
     cout << revision;
 
