@@ -14,16 +14,13 @@ int main() {
     // Display the game state
     cout << "Initial Game State:" << endl;
     display_game_state(game_state);
-
-    apply_die(game_state, 25, 1, 1, 2);
+    for (int i = 0; i < 9000; i++)
+        apply_die(game_state, 25, 1, 1, i % 4);
 
     display_game_state(game_state);
 
-    std::string jsonData = "{\"n\":3,\"ops\":[{\"p\":4,\"x\":1,\"y\":1,\"s\":2},{\"p\":11,\"x\":3,\"y\":-12,\"s\":3},{\"p\":25,\"x\":3,\"y\":3,\"s\":0}]}";
-
-    // POST request to submit an answer
-    std::string answerResponse = PostRequest(serverUrl + "/answer", teamToken, jsonData);
-    std::cout << "Answer Response:\n" << answerResponse << std::endl;
+    auto revision = PostRequest(serverUrl + "/answer", teamToken, OutputJson(game_state));
+    cout << revision;
 
     return 0;
 }

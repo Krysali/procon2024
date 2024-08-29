@@ -38,7 +38,6 @@ std::string GetRequest(const std::string& url, const std::string& token) {
     return readData;
 }
 
-// Function to perform a POST request
 std::string PostRequest(const std::string& url, const std::string& token, const std::string& jsonData) {
     CURL* curl;
     CURLcode res;

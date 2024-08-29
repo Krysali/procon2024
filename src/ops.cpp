@@ -79,6 +79,8 @@ void apply_die(GameState& game_state, int die_index, int x, int y, int direction
             }
         break;
     }
+    // add move to game state
+    game_state.moves.push_back({die_index, x, y, direction});
     game_state.num_moves++;
 }
 

@@ -19,6 +19,7 @@ struct Board {
     std::vector<std::vector<int>> pieces;
 };
 
+// Structure to represent a move
 struct Move {
     int die_index;
     int x, y;
@@ -34,11 +35,14 @@ struct GameState {
     std::vector<Move> moves;
 };
 
-// Function to read json file
+// DEPRECATED: Use only as a fallback when the API fails
 std::string ReadJsonFile(const std::string& file_path);
 
-// Function to parse json
+// Function to parse json data into a game state
 GameState ParseJson(const std::string& problem_json);
+
+// Function to output json using the game state
+std::string OutputJson(const GameState& game_state);
 
 // Function to generate dies
 std::vector<Die> GenerateFixedDies();
