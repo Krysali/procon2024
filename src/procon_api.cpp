@@ -29,7 +29,9 @@ std::string GetRequest(const std::string& url, const std::string& token) {
         curl_easy_cleanup(curl);
 
         if (res != CURLE_OK) {
-            std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
+            throw std::runtime_error("curl_easy_perform() failed: " + std::string(curl_easy_strerror(res)));
+        }  else if (readData == "AccessTimeError") {
+            throw std::runtime_error("Access Time Error");
         }
     }
 
@@ -60,7 +62,7 @@ std::string PostRequest(const std::string& url, const std::string& token, const 
         curl_easy_cleanup(curl);
 
         if (res != CURLE_OK) {
-            std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
+            throw std::runtime_error("curl_easy_perform() failed: " + std::string(curl_easy_strerror(res)));
         }
     }
 
