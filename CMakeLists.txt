@@ -6,6 +6,7 @@ add_executable(main
     src/main.cpp 
     src/ops.cpp 
     src/types.cpp
+    src/procon_api.cpp
 )
 
 # Specify include directories

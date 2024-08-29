@@ -31,6 +31,9 @@
 *.out
 *.app
 
+# server file
+!procon-server.exe
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
