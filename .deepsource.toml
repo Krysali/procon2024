@@ -1,6 +1,6 @@
 version = 1
 
-exclude_patterns = ["*json.hpp"]
+exclude_patterns = ["src/includes/nlohmann/json.hpp"]
 
 [[analyzers]]
 name = "cxx"
