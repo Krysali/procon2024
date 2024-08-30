@@ -14,7 +14,7 @@ std::string GetRequest(const std::string& url, const std::string& token) {
     std::string readData;
 
     curl = curl_easy_init();
-    if (curl) {
+    if (curl != nullptr) {
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readData);
@@ -51,7 +51,7 @@ std::string PostRequest(const std::string& url, const std::string& token, const 
     std::string readData;
 
     curl = curl_easy_init();
-    if (curl) {
+    if (curl != nullptr) {
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonData.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
