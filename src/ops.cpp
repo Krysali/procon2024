@@ -132,14 +132,8 @@ void shift_pieces(Board& board, int direction) {
 
 void display_game_state(const GameState& game_state) {
     const Board& board = game_state.board;
-    std::cout << "┏";
-    for (int i = 0; i < board.width * 2 + 1; ++i) {
-        std::cout << "━";
-    }
-    std::cout << "┓" << std::endl;
     // Iterate over rows of the board
     for (int row = 0; row < board.height; ++row) {
-        std::cout << "┃ ";
         // Iterate over pieces in each row
         for (int col = 0; col < board.width; ++col) {
             if (board.pieces[row][col] == -1) {
@@ -149,15 +143,9 @@ void display_game_state(const GameState& game_state) {
             }
             std::cout << " ";
         }
-        std::cout << "┃" << std::endl;
+        std::cout << std::endl;
     }
-    std::cout << "┗";
-    for (int i = 0; i < board.width * 2 + 1; ++i) {
-        std::cout << "━";
-    }
-    std::cout << "┛" << std::endl;
-
-    std::cout << "Number of moves: " << game_state.num_moves << std::endl;
+    std::cout << "Number of moves: " << game_state.num_moves << "\n\n";
 }
 
 bool is_solved(const GameState& game_state) {
