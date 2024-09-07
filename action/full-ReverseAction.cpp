@@ -43,7 +43,7 @@ void reverseTypeII(int X, int Y, int size, int s)
 
     if(isInside(X, Y)){
         if(!first) chosenRowNum++;
-        first = h % 2;
+        first = 1 ; 
     }else if(abs(Y) % 2 != 0){
         first = 0 ;
     }else if(abs(X) % 2 == 0){
@@ -56,7 +56,7 @@ void reverseTypeII(int X, int Y, int size, int s)
     cout << "otx:" << otx << " oty:" << oty << " obx:" << obx << " oby:" << oby << " w:" << w << " h:" << h << " chosenRowNum:" << chosenRowNum << " first:" << first << '\n';
 
     vector<int> rem[256], chosen[128];
-    
+
     if(s == 0){
 
         cout << "REM\n";
@@ -106,7 +106,6 @@ void reverseTypeII(int X, int Y, int size, int s)
             index++;
         }
     }
-    
     if(s == 1){
 
         cout << "CHOSEN\n";
@@ -163,29 +162,20 @@ void reverseTypeII(int X, int Y, int size, int s)
         }
 
     }
-// 
-
-
     if (s==2 ) {
         int count = 0 ; 
         for(int index_y = ((oby-oty+1)%2==0 ? oty: oty+1); index_y <= oby; index_y+=2){
             for(int index_x = otx; index_x < n-w; index_x++){                        
                 rem[count].push_back(board[index_y][index_x]);
-                cout << board[index_y][index_x] << " " ; 
             }  
-            cout << endl ; 
             count ++ ; 
         }
-        cout << endl ; 
         count = 0 ; 
         for(int index_y = ((oby-oty+1)%2==0 ? oty: oty+1); index_y <=oby; index_y+=2){
              for(int index_x = n-w;  index_x < n; index_x++){ 
-                chosen[count].push_back(board[index_y][index_x]);     
-                cout << board[index_y][index_x]<< " " ;           
+                chosen[count].push_back(board[index_y][index_x]);         
             }
-            cout <<endl; 
             count ++ ; 
-   
         }
         int cnt = 0;
         for ( int index_x=otx ; index_x<n ; index_x++){
@@ -193,10 +183,8 @@ void reverseTypeII(int X, int Y, int size, int s)
                 cnt= 0 ; 
                 for ( int index_y=((oby-oty+1)%2==0 ? oty: oty+1); index_y<=oby; index_y+=2 ){
                     board[index_y][index_x]=chosen[cnt][index_x-otx] ; 
-                    cnt ++ ; 
-                    
+                    cnt ++ ;   
                 }
-                
             }
             else {
                 cnt = 0 ; 
@@ -277,19 +265,45 @@ void reverseTypeIII(int X, int Y, int size, int s)
     cout << "otx:" << otx << " oty:" << oty << " obx:" << obx << " oby:" << oby << " w:" << w << " h:" << h << " chosenColNum:" << chosenColNum << " first:" << first << '\n';
 
     vector<int> rem[256], chosen[128];
+    if (s == 0) {
+        for(int index_y = oty; index_y < n-h; index_y++){
+            for(int index_x = ((obx-otx+1)%2==0 ? otx : otx+1); index_x <= obx; index_x+=2){                        
+                rem[index_y-(oty)].push_back(board[index_y][index_x]);
+            }  
+        }
+        for(int index_y = n-h; index_y < n; index_y++){
+            for(int index_x = ((obx-otx+1)%2==0 ? otx : otx+1);  index_x <= obx; index_x+=2){ 
+                chosen[index_y-(n-h)].push_back(board[index_y][index_x]);
+            }                 
+        }
+        int cnt = 0;
+        for ( int index_y=oty ; index_y<n ; index_y++){
+            if ( index_y<oty+h){
+                cnt= 0 ; 
+                for ( int index_x=((obx-otx+1)%2==0 ? otx : otx+1) ; index_x<=obx; index_x+=2 ){
+                    board[index_y][index_x]=chosen[index_y-oty][cnt] ; 
+                    cnt ++ ; 
+                }
+            }
+            else {
+                cnt = 0 ; 
+                for ( int index_x=((obx-otx+1)%2==0 ? otx : otx+1) ; index_x<=obx; index_x+=2 ){
+                    board[index_y][index_x]=rem[index_y-(oty+h)][cnt] ; 
+                    cnt ++ ; 
+                }
+            }
+        }  
+    }
 
-    if (s == 0) { 
+    if (s == 1) { 
         for(int index_y = h; index_y<=oby; index_y++){
             for(int index_x = ((obx-otx+1)%2==0 ? otx : otx+1); index_x<=obx; index_x+=2){                        
-                rem[index_y-(h)].push_back(board[index_y][index_x]);
-                cout << board[index_y][index_x]<< " " ; 
-
+                rem[index_y-(h)].push_back(board[index_y][index_x]); 
             }   
         }
         for(int index_y = 0; index_y < h; index_y++){
             for(int index_x = ((obx-otx+1)%2==0 ? otx : otx+1);  index_x <= obx; index_x+=2){ 
                 chosen[index_y].push_back(board[index_y][index_x]); 
-                cout << board[index_y][index_x]<< " " ;  
             }                
         }
         int cnt = 0;
@@ -310,55 +324,6 @@ void reverseTypeIII(int X, int Y, int size, int s)
             }
         }  
     }
-    if (s == 1) {
-        for(int index_y = oty; index_y < n-h; index_y++){
-            for(int index_x = ((obx-otx+1)%2==0 ? otx : otx+1); index_x <= obx; index_x+=2){                        
-                rem[index_y-(oty)].push_back(board[index_y][index_x]);
-            }  
-            cout << endl; 
-        }
-        cout << "bandi" << endl; 
-        for(int index_y = n-h; index_y < n; index_y++){
-            for(int index_x = ((obx-otx+1)%2==0 ? otx : otx+1);  index_x <= obx; index_x+=2){ 
-                cout << board[index_y][index_x]<< " ";
-            }                 
-        }
-        int cnt = 0;
-        for ( int index_y=oty ; index_y<n ; index_y++){
-            if ( index_y<oty+h){
-                cnt= 0 ; 
-                for ( int index_x=((obx-otx+1)%2==0 ? otx : otx+1) ; index_x<=obx; index_x+=2 ){
-                    board[index_y][index_x]=chosen[index_y-oty][cnt] ; 
-                    cout << chosen[index_y-oty][cnt]<< "  ";
-                    cnt ++ ; 
-                }
-            }
-            else {
-                cnt = 0 ; 
-                for ( int index_x=((obx-otx+1)%2==0 ? otx : otx+1) ; index_x<=obx; index_x+=2 ){
-                    board[index_y][index_x]=rem[index_y-(oty+h)][cnt] ; 
-                    cnt ++ ; 
-                }
-            }
-        }  
-    }
-
-// zuv avsan butsaaj hiihdee aldsan zuvhun (X =-1 baih uyd aldaa garj bn )
-// X Y size dir 
-// -1 0 8 2 
-//  0  1  2  3  4  5 
-//  6  7  8  9 10 11 
-// 12 13 14 15 16 17 
-// 18 19 20 21 22 23 
-// 24 25 26 27 28 29 
-// 30 31 32 33 34 35 
-
-// 3  0  4  1  5  2
-//  9  6 10  7 11  8
-// 15 12 16 13 17 14
-// 21 18 22 19 23 20
-// 27 24 28 25 29 26 
-// 33 30 34 31 35 32
 
     if(s == 2){
 
@@ -408,23 +373,6 @@ void reverseTypeIII(int X, int Y, int size, int s)
             index++;
         }
     }
-// aldaa 
-// 1 0 8 3 
-//  0  1  2  3  4  5 
-//  6  7  8  9 10 11 
-// 12 13 14 15 16 17 
-// 18 19 20 21 22 23 
-// 24 25 26 27 28 29 
-// 30 31 32 33 34 35 
-
-//  2  3  0  4  1  5 
-//  8  9  6 10  7 11
-// 14 15 12 16 13 17
-// 20 21 18 22 19 23
-// 26 27 24 28 25 29 
-// 32 33 30 34 31 35
-
-
     if(s == 3){
         // CHOSEN
         cout << "CHOSEN\n";
@@ -509,7 +457,7 @@ int main()
         int size, X, Y, dir;
         cin >> X >> Y >> size>>  dir;
         display();
-        reverseTypeIII(X, Y, size, dir);
+        reverseTypeII(X, Y, size, dir);
         display();
     // reverseTypeIII(2, 2, 4, 2);
     // display();
