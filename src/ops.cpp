@@ -141,7 +141,6 @@ void display_game_state(const GameState& game_state) {
             } else {
                 std::cout << board.pieces[row][col];
             }
-            std::cout << " ";
         }
         std::cout << std::endl;
     }
