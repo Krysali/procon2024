@@ -32,21 +32,15 @@ def convert_to_4_color_grayscale(image_path, width, height):
 
     return quantized_img
 
-def MapGenerate():
-    # Get user input picture path!!!!!!
+def MapGenerate(n, m, rand):
+    # Get user input picture path
     image_path = os.path.join(os.path.dirname(__file__), "image.png")
-    width = int(input("Enter the desired width (64-256): "))
-    height = int(input("Enter the desired height (64-256): "))
+    
+    height = n
+    width = m
 
     # Convert the image
-    try:
-        grayscale_array = convert_to_4_color_grayscale(image_path, width, height)
-        # print(grayscale_array)
-
-
-    except ValueError as e:
-        print("Error:", e)
-
+    grayscale_array = convert_to_4_color_grayscale(image_path, width, height)
 
     # Flatten the array and shuffle it
     flat_array = grayscale_array.flatten()
@@ -55,21 +49,11 @@ def MapGenerate():
     # Reshape the shuffled array to the original dimensions
     shuffled_array = flat_array.reshape(grayscale_array.shape)
 
-    # Save the shuffled array to a text file
-    with open("output_array.txt", "w") as file:
-        for row in grayscale_array:
-            file.write(" ".join(map(str, row)) + "\n")
-
-
-    start_strings = ["".join(map(str, row)) for row in shuffled_array]
-    goal_strings = ["".join(map(str, row)) for row in grayscale_array]
-    return (shuffled_array, grayscale_array)
-
-    # # width
-    # print(grayscale_array.shape[1])
-    # #height 
-    # print(grayscale_array.shape[0])
-    # #start state np array  (shuffled_array)
-    # print(start_strings)
-    # # goal state np array (grayscale_array)
-    # print (goal_strings)
+    # if random
+    random.shuffle(flat_array)
+    shuffled_array_prime = flat_array.reshape(grayscale_array.shape)
+    
+    if rand:
+        return(shuffled_array, shuffled_array_prime)
+    else:
+        return (shuffled_array, grayscale_array)
