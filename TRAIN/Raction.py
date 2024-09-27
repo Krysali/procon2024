@@ -14,7 +14,7 @@ def reverse_type_i(X, Y, size, s):
     oby = min(Y + size - 1, n - 1)
     w = obx - otx + 1
     h = oby - oty + 1
-    
+    # x m y n 
     if s == 0:
         rem = board[h:oby+1, otx:obx+1].copy()
         chosen = board[:h, otx:obx+1].copy()
@@ -26,8 +26,8 @@ def reverse_type_i(X, Y, size, s):
         board[oty:, otx:obx+1] = np.vstack((chosen, rem))
     
     elif s == 2:
-        rem = board[oty:oby+1, otx:n-w].copy()
-        chosen = board[oty:oby+1, n-w:].copy()
+        rem = board[oty:oby+1, otx:m-w].copy()
+        chosen = board[oty:oby+1, m-w:].copy()
         board[oty:oby+1, otx:] = np.hstack((chosen, rem))
     
     elif s == 3:
@@ -142,16 +142,16 @@ def reverse_type_ii(X, Y, size, s):
     if s == 2:
         count = 0
         for index_y in range((oby - oty + 1) % 2 == 0 and oty or oty + 1, oby + 1, 2):
-            for index_x in range(otx, n - w):
+            for index_x in range(otx, m - w):
                 rem[count].append(board[index_y][index_x])
             count += 1
         count = 0
         for index_y in range((oby - oty + 1) % 2 == 0 and oty or oty + 1, oby + 1, 2):
-            for index_x in range(n - w, n):
+            for index_x in range(m - w, m):
                 chosen[count].append(board[index_y][index_x])
             count += 1
         cnt = 0
-        for index_x in range(otx, n):
+        for index_x in range(otx, m):
             if index_x <= obx:
                 cnt = 0
                 for index_y in range((oby - oty + 1) % 2 == 0 and oty or oty + 1, oby + 1, 2):
