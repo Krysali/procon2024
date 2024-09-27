@@ -48,6 +48,10 @@ def MapGenerate(n, m, rand):
 
     # Reshape the shuffled array to the original dimensions
     shuffled_array = flat_array.reshape(grayscale_array.shape)
+   # # Save the shuffled array to a text file
+    # with open("output_array.txt", "w") as file:
+    #     for row in grayscale_array:
+    #         file.write(" ".join(map(str, row)) + "\n")
 
     # if random
     random.shuffle(flat_array)
