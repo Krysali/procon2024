@@ -1,5 +1,5 @@
-import cv2
 import numpy as np
+import cv2
 import random
 import os
 
@@ -32,43 +32,44 @@ def convert_to_4_color_grayscale(image_path, width, height):
 
     return quantized_img
 
-# Get user input picture path!!!!!!
-image_path = os.path.join(os.path.dirname(__file__), "data1.png")
-width = int(input("Enter the desired width (64-256): "))
-height = int(input("Enter the desired height (64-256): "))
+def MapGenerate():
+    # Get user input picture path!!!!!!
+    image_path = os.path.join(os.path.dirname(__file__), "image.png")
+    width = int(input("Enter the desired width (64-256): "))
+    height = int(input("Enter the desired height (64-256): "))
 
-# Convert the image
-try:
-    grayscale_array = convert_to_4_color_grayscale(image_path, width, height)
-    # print(grayscale_array)
-
-
-except ValueError as e:
-    print("Error:", e)
+    # Convert the image
+    try:
+        grayscale_array = convert_to_4_color_grayscale(image_path, width, height)
+        # print(grayscale_array)
 
 
-# Flatten the array and shuffle it
-flat_array = grayscale_array.flatten()
-random.shuffle(flat_array)
-
-# Reshape the shuffled array to the original dimensions
-shuffled_array = flat_array.reshape(grayscale_array.shape)
-
-# Save the shuffled array to a text file
-with open("output_array.txt", "w") as file:
-    for row in shuffled_array:
-        file.write(" ".join(map(str, row)) + "\n")
+    except ValueError as e:
+        print("Error:", e)
 
 
-start_strings = ["".join(map(str, row)) for row in shuffled_array]
-goal_strings = ["".join(map(str, row)) for row in grayscale_array]
+    # Flatten the array and shuffle it
+    flat_array = grayscale_array.flatten()
+    random.shuffle(flat_array)
+
+    # Reshape the shuffled array to the original dimensions
+    shuffled_array = flat_array.reshape(grayscale_array.shape)
+
+    # Save the shuffled array to a text file
+    with open("output_array.txt", "w") as file:
+        for row in grayscale_array:
+            file.write(" ".join(map(str, row)) + "\n")
 
 
-# width
-print(grayscale_array.shape[1])
-#height 
-print(grayscale_array.shape[0])
-#start state np array  (shuffled_array)
-print(start_strings)
-# goal state np array (grayscale_array)
-print (goal_strings)
+    start_strings = ["".join(map(str, row)) for row in shuffled_array]
+    goal_strings = ["".join(map(str, row)) for row in grayscale_array]
+    return (shuffled_array, grayscale_array)
+
+    # # width
+    # print(grayscale_array.shape[1])
+    # #height 
+    # print(grayscale_array.shape[0])
+    # #start state np array  (shuffled_array)
+    # print(start_strings)
+    # # goal state np array (grayscale_array)
+    # print (goal_strings)
