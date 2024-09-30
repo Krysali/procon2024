@@ -1,5 +1,8 @@
 import math
 import numpy as np
+from copy import deepcopy
+from random import randint
+from Actions import *
 
 # action(top_x, top_y, dice_num, action.dir)
 
@@ -7,16 +10,19 @@ def is_inside(x, y, n, m):
     if((x >= 0 and x < m) and (y >= 0 and y < n)): return 1
     else: return 0
 
-def apply_die(board, action):
+def apply_die(b, action):
 
-    # Set up
-    power = math.ceil(action.dice_num / 3)
-    size = int(math.pow(2, power))
-    dice_type = action.dice_num - ((power - 1) * 3)
+    board = np.copy(b)
+
+    # Set up                                        
+    power = math.ceil(action.dice_num / 3)                                        
+    size = int(math.pow(2, power))     
+    if power == 0: dice_type = 1                            
+    else: dice_type = action.dice_num - ((power - 1) * 3)                                        
 
     n, m = board.shape
 
-    print(f"n:{n}, m:{m}, power:{power}, size:{size}, dice_type:{dice_type}")
+    print(f"dice_num:{action.dice_num}, n:{n}, m:{m}, power:{power}, size:{size}, dice_type:{dice_type}, dir:{action.dir}")
 
     cut_pieces = []
 
@@ -28,21 +34,38 @@ def apply_die(board, action):
     width = x_end - x_start + 1
     height = y_end - y_start + 1
 
-    chosenRowNum = height // 2
-    chosenColNum = width // 2
+    chosen_row_num = math.floor(height / 2)
+    chosen_col_num = math.floor(width / 2)
+    first = 1
 
+    if dice_type == 2:
+        first = (height + 1) % 2
+        if is_inside(action.x, action.y, n, m):
+            if not first:
+                chosen_row_num += 1
+            first = 1
+        elif abs(action.y) % 2 != 0:
+            first = 0
+        elif abs(action.y) % 2 == 0:
+            if height % 2 == 1: #n bsn
+                first = 1
+                chosen_row_num += 1
 
-    if(is_inside(action.x, action.y, n, m)):
-        if (height % 2 == 1): chosenRowNum += 1
-        if (width % 2 == 1): chosenColNum += 1
-    else:
-        if(abs(action.y) % 2 == 0):
-            if(n % 2 == 1): chosenRowNum += 1
-        if(abs(action.x) % 2 == 0):
-            if(m % 2 == 1): chosenColNum += 1
-
+    if dice_type == 3:
+        first = (width + 1) % 2
+        if is_inside(action.x, action.y, n, m):
+            if not first: 
+                chosen_col_num += 1 
+            first = 1
+        elif abs(action.x) % 2 != 0:
+            first = 0
+        elif abs(action.x) % 2 == 0:
+            if width % 2 == 1: # m bsn
+                first = 1
+                chosen_col_num += 1
     
-    print(f"x_start:{x_start}, x_end:{x_end}, ystart:{y_start}, y_end:{y_end}, width:{width}, height:{height}, chosenRowNum:{chosenRowNum}, chosenColNum:{chosenColNum}")
+    print(f"x_start:{x_start}, x_end:{x_end}, ystart:{y_start}, y_end:{y_end}, width:{width}, height:{height}, chosen_row_num:{chosen_row_num}, chosen_col_num:{chosen_col_num}")
+    
 
     # CUT PHASE
     if dice_type == 1:
@@ -52,21 +75,44 @@ def apply_die(board, action):
                 board[r][c] = 0
 
     if dice_type == 2:
-        for r in range(y_end - 1, y_start - 1, -2):
-            for c in range(x_end, x_start - 1, -1):
-                cut_pieces.append(board[r][c])
-                board[r][c] = 0
-        cut_pieces = np.flip(cut_pieces, 0)
+        x = (first + 1) % 2
+        if is_inside(action.x, action.y, n, m):
+            for r in range(y_start, y_end + 1, 2):
+                for c in range(x_start, x_end + 1):
+                    cut_pieces.append(board[r][c])
+                    board[r][c] = 0
+        else:
+            for r in range(y_start + x, y_end + 1, 2):
+                for c in range(x_start, x_end + 1):
+                    cut_pieces.append(board[r][c])
+                    board[r][c] = 0
 
     if dice_type == 3:
-        for r in range(y_end, y_start - 1, -1):
-            for c in range(x_end - 1, x_start - 1, -2):
-                cut_pieces.append(board[r][c])
-                board[r][c] = 0
-        cut_pieces = np.flip(cut_pieces, 0)
+        x = (first + 1) % 2
+        if is_inside(action.x, action.y, n, m):
+            for r in range(y_start, y_end + 1):
+                for c in range(x_start, x_end + 1, 2):
+                    cut_pieces.append(board[r][c])
+                    board[r][c] = 0
+        else:
+            for r in range(y_start, y_end + 1):
+                for c in range(x_start + x, x_end + 1, 2):
+                    cut_pieces.append(board[r][c])
+                    board[r][c] = 0
 
     print(cut_pieces)
     print(board)
+
+    # Save the board after cut to a text file
+    with open("board.txt", "w") as file:
+        for row in board:
+            file.write(" ".join(map(str, row)) + "\n")
+    
+
+    # Save the cut pieces to a text file
+    with open("cutpieces.txt", "w") as file:
+            file.write(" ".join(map(str, cut_pieces)) + "\n")
+
 
     # SHIFT PHASE
 
@@ -110,6 +156,10 @@ def apply_die(board, action):
             for c in range(write_index, -1, -1):
                 board[r][c] = 0
 
+    # Save the shifted board to a text file
+    with open("shift.txt", "w") as file:
+        for row in board:
+            file.write(" ".join(map(str, row)) + "\n")
 
     # BBBT PHASE
     bxs = 0
@@ -135,17 +185,17 @@ def apply_die(board, action):
                 bxe = m - 1
             else:
                 bxs = 0
-                bye = width - 1
+                bxe = width - 1
     if dice_type == 2:
         if action.dir < 2:
             bxs = x_start
             bxe = x_end
             if action.dir == 0:
-                bys = n - chosenRowNum
+                bys = n - chosen_row_num
                 bye = n - 1
             else:
                 bys = 0
-                bye = chosenRowNum - 1
+                bye = chosen_row_num - 1
         else:
             bys = y_start
             bye = y_end
@@ -169,17 +219,18 @@ def apply_die(board, action):
             bys = y_start
             bye = y_end
             if action.dir == 2:
-                bxs = m - chosenColNum
+                bxs = m - chosen_col_num
                 bxe = m - 1
             else:
                 bxs = 0
-                bxe = chosenColNum - 1
+                bxe = chosen_col_num - 1
+    
+    print(f"bxs:{bxs}, bxe:{bxe}, bys:{bys}, bye:{bye}")
 
     if dice_type == 1:
         cnt = 0
         for r in range(bys, bye + 1):
             for c in range(bxs, bxe + 1):
-                print(f"r:{r}, c:{c}")
                 board[r][c] = cut_pieces[cnt]
                 cnt += 1
     elif dice_type == 2:
@@ -191,10 +242,40 @@ def apply_die(board, action):
                     cnt += 1
     else:
         cnt = 0
-        for c in range(bxs, bxe + 1):
-            for r in range(bys, bye + 1):
+        for r in range(bys, bye + 1):
+            for c in range(bxs, bxe + 1):
                 if board[r][c] == 0:
                     board[r][c] = cut_pieces[cnt]
                     cnt += 1
 
+    for r in range(n):
+        for c in range(m):
+            if board[r][c] == 0:
+                print("AAAAAAIIIIIIIIIIIINNNNNNNNN")
+                # Save the shuffled array to a text file
+
+    with open("bbbt.txt", "w") as file:
+        for row in board:
+            file.write(" ".join(map(str, row)) + "\n")
+            
     return board
+
+
+"""
+# Define the Action class
+class Action:
+    def __init__(self, x, y, dice_num, dir):
+        self.x = x
+        self.y = y
+        self.dice_num = dice_num
+        self.dir = dir
+
+
+A = np.arange(1, 37)
+A = A.reshape((6, 6))
+
+action = Action(1, 1, 12, 1)
+
+B = apply_die(A, action)
+print(B)
+"""
