@@ -38,7 +38,8 @@ struct GameState {
 std::string ReadJsonFile(const std::string& file_path);
 
 // Function to parse json
-GameState ParseJson(const std::string& problem_json);
+GameState ParseJson(const nlohmann::json& json_data);
+
 
 // Function to generate dies
 std::vector<Die> GenerateFixedDies();

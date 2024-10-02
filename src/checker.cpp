@@ -3,21 +3,22 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
-#include <unordered_map>
+#include <map>
 using namespace std;
+
 class Action{
     public:
         int x, y, diceNum, dir;
         Action(int x, int y, int diceNum, int dir){
-            this -> x = x;
-            this -> y = y;
-            this -> diceNum = diceNum;
-            this -> dir = dir;
-        }
+        this -> x = x;
+        this -> y = y;
+        this -> diceNum = diceNum;
+        this -> dir = dir;
+    }
 };
 
-vector<Action> actions;
-unordered_map<string, int> check;
+vector<Action> actions , actions2;
+map<vector<int>, int> check;
 
 int nearest(int x)
 {
@@ -33,9 +34,19 @@ bool isPowerOfTwo(int x)
     return isPowerOfTwo(x / 2);
 }
 
+bool log2check(int x) {
+    double sad = log2(x);
+    int tselmeg = sad * 10;
+    if(tselmeg % 10 == 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 int main()
 {
-   int topX, topY, botX, botY, width, height, mxSide, sz, diceNum;
+    int topX, topY, botX, botY, width, height, mxSide, sz, diceNum;
     std::cout << "test" << endl;
     // n = height, m = width
     int n, m;
@@ -326,7 +337,7 @@ int main()
         }
 
         // from right
-        if(1){
+        if( 1){
             topX = m - 1;
             topY = 0;
             botY = n - 1;
@@ -543,7 +554,7 @@ int main()
     }
 
     // right
-    if(1){
+    if( 1){
         topX = m - 1;
         for(topY = 1; topY < n - 1; topY++){
             for(height = 1; height <= (n - 1 - topY); height *= 2){
@@ -610,12 +621,13 @@ int main()
 
     // pairs of edges
     if(1){
-        sz = log2(n - 1) + 1;
        topY = 0;
-         for(topX = 1; topX < m - n; topX++){
+       sz = log2(n - 1) + 1;
+       for ( int szz = pow(2, sz); szz < m - 1; szz*=2){
+         for(topX = 1; topX < m - szz; topX++){
              // 3th type dice of this size
-             if(n + 1 < m && pow(2,sz) <= m - 2 ){
-                 diceNum = (sz * 3);
+             if(n + 1 < m && szz <= m - 2 && topX + szz < m){
+                 diceNum = log2(szz) * 3;
                   // TYPE I
                   for(int i = 2; i < 4; i++){
                       Action action(topX, topY, diceNum - 2, i);
@@ -637,6 +649,7 @@ int main()
                   }
              }
          }
+       }
     }
 
     
@@ -665,34 +678,147 @@ int main()
             apply_die(nextState, a.diceNum, a.x, a.y, a.dir);
             //display_game_state(nextState);
 
-            string llr;
+            vector<int> llr;
             for(int i = 0; i < n; i++){
                 for(int j = 0; j < m; j++){
                     int too = nextState.board.pieces[i][j];
-                    if(too < 10){
-                        char c = nextState.board.pieces[i][j] + '0'; 
-                        llr += c;
-                        continue;
-                    }
-                    while(too > 0){
-                        int k = too % 10;
-                        too /= 10;
-                        char c = k + '0'; 
-                        llr += c;
-                    }
+                    llr.push_back(too);
                 }
             }
             if(check[llr] == 0){
                 check[llr]++;
                 tooluur++;
+                //std::cout << "x; " << a.x << " y; " << a.y << " dice; " << a.diceNum << " dir; " << a.dir << endl;
             }else{
-                std::cout << "x; " << a.x << " y; " << a.y << " dice; " << a.diceNum << " dir; " << a.dir << endl;
-                display_game_state(nextState);
+                //std::cout << "x; " << a.x << " y; " << a.y << " dice; " << a.diceNum << " dir; " << a.dir << endl;
+                //display_game_state(nextState);
             }
             number++;
             
         }
         std::cout<<number<<" ";
+        std::cout << tooluur<<endl;
+    }
+
+    cout<< "uldsen" << endl;
+    int startX, startY, endX, endY , ih , sda;
+    ih = max(n , m);
+    sz = nearest(ih);
+    for(int startX = 0 - sz + 1; startX < m + sz - 2; startX++) {
+        for(int endX = startX; endX < m + sz - 2; endX++) {
+            for(int startY = 0 - sz + 1; startY < n + sz - 2; startY++) {
+                for(int endY = startY; endY < n + sz - 2; endY++) {
+                    width = endX - startX + 1;
+                    height = endY - startY + 1;
+                    if(width == height && log2check(width) == 1) {
+                        sda = width;
+                        if(startX >= 0 && startY >= 0 && startX < m && startY < n) {
+                            //Print debug info
+                            //cout<< "start point state deer" << ", width=" << width << ", height=" << height << endl;
+                            for(int dir = 0; dir < 4; dir++) {
+                                diceNum = log2(sda) * 3;
+                                if(sda == 1) {
+                                    Action action(startX, startY, 0, dir);
+                                    actions2.push_back(action);
+                                } else {
+                                    for(int i = 0; i < 3; i++) {
+                                        Action action(startX, startY, diceNum - i , dir);
+                                        actions2.push_back(action);
+                                    }
+                                }
+                            }
+                       } else if(endX >= 0 && endY >= 0 && endX < m && endY < n) {
+                            //Print debug info
+                            //cout<< "end point state deer" << ", width=" << width << ", height=" << height << endl;
+                            for(int dir = 0; dir < 4; dir++) {
+                                diceNum = log2(sda) * 3;
+                                if(sda == 1) {
+                                    Action action(startX, startY, 0, dir);
+                                    actions2.push_back(action);
+                                } else {
+                                    for(int i = 0; i < 3; i++) {
+                                        Action action(startX, startY, diceNum - i , dir);
+                                        actions2.push_back(action);
+                                    }
+                                }
+                            }
+                       } else if(startX >= 0 && startX < m && endY >= 0 && endY < n) {
+                            //Print debug info
+                            //cout<< "end point state deer" << ", width=" << width << ", height=" << height << endl;
+                            for(int dir = 0; dir < 4; dir++) {
+                                diceNum = log2(sda) * 3;
+                                if(sda == 1) {
+                                    Action action(startX, startY, 0, dir);
+                                    actions2.push_back(action);
+                                } else {
+                                    for(int i = 0; i < 3; i++) {
+                                        Action action(startX, startY, diceNum - i , dir);
+                                        actions2.push_back(action);
+                                    }
+                                }
+                            }
+                       } else if(startY >= 0 && startY < n && endX >= 0 && endX < m) {
+                            //Print debug info
+                            //cout<< "end point state deer" << ", width=" << width << ", height=" << height << endl;
+                            for(int dir = 0; dir < 4; dir++) {
+                                diceNum = log2(sda) * 3;
+                                if(sda == 1) {
+                                    Action action(startX, startY, 0, dir);
+                                    actions2.push_back(action);
+                                } else {
+                                    for(int i = 0; i < 3; i++) {
+                                        Action action(startX, startY, diceNum - i , dir);
+                                        actions2.push_back(action);
+                                    }
+                                }
+                            }
+                       }
+                    }
+                }
+            }
+        }
+    }
+    // CHECK
+    if(1){  
+        Board board;
+        board.height = n;
+        board.width = m;
+
+        for(int i = 0; i < n; i++){
+            vector<int> row;
+            for(int j = 0; j < m; j++){
+                row.push_back(i * n + j + 1);
+            }
+            board.pieces.push_back(row);
+        }
+
+
+        int tooluur = 0 , number = 0;
+        for(auto a : actions2){
+            GameState nextState;
+            nextState.board = board;
+            nextState.dies = GenerateFixedDies();
+            apply_die(nextState, a.diceNum, a.x, a.y, a.dir);
+            //display_game_state(nextState);
+
+            vector<int> llr;
+            for(int i = 0; i < n; i++){
+                for(int j = 0; j < m; j++){
+                    int too = nextState.board.pieces[i][j];
+                    llr.push_back(too);
+                }
+            }
+            if(check[llr] == 0){
+                check[llr]++;
+                tooluur++;
+                std::cout << "x; " << a.x << " y; " << a.y << " dice; " << a.diceNum << " dir; " << a.dir << endl;
+            }else{
+                //std::cout << "x; " << a.x << " y; " << a.y << " dice; " << a.diceNum << " dir; " << a.dir << endl;
+            }
+            number++;
+            
+        }
+        std::cout << number << " ";
         std::cout << tooluur;
     }
 
