@@ -2,9 +2,24 @@ import numpy as np
 
 def is_inside(x, y, dtype, n , m ):
     if dtype == 2:
-        return 0 <= y < n
+        return (0 <= y < n)
     else:
-        return 0 <= x < m
+        return (0 <= x < m)
+
+def reverse(board, a):
+    # Set up     
+    n, m = board.shape                                   
+    power = math.ceil(a.dice_num / 3)                                        
+    size = int(math.pow(2, power))     
+    if power == 0: dice_type = 1                            
+    else: dice_type = a.dice_num - ((power - 1) * 3)  
+
+    cboard = board.copy()
+
+    if dice_type == 1: return reverse_type_I(a.x, a.y, size, a.dir, n, m, cboard)
+    elif dice_type == 2: return reverse_type_II(a.x, a.y, size, a.dir, n, m, cboard)
+    else: return reverse_type_III(a.x, a.y, size, a.dir, n, m, cboard)
+
 def reverse_type_I(X, Y, size, s, n, m, board):
     otx = max(X, 0)
     oty = max(Y, 0)
@@ -103,7 +118,10 @@ def reverse_type_I(X, Y, size, s, n, m, board):
                 for index_y in range(oty, oby + 1):
                     board[index_y][index_x] = chosen[cnt][index_x - otx]
                     cnt += 1
-def reverse_type_II(X, Y, size, s, n , m, board):
+
+    return board
+
+def reverse_type_II(X, Y, size, s, n, m, board):
     otx = max(X, 0)
     oty = max(Y, 0)
     obx = min(X + size - 1, m - 1)
@@ -114,7 +132,7 @@ def reverse_type_II(X, Y, size, s, n , m, board):
     chosen_row_num = h // 2
     first = (h + 1) % 2
 
-    if is_inside(X, Y, 2):
+    if is_inside(X, Y, 2, n, m):
         if not first:
             chosen_row_num += 1
         first = 1
@@ -127,6 +145,8 @@ def reverse_type_II(X, Y, size, s, n , m, board):
 
     rem = [[] for _ in range(256)]
     chosen = [[] for _ in range(128)]
+
+    print(f"chosen_row_num:{chosen_row_num}, first:{first}")
 
     if s == 0:
         rem_cnt, chosen_cnt = 0, 0
@@ -234,7 +254,10 @@ def reverse_type_II(X, Y, size, s, n , m, board):
                 for index_y in range(oty if first else oty+1, oby + 1, 2):
                     board[index_y][index_x] = chosen[cnt][index_x - otx]
                     cnt += 1
+    return board
+
 def reverse_type_III(X, Y, size, s, n, m, board):
+
     otx = max(X, 0)
     oty = max(Y, 0)
     obx = min(X + size - 1, m - 1)
@@ -245,7 +268,7 @@ def reverse_type_III(X, Y, size, s, n, m, board):
     chosen_col_num = w // 2
     first = (w + 1) % 2
 
-    if is_inside(X, Y, 3):
+    if is_inside(X, Y, 3, n, m):
         if not first:
             chosen_col_num += 1
         first = 1
@@ -254,6 +277,8 @@ def reverse_type_III(X, Y, size, s, n, m, board):
     elif abs(X) % 2 == 0 and w % 2 == 1:
         first = 1
         chosen_col_num += 1
+
+    print(f"chosen_col_num:{chosen_col_num}, first:{first}, size:{size}")
 
     rem = [[] for _ in range(256)]
     chosen = [[] for _ in range(128)]
@@ -297,7 +322,7 @@ def reverse_type_III(X, Y, size, s, n, m, board):
                     cnt += 1
 
     if s == 2:
-        rem_cnt = chosen_cnt = 0
+        rem_cnt, chosen_cnt = 0, 0
         for index_x in range(otx, m - chosen_col_num):
             rem[index_x - otx] = [board[index_y][index_x] for index_y in range(oty, oby + 1)]
             rem_cnt += 1
@@ -327,23 +352,48 @@ def reverse_type_III(X, Y, size, s, n, m, board):
             index += 1
 
     if s == 3:
-        chosen = [[board[index_y][index_x] for index_y in range(oty, oby + 1)] for index_x in range(chosen_col_num)]
-        rem = [[board[index_y][index_x] for index_y in range(oty, oby + 1)] for index_x in range(chosen_col_num, obx + 1)]
+
+        rem_cnt, chosen_cnt = 0, 0
+
+        for index_x in range(chosen_col_num):
+            for index_y in range(oty, oby + 1):
+                chosen[chosen_cnt].append(board[index_y][index_x])
+                print(chosen[chosen_cnt][index_y - oty], end=" ")
+            print()
+            chosen_cnt += 1
+
+        print(f"chosen_cnt:{chosen_cnt}")
+
+        for index_x in range(chosen_col_num, obx + 1):
+            for index_y in range(oty, oby + 1):
+                rem[rem_cnt].append(board[index_y][index_x])
+                print(rem[rem_cnt][index_y - oty], end=" ")
+            print() 
+            rem_cnt += 1
+
+        for index_x in range(otx):
+            for index_y in range(oty, oby + 1):
+                board[index_y][index_x] = rem[index_x][index_y - oty]
 
         cnt = 0
         for index_x in range(otx, min(otx + chosen_col_num * 2, m)):
             if first:
                 for index_y in range(oty, oby + 1):
-                    board[index_y][index_x] = chosen[cnt // 2][index_y - oty]
+                    if chosen_cnt > (cnt // 2):
+                        board[index_y][index_x] = chosen[cnt // 2][index_y - oty]
                 first = 0
             else:
                 for index_y in range(oty, oby + 1):
-                    board[index_y][index_x] = rem[cnt // 2][index_y - oty]
+                    if rem_cnt > ((cnt // 2) + otx):
+                        board[index_y][index_x] = rem[(cnt // 2) + otx][index_y - oty]
                 first = 1
             cnt += 1
 
         index = 0
         for index_x in range(otx + chosen_col_num * 2, obx + 1):
             for index_y in range(oty, oby + 1):
-                board[index_y][index_x] = rem[index + chosen_col_num][index_y - oty]
+                board[index_y][index_x] = rem[index + chosen_col_num + otx][index_y - oty]
             index += 1
+
+    return board
+
