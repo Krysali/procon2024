@@ -553,7 +553,7 @@ print(len(actions))
 
 
 # CHECK
-if False:
+if True:
     board = Board()
     board.height = n
     board.width = m
