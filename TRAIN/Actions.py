@@ -1,100 +1,117 @@
 import math
 
-def a():
-    # Declare variables
-    topX = topY = botX = botY = width = height = mxSide = sz = diceNum = 0
+# Define the Action class to hold the action data
+class Action:
+    def __init__(self, x, y, dice_num, direction):
+        self.x = x
+        self.y = y
+        self.dice_num = dice_num
+        self.direction = direction
 
-    # Define the Action class
-    class Action:
-        def __init__(self, x, y, dice_num, direction):
-            self.x = x
-            self.y = y
-            self.dice_num = dice_num
-            self.direction = direction
+def nearest(x):
+    res = 1
+    while x > res:
+        res *= 2
+    return res
 
-    # List to store actions
-    actions = []
+def is_power_of_two(x):
+    if x == 1:
+        return True
+    if x % 2 == 1:
+        return False
+    return is_power_of_two(x // 2)
 
-    # Dictionary to store checks (like unordered_map in C++)
-    check = {}
 
-    # Function to find the nearest power of 2 greater than or equal to x
-    def nearest(x):
-        res = 1
-        while x > res:
-            res *= 2
-        return res
+# Define variables
+topX, topY, botX, botY, width, height, mxSide, sz, diceNum = 0, 0, 0, 0, 0, 0, 0, 0, 0
 
-    # Function to check if a number is a power of two
-    def is_power_of_two(x):
-        if x == 1:
-            return True
-        if x % 2 == 1:
-            return False
-        return is_power_of_two(x // 2)
+# Print test message
+print("test")
 
-    # Input values
-    n, m = map(int, input().split())
+# n = height, m = width
+n = int(input("Enter value for n (height): "))
+m = int(input("Enter value for m (width): "))
 
-    # Ensure m is always the larger dimension
-    if n > m:
-        n, m = m, n
+# Create an empty list for actions and a dictionary for check (as maps in C++ are dictionaries in Python)
+actions = []
+check = {}
 
-    # Inside the board
+# Ensure that m is the longer side
+if n > m:
+    n, m = m, n  # swap n and m
+
+# urgelj inside the board
+if True:  
     for topY in range(1, n - 1):
         for topX in range(1, m - 1):
             sz = 1
             while sz <= min(n - topY - 1, m - topX - 1):
+                # 3rd diceNum of this size
                 diceNum = math.log2(sz) * 3
                 for s in range(4):
                     if sz == 1:
-                        actions.append(Action(topX, topY, int(diceNum), s))
+                        action = Action(topX, topY, int(diceNum), s)
+                        actions.append(action)
                     else:
                         for i in range(3):
-                            actions.append(Action(topX, topY, int(diceNum - i), s))
+                            action = Action(topX, topY, int(diceNum - i), s)
+                            actions.append(action)
                 sz *= 2
 
-    # Corner contained actions
+# topleft corner contained actions
+if True:  
+    topX = 0
+    topY = 0
 
-    # Topleft corner contained actions
-    topX, topY = 0, 0
     for botY in range(n - 1):
         for botX in range(m - 1):
             width = botX - topX + 1
             height = botY - topY + 1
             mxSide = max(width, height)
             sz = nearest(mxSide)
+
+            # 3rd diceNum of this size
             diceNum = math.log2(sz) * 3
 
             if sz == 1:
-                for i in range(0, 3, 2):
-                    actions.append(Action(topX, topY, 0, i))
+                for i in range(0, 3, 2):  # i goes 0, 2
+                    action = Action(topX, topY, 0, i)
+                    actions.append(action)
                 continue
 
             # TYPE I
-            for i in range(0, 3, 2):
-                actions.append(Action(botX - sz + 1, botY - sz + 1, int(diceNum - 2), i))
+            for i in range(0, 3, 2):  # i goes 0, 2
+                action = Action(botX - sz + 1, botY - sz + 1, int(diceNum - 2), i)
+                actions.append(action)
 
             # TYPE II
             if height > 2:
                 for i in range(3):
-                    actions.append(Action(botX - sz + 1, botY - sz + 1, int(diceNum - 1), i))
+                    action = Action(botX - sz + 1, botY - sz + 1, int(diceNum - 1), i)
+                    actions.append(action)
 
             # TYPE III
             if width > 2:
                 for i in range(4):
                     if i == 1:
                         continue
-                    actions.append(Action(botX - sz + 1, botY - sz + 1, int(diceNum), i))
+                    action = Action(botX - sz + 1, botY - sz + 1, int(diceNum), i)
+                    actions.append(action)
 
-    # Topright corner contained actions
-    topY, botX = 0, m - 1
+# topright corner contained actions
+if True:  
+    topY = 0
+    botX = m - 1
+
     for botY in range(n - 1):
-        for topX in range(1, m):
+        for topX in range(1, m):  # C++: 'for(topX = 1; topX <= m - 1; topX++)'
+
             height = botY - topY + 1
             width = botX - topX + 1
             mxSide = max(height, width)
             sz = nearest(mxSide)
+
+            # 3rd type diceNum of this size
             diceNum = math.log2(sz) * 3
 
             if sz == 1:
@@ -102,22 +119,30 @@ def a():
 
             # TYPE II
             if height > 2:
-                for i in range(2):
-                    actions.append(Action(topX, botY - sz + 1, int(diceNum - 1), i))
+                for i in range(2):  # i = 0, 1
+                    action = Action(topX, botY - sz + 1, int(diceNum - 1), i)
+                    actions.append(action)
 
             # TYPE III
             if width != 1:
-                for i in range(2, 4):
-                    actions.append(Action(topX, botY - sz + 1, int(diceNum), i))
+                for i in range(2, 4):  # i = 2, 3
+                    action = Action(topX, botY - sz + 1, int(diceNum), i)
+                    actions.append(action)
 
-    # Bottomleft corner contained actions
-    topX, botY = 0, n - 1
-    for topY in range(1, n):
-        for botX in range(m - 1):
+# bottomleft corner contained actions
+if True:  
+    topX = 0
+    botY = n - 1
+
+    for topY in range(1, n):  
+        for botX in range(m - 1):  
+
             height = botY - topY + 1
             width = botX - topX + 1
             mxSide = max(height, width)
             sz = nearest(mxSide)
+
+            # 3rd type diceNum of this size
             diceNum = math.log2(sz) * 3
 
             if sz == 1:
@@ -125,206 +150,258 @@ def a():
 
             # TYPE II
             if height != 1:
-                for i in range(2):
-                    actions.append(Action(botX - sz + 1, topY, int(diceNum - 1), i))
+                for i in range(2):  # i = 0, 1
+                    action = Action(botX - sz + 1, topY, int(diceNum - 1), i)
+                    actions.append(action)
 
             # TYPE III
             if width > 2:
-                for i in range(2, 4):
-                    actions.append(Action(botX - sz + 1, topY, int(diceNum), i))
+                for i in range(2, 4):  # i = 2, 3
+                    action = Action(botX - sz + 1, topY, int(diceNum), i)
+                    actions.append(action)
 
-    # Bottomright corner contained actions
-    botX, botY = m - 1, n - 1
-    for topY in range(1, n):
-        for topX in range(1, m):
+# bottom-right corner contained actions
+if True:  
+    botX = m - 1
+    botY = n - 1
+
+    for topY in range(1, n):  
+        for topX in range(1, m):  
+
             height = botY - topY + 1
             width = botX - topX + 1
             mxSide = max(height, width)
             sz = nearest(mxSide)
 
             if sz == 1:
-                for i in range(1, 4, 2):
-                    actions.append(Action(topX, topY, 0, i))
+                for i in range(1, 4, 2):  # i = 1, 3
+                    action = Action(topX, topY, 0, i)
+                    actions.append(action)
                 continue
 
+            # 3rd type diceNum of this size
             diceNum = math.log2(sz) * 3
 
             # TYPE I
-            for i in range(1, 4, 2):
-                actions.append(Action(topX, topY, int(diceNum - 2), i))
+            for i in range(1, 4, 2):  # i = 1, 3
+                action = Action(topX, topY, int(diceNum - 2), i)
+                actions.append(action)
 
             # TYPE II
             if height != 1:
-                for i in range(4):
+                for i in range(4):  # i = 0, 1, 2, 3
                     if i == 2:
                         continue
-                    actions.append(Action(topX, topY, int(diceNum - 1), i))
+                    action = Action(topX, topY, int(diceNum - 1), i)
+                    actions.append(action)
 
             # TYPE III
             if width != 1:
-                for i in range(1, 4):
-                    actions.append(Action(topX, topY, int(diceNum), i))
+                for i in range(1, 4):  # i = 1, 2, 3
+                    action = Action(topX, topY, int(diceNum), i)
+                    actions.append(action)
 
-    # Pairs of corners
+# Pairs of corners
+if True:
 
-    # From above
-    topX, topY = 0, 0
-    botX = m - 1
+    # from above
+    if True:  # 'if(1)' in C++ is 'if True' in Python
+        topX = 0
+        topY = 0
+        botX = m - 1
 
-    for botY in range(n - 1):
-        width = m
-        height = botY - topY + 1
-        mxSide = max(width, height)
-        sz = nearest(mxSide)
-        diceNum = int(math.log2(sz)) * 3
+        for botY in range(n - 1):  # C++: 'for(botY = 0; botY < n - 1; botY++)'
+            width = m
+            height = botY - topY + 1
+            mxSide = max(width, height)
+            sz = nearest(mxSide)
+            # 3rd type diceNum of this size
+            diceNum = math.log2(sz) * 3
 
-        # TYPE I
-        actions.append(Action(botX - sz + 1, botY - sz + 1, diceNum - 2, 0))
+            # TYPE I
+            action = Action(botX - sz + 1, botY - sz + 1, int(diceNum - 2), 0)
+            actions.append(action)
 
-        # TYPE II
-        if height > 2:
-            for i in range(2):
-                actions.append(Action(botX - sz + 1, botY - sz + 1, diceNum - 1, i))
+            # TYPE II
+            if height > 2:
+                for i in range(2):  # C++: 'for(int i = 0; i < 2; i++)'
+                    action = Action(botX - sz + 1, botY - sz + 1, int(diceNum - 1), i)
+                    actions.append(action)
 
-        # TYPE III
-        if m % 2 == 0:
-            actions.append(Action(botX - sz + 1, botY - sz + 1, diceNum, 0))
-        else:
-            actions.append(Action(botX + 1 - sz + 1, botY - sz + 1, diceNum, 0))
+            # TYPE III
+            if m % 2 == 0:
+                action1 = Action(botX - sz + 1, botY - sz + 1, int(diceNum), 0)
+                actions.append(action1)
+            else:
+                action1 = Action(botX + 1 - sz + 1, botY - sz + 1, int(diceNum), 0)
+                actions.append(action1)
+    
+    # from left
+    if True:  # 'if(1)' in C++ is 'if True' in Python
+        topX = 0
+        topY = 0
+        botY = n - 1
 
-    # From left
-    topX, topY = 0, 0
-    botY = n - 1
+        for botX in range(m - 1):  # C++: 'for(botX = 0; botX < m - 1; botX++)'
+            width = botX - topX + 1
+            height = n
+            mxSide = max(width, height)
+            sz = nearest(mxSide)
+            # 3rd type diceNum of this size
+            diceNum = math.log2(sz) * 3
 
-    for botX in range(m - 1):
-        width = botX - topX + 1
-        height = n
-        mxSide = max(width, height)
-        sz = nearest(mxSide)
-        diceNum = int(math.log2(sz)) * 3
+            # TYPE I
+            action = Action(botX - sz + 1, botY - sz + 1, int(diceNum - 2), 2)
+            actions.append(action)
 
-        # TYPE I
-        actions.append(Action(botX - sz + 1, botY - sz + 1, diceNum - 2, 2))
+            # TYPE II
+            if n % 2 == 0:
+                action = Action(botX - sz + 1, botY - sz + 1, int(diceNum - 1), 2)
+                actions.append(action)
+            else:
+                action = Action(botX - sz + 1, botY + 1 - sz + 1, int(diceNum - 1), 2)
+                actions.append(action)
 
-        # TYPE II
-        if n % 2 == 0:
-            actions.append(Action(botX - sz + 1, botY - sz + 1, diceNum - 1, 2))
-        else:
-            actions.append(Action(botX - sz + 1, botY + 1 - sz + 1, diceNum - 1, 2))
+            # TYPE III
+            if width > 2:
+                for i in range(2, 4):  # C++: 'for(int i = 2; i < 4; i++)'
+                    action = Action(botX - sz + 1, botY - sz + 1, int(diceNum), i)
+                    actions.append(action)
 
-        # TYPE III
-        if width > 2:
-            for i in range(2, 4):
-                actions.append(Action(botX - sz + 1, botY - sz + 1, diceNum, i))
+    # from right
+    if True:  # 'if(1)' in C++ is 'if True' in Python
+        topX = m - 1
+        topY = 0
+        botY = n - 1
+    
+        for botX in range(m - 1, 0, -1):  # C++: 'for(botX = m - 1; botX > 0; botX--)'
+            width = topX - botX + 1
+            height = n
+            mxSide = max(width, height)
+            sz = nearest(mxSide)
+            # 3rd type diceNum of this size
+            diceNum = math.log2(sz) * 3
+    
+            # TYPE III
+            if width != 1:
+                for i in range(2, 4):
+                    action = Action(botX, botY - sz + 1, int(diceNum), i)
+                    actions.append(action)
 
-    # From right
-    topX, topY = m - 1, 0
-    botY = n - 1
+    # from bottom
+    if True:  # 'if(1)' in C++ is 'if True' in Python
+        topX = 0
+        botX = m - 1
+        botY = n - 1
 
-    for botX in range(m - 1, 0, -1):
-        width = topX - botX + 1
-        height = n
-        mxSide = max(width, height)
-        sz = nearest(mxSide)
-        diceNum = int(math.log2(sz)) * 3
+        for topY in range(n - 1, 0, -1):  # C++: 'for(topY = n - 1; topY > 0; topY--)'
+            width = m
+            height = topY - botY + 1
+            mxSide = max(width, height)
+            sz = nearest(mxSide)
+            # 3rd type diceNum of this size
+            diceNum = math.log2(sz) * 3
 
-        # TYPE III
-        if width != 1:
-            for i in range(2, 4):
-                actions.append(Action(botX, botY - sz + 1, diceNum, i))
+            # TYPE II
+            if height != 1:
+                for i in range(2):  # C++: 'for(int i = 0; i < 2; i++)'
+                    action = Action(topX, topY, int(diceNum - 1), i)
+                    actions.append(action)
 
-    # From bottom
-    topX, botX, botY = 0, m - 1, n - 1
+            # TYPE III??? (Add logic here as needed)
 
-    for topY in range(n - 1, 0, -1):
-        width = m
-        height = topY - botY + 1
-        mxSide = max(width, height)
-        sz = nearest(mxSide)
-        diceNum = int(math.log2(sz)) * 3
+    # edge
 
-        # TYPE II
-        if height != 1:
-            for i in range(2):
-                actions.append(Action(topX, topY, diceNum - 1, i))
-
-    # Edge cases
-
-    # Top
+# Top sejig
+if True:  # 'if(1)' in C++ is 'if True' in Python
     topY = 0
-
-    for topX in range(1, m - 1):
+    for topX in range(1, m - 1):  # C++: 'for(topX = 1; topX < m - 1; topX++)'
         width = 1
-        while width < m - 1 - topX:
-            for height in range(1, min(width, n - 1) + 1):
+        while width <= (m - 1 - topX):  # C++: 'for(width = 1; width <= (m - 1 - topX); width *= 2)'
+            for height in range(1, min(width + 1, n)): # C++: 'for(height = 1; height <= min(width, n - 1); height++)'
                 sz = width
 
                 if sz == 1:
                     if topX == 1 or topX == m - 2:
                         continue
-                    for i in range(4):
+
+                    for i in range(4):  # C++: 'for(int i = 0; i < 4; i++)'
                         if i == 1:
                             continue
-                        actions.append(Action(topX, topY, 0, i))
+                        action = Action(topX, topY, 0, i)
+                        actions.append(action)
                     continue
 
-                diceNum = int(math.log2(sz)) * 3
+                # 3rd type diceNum of this size
+                diceNum = int(math.log2(sz) * 3)
 
                 # TYPE I
-                for i in range(4):
+                for i in range(4):  # C++: 'for(int i = 0; i < 4; i++)'
                     if i == 1:
                         continue
-                    actions.append(Action(topX, height - width, diceNum - 2, i))
+                    action = Action(topX, height - width, diceNum - 2, i)
+                    actions.append(action)
 
                 # TYPE II
                 if height > 2:
-                    for i in range(4):
-                        actions.append(Action(topX, height - width, diceNum - 1, i))
+                    for i in range(4):  # C++: 'for(int i = 0; i < 4; i++)'
+                        action = Action(topX, height - width, diceNum - 1, i)
+                        actions.append(action)
 
                 # TYPE III
                 if topX == 1 or topX == m - 2:
                     continue
                 if sz == 2 and height == 1:
                     continue
-                for i in range(4):
+                for i in range(4):  # C++: 'for(int i = 0; i < 4; i++)'
                     if i == 1:
                         continue
-                    actions.append(Action(topX, height - width, diceNum, i))
+                    action = Action(topX, height - width, diceNum, i)
+                    actions.append(action)
 
-            width *= 2
+            width *= 2  # Move to the next width for the outer loop
 
-    # Bottom
+
+# Bottom edge actions
+if True:
     topY = n - 1
-
     for topX in range(1, m - 1):
         width = 1
-        while width <= m - 1 - topX:
+        while width <= (m - 1 - topX):
             for height in range(1, min(width, n - 1) + 1):
+                
                 oh = n - height
                 ow = width
+                
                 sz = width
-
+                
                 if sz == 1:
                     if topX == 1 or topX == m - 2:
                         continue
                     if oh > ow:
-                        actions.append(Action(topX, topY, 0, 1))
+                        action = Action(topX, topY, 0, 1)
+                        actions.append(action)
                     for i in range(2, 4):
-                        actions.append(Action(topX, topY, 0, i))
+                        action = Action(topX, topY, 0, i)
+                        actions.append(action)
                     continue
 
-                diceNum = int(math.log2(sz)) * 3
+                # 3rd type dice of this size
+                diceNum = int(math.log2(sz) * 3)
 
                 # TYPE I
                 if oh > ow:
-                    actions.append(Action(topX, topY - height + 1, diceNum - 2, 1))
+                    action = Action(topX, topY - height + 1, diceNum - 2, 1)
+                    actions.append(action)
                 for i in range(2, 4):
-                    actions.append(Action(topX, topY - height + 1, diceNum - 2, i))
+                    action = Action(topX, topY - height + 1, diceNum - 2, i)
+                    actions.append(action)
 
                 # TYPE II
                 if height != 1:
                     for i in range(4):
-                        actions.append(Action(topX, topY - height + 1, diceNum - 1, i))
+                        action = Action(topX, topY - height + 1, diceNum - 1, i)
+                        actions.append(action)
 
                 # TYPE III
                 if topX == 1 or topX == m - 2:
@@ -332,122 +409,144 @@ def a():
                 if sz == 2 and height == 1:
                     continue
                 if oh > ow:
-                    actions.append(Action(topX, topY - height + 1, diceNum, 1))
+                    action = Action(topX, topY - height + 1, diceNum, 1)
+                    actions.append(action)
+
                 for i in range(2, 4):
-                    actions.append(Action(topX, topY - height + 1, diceNum, i))
+                    action = Action(topX, topY - height + 1, diceNum, i)
+                    actions.append(action)
 
-            width *= 2
+            width *= 2  # Increment width for the next iteration
 
-    # left
-    if True:
-        topX = 0
-        for topY in range(1, n - 1):
-            height = 1
-            while height <= (n - 1 - topY):
-                for width in range(1, height + 1):
-                    sz = height
+# Left edge actions
+if True:
+    topX = 0
+    for topY in range(1, n - 1):
+        height = 1
+        while height <= (n - 1 - topY):
+            for width in range(1, height + 1):
+                sz = height
 
-                    if sz == 1:
-                        if topY == 1 or topY == n - 2:
-                            continue
-                        for i in range(3):
-                            actions.append(Action(width - height, topY, 0, i))
-                        continue
-
-                    # 3rd type dice of this size
-                    diceNum = int(math.log2(sz) * 3)
-
-                    # TYPE I
-                    for i in range(3):
-                        actions.append(Action(width - height, topY, diceNum - 2, i))
-
-                    # TYPE III
-                    if width > 2:
-                        for i in range(4):
-                            actions.append(Action(width - height, topY, diceNum, i))
-
-                    # TYPE II
+                if sz == 1:
                     if topY == 1 or topY == n - 2:
                         continue
-                    if sz == 2 and width == 1:
-                        continue
                     for i in range(3):
-                        actions.append(Action(width - height, topY, diceNum - 1, i))
+                        action = Action(width - height, topY, 0, i)
+                        actions.append(action)
+                    continue
 
-                height *= 2
-
-    # right
-    if True:
-        topX = m - 1
-        for topY in range(1, n - 1):
-            height = 1
-            while height <= (n - 1 - topY):
-                for width in range(1, height + 1):
-                    sz = height
-
-                    oh = height
-                    ow = m - width
-
-                    if sz == 1:
-                        if topY == 1 or topY == n - 2:
-                            continue
-                        if ow > oh:
-                            actions.append(Action(topX, topY, 0, 3))
-                        for i in range(2):
-                            actions.append(Action(topX, topY, 0, i))
-                        continue
-
-                    # 3rd type dice of this size
-                    diceNum = int(math.log2(sz) * 3)
-
-                    # TYPE I
-                    if ow > oh:
-                        actions.append(Action(topX - width + 1, topY, diceNum - 2, 3))
-                    for i in range(2):
-                        actions.append(Action(topX - width + 1, topY, diceNum - 2, i))
-
-                    # TYPE III
-                    if width != 1:
-                        for i in range(4):
-                            actions.append(Action(topX - width + 1, topY, diceNum, i))
-
-                    # TYPE II
-                    if topY == 1 or topY == n - 2:
-                        continue
-                    if sz == 2 and width == 1:
-                        continue
-
-                    if ow > oh:
-                        actions.append(Action(topX - width + 1, topY, diceNum - 1, 3))
-                    for i in range(2):
-                        actions.append(Action(topX - width + 1, topY, diceNum - 1, i))
-
-                height *= 2
-
-    # pairs of edges
-    if is_power_of_two(n):
-        if n + 1 < m:
-            topY = 0
-            for topX in range(1, m - n):
-                sz = n
                 # 3rd type dice of this size
                 diceNum = int(math.log2(sz) * 3)
 
                 # TYPE I
+                for i in range(3):
+                    action = Action(width - height, topY, diceNum - 2, i)
+                    actions.append(action)
+
+                # TYPE III
+                if width > 2:
+                    for i in range(4):
+                        action = Action(width - height, topY, diceNum, i)
+                        actions.append(action)
+
+                # TYPE II
+                if topY == 1 or topY == n - 2:
+                    continue
+                if sz == 2 and width == 1:
+                    continue
+                for i in range(3):
+                    action = Action(width - height, topY, diceNum - 1, i)
+                    actions.append(action)
+
+            height *= 2  # Increment height for the next iteration
+
+# Right edge actions
+if True:
+    topX = m - 1
+    for topY in range(1, n - 1):
+        height = 1
+        while height <= (n - 1 - topY):
+            for width in range(1, height + 1):
+                sz = height
+
+                oh = height
+                ow = m - width
+
+                if sz == 1:
+                    if topY == 1 or topY == n - 2:
+                        continue
+                    if ow > oh:
+                        action = Action(topX, topY, 0, 3)
+                        actions.append(action)
+                    for i in range(2):
+                        action = Action(topX, topY, 0, i)
+                        actions.append(action)
+                    continue
+
+                # 3rd type dice of this size
+                diceNum = int(math.log2(sz) * 3)
+
+                # TYPE I
+                if ow > oh:
+                    action = Action(topX - width + 1, topY, diceNum - 2, 3)
+                    actions.append(action)
+                for i in range(2):
+                    action = Action(topX - width + 1, topY, diceNum - 2, i)
+                    actions.append(action)
+
+                # TYPE III
+                if width != 1:
+                    for i in range(4):
+                        action = Action(topX - width + 1, topY, diceNum, i)
+                        actions.append(action)
+
+                # TYPE II
+                if topY == 1 or topY == n - 2:
+                    continue
+                if sz == 2 and width == 1:
+                    continue
+
+                if ow > oh:
+                    action = Action(topX - width + 1, topY, diceNum - 1, 3)
+                    actions.append(action)
+
+                for i in range(2):
+                    action = Action(topX - width + 1, topY, diceNum - 1, i)
+                    actions.append(action)
+
+            height *= 2  # Increment height for the next iteration
+
+# Pairs of edges
+if True:
+    topY = 0
+    sz = math.log2(n - 1) + 1
+
+    szz = 2 ** int(sz)
+    while szz < m - 1:
+        for topX in range(1, m - szz):
+            # 3rd type dice of this size
+            if n + 1 < m and szz <= m - 2 and topX + szz < m:
+                diceNum = int(math.log2(szz)) * 3
+
+                # TYPE I
                 for i in range(2, 4):
-                    actions.append(Action(topX, topY, diceNum - 2, i))
+                    action = (topX, topY, diceNum - 2, i)
+                    actions.append(action)
 
                 # TYPE II
                 for i in range(2, 4):
-                    if i == 1 and sz == 2:
-                        continue
-                    actions.append(Action(topX, topY, diceNum - 1, i))
+                    action = (topX, topY, diceNum - 1, i)
+                    actions.append(action)
 
                 if topX == 1 or topX == m - 2:
                     continue
 
                 # TYPE III
                 for i in range(2, 4):
-                    actions.append(Action(topX, topY, diceNum, i))
+                    action = (topX, topY, diceNum, i)
+                    actions.append(action)
 
-    return actions
+        szz *= 2
+
+
+print(len(actions))
