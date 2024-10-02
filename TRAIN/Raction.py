@@ -185,6 +185,55 @@ def reverse_type_II(X, Y, size, s, n , m, board):
         for index_y in range(oty + chosen_row_num * 2, oby + 1):
             board[index_y][otx:obx+1] = rem[index + chosen_row_num + oty]
             index += 1
+    if s == 2:
+        count = 0
+        for index_y in range(oty if first else oty+1, oby + 1, 2):
+            for index_x in range(otx, m - w):
+                rem[count].append(board[index_y][index_x])
+            count += 1
+        
+        count = 0
+        for index_y in range(oty if first else oty+1, oby + 1, 2):
+            for index_x in range(m - w, m):
+                chosen[count].append(board[index_y][index_x])
+            count += 1
+        
+        for index_x in range(otx, m):
+            if index_x <= obx:
+                cnt = 0
+                for index_y in range(oty if first else oty+1, oby + 1, 2):
+                    board[index_y][index_x] = chosen[cnt][index_x - otx]
+                    cnt += 1
+            else:
+                cnt = 0
+                for index_y in range(oty if first else oty+1, oby + 1, 2):
+                    board[index_y][index_x] = rem[cnt][index_x - (obx + 1)]
+                    cnt += 1
+
+    if s == 3:
+        count = 0
+        for index_y in range(oty if first else oty+1, oby + 1, 2):
+            for index_x in range(w, obx + 1):
+                rem[count].append(board[index_y][index_x])
+            count += 1
+        
+        count = 0
+        for index_y in range(oty if first else oty+1, oby + 1, 2):
+            for index_x in range(0, w):
+                chosen[count].append(board[index_y][index_x])
+            count += 1
+        
+        for index_x in range(0, obx + 1):
+            if index_x < otx:
+                cnt = 0
+                for index_y in range(oty if first else oty+1, oby + 1, 2):
+                    board[index_y][index_x] = rem[cnt][index_x]
+                    cnt += 1
+            else:
+                cnt = 0
+                for index_y in range(oty if first else oty+1, oby + 1, 2):
+                    board[index_y][index_x] = chosen[cnt][index_x - otx]
+                    cnt += 1
 def reverse_type_III(X, Y, size, s, n, m, board):
     otx = max(X, 0)
     oty = max(Y, 0)
