@@ -28,10 +28,8 @@ void apply_die(GameState& game_state, int die_index, int x, int y, int direction
             } 
         }
     } 
-
     // Shift pieces
-    shift_pieces(board, direction);
-    
+    shift_pieces(board, direction, overlap_x_start, overlap_y_start, overlap_x_end, overlap_y_end);
     // Reinsert punched pieces
     switch (direction) {
         case 0:
@@ -84,49 +82,68 @@ void apply_die(GameState& game_state, int die_index, int x, int y, int direction
     game_state.num_moves++;
 }
 
-void shift_pieces(Board& board, int direction) {
-    int start, end, step, write_index;
-
-    if (direction % 2 == 0) { 
-        start = 0;
-        end = (direction == 0) ? board.height : board.width;
-        step = 1;
-    } else {
-        start = (direction == 1) ? board.height - 1 : board.width - 1;
-        end = -1;
-        step = -1;
-    }
-
-    if (direction < 2) { // Vertical shift
-        for (int j = 0; j < board.width; ++j) {
-            write_index = (direction == 0) ? 0 : board.height - 1;
-            for (int i = start; i != end; i += step) {
-                if (board.pieces[i][j] != -1) {
-                    board.pieces[write_index][j] = board.pieces[i][j];
-                    write_index += step;
+void shift_pieces(Board& board, int direction, int xstart, int ystart, int xend, int yend) 
+{
+    switch (direction)
+    {
+        case 0:
+            for(int index_x = xstart; index_x < xend; index_x++){
+                int last_empty = ystart;
+                for(int index_y = ystart; index_y < board.height; index_y++){
+                    if(board.pieces[index_y][index_x] != -1){
+                        board.pieces[last_empty][index_x] = board.pieces[index_y][index_x];
+                        last_empty++;
+                    }
+                }
+                for(int index_y = last_empty; index_y < board.height; index_y++){
+                    board.pieces[index_y][index_x] = -1;
                 }
             }
-            // Fill remaining spaces with -1
-            while (write_index != end) {
-                board.pieces[write_index][j] = -1;
-                write_index += step;
-            }
-        }
-    } else { // Horizontal shift
-        for (int i = 0; i < board.height; ++i) {
-            write_index = (direction == 2) ? 0 : board.width - 1;
-            for (int j = start; j != end; j += step) {
-                if (board.pieces[i][j] != -1) {
-                    board.pieces[i][write_index] = board.pieces[i][j];
-                    write_index += step;
+            break;
+    
+        case 1:
+            for(int index_x = xstart; index_x < xend; index_x++){
+                int last_empty = yend - 1;
+                for(int index_y = yend - 1; index_y >=0; index_y--){
+                    if(board.pieces[index_y][index_x] != -1){
+                        board.pieces[last_empty][index_x] = board.pieces[index_y][index_x];
+                        last_empty--;
+                    }
+                }
+                for(int index_y = last_empty; index_y >= 0; index_y--){
+                    board.pieces[index_y][index_x] = -1;
                 }
             }
-            // Fill remaining spaces with -1
-            while (write_index != end) {
-                board.pieces[i][write_index] = -1;
-                write_index += step;
+
+            break;
+        case 2:
+            for(int index_y = ystart; index_y < yend; index_y++){
+                int last_empty = xstart;
+                for(int index_x = xstart; index_x < board.width; index_x++){
+                    if(board.pieces[index_y][index_x] != -1){
+                        board.pieces[index_y][last_empty] = board.pieces[index_y][index_x];
+                        last_empty++;
+                    }
+                }
+                for(int index_x = last_empty; index_x < board.width; index_x++){
+                    board.pieces[index_y][index_x] = -1;
+                }
             }
-        }
+            break;
+        case 3:
+            for(int index_y = ystart; index_y < yend; index_y++){
+                int last_empty = xend - 1;
+                for(int index_x = xend - 1; index_x >=0; index_x--){
+                    if(board.pieces[index_y][index_x] != -1){
+                        board.pieces[index_y][last_empty] = board.pieces[index_y][index_x];
+                        last_empty--;
+                    }
+                }
+                for(int index_x = last_empty; index_x >=0; index_x--){
+                    board.pieces[index_y][index_x] = -1;
+                }
+            }
+            break;    
     }
 }
 
