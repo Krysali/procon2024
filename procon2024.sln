@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "procon2024", "procon2024.vcxproj", "{0D4CA771-94FC-49EE-8585-CBE822047F3D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0D4CA771-94FC-49EE-8585-CBE822047F3D}.Debug|x64.ActiveCfg = Debug|x64
+		{0D4CA771-94FC-49EE-8585-CBE822047F3D}.Debug|x64.Build.0 = Debug|x64
+		{0D4CA771-94FC-49EE-8585-CBE822047F3D}.Release|x64.ActiveCfg = Release|x64
+		{0D4CA771-94FC-49EE-8585-CBE822047F3D}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6C2A38D5-BAEF-410C-BEBA-855A9598A0F8}
+	EndGlobalSection
+EndGlobal

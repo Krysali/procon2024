@@ -1,3 +1,4 @@
+﻿#include <stdafx.h>
 #include <types.h>
 #include <iostream>
 #include <fstream>

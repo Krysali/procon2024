@@ -1,3 +1,4 @@
+﻿#include <stdafx.h>
 #include <ops.h>
 
 void apply_die(GameState& game_state, int die_index, int x, int y, int direction) {
@@ -11,7 +12,8 @@ void apply_die(GameState& game_state, int die_index, int x, int y, int direction
     int overlap_y_end = std::min(board.height, y + die.height);
 
     // Store punched-out pieces
-    struct Piece {
+    class Piece {
+	public:
         int x;
         int y;
         int value;
@@ -37,7 +39,7 @@ void apply_die(GameState& game_state, int die_index, int x, int y, int direction
         case 0:
             for (int x_index = 0; x_index < board.width; ++x_index) {
                 int current_y = board.height - 1;
-                for (int piece_index = punched_pieces.size() - 1; piece_index >= 0; --piece_index){
+                for (int piece_index = static_cast<int>(punched_pieces.size()) - 1; piece_index >= 0; --piece_index){
                     if (punched_pieces[piece_index].y == x_index) {
                         board.pieces[current_y][x_index] = punched_pieces[piece_index].value;
                         current_y--;
@@ -48,7 +50,7 @@ void apply_die(GameState& game_state, int die_index, int x, int y, int direction
         case 1:
             for (int i = 0; i < board.width; ++i) {
                 int current_y = 0;
-                for (int j = 0; j < punched_pieces.size(); ++j) {
+                for (int j = 0; j < static_cast<int>(punched_pieces.size()); ++j) {
                     if (punched_pieces[j].y == i) {
                         board.pieces[current_y][i] = punched_pieces[j].value;
                         current_y++;
@@ -59,7 +61,7 @@ void apply_die(GameState& game_state, int die_index, int x, int y, int direction
         case 2:
             for (int i = 0; i < board.height; ++i) {
                 int current_x = board.width - 1;
-                for (int j = punched_pieces.size() - 1; j >= 0; --j) {
+                for (int j = static_cast<int>(punched_pieces.size()) - 1; j >= 0; --j) {
                     if (punched_pieces[j].x == i) {
                         board.pieces[i][current_x] = punched_pieces[j].value;
                         current_x--;
@@ -70,7 +72,7 @@ void apply_die(GameState& game_state, int die_index, int x, int y, int direction
         case 3:
             for (int i = 0; i < board.height; ++i) {
                 int current_x = 0;
-                for (int j = 0; j < punched_pieces.size(); ++j) {
+                for (int j = 0; j < static_cast<int>(punched_pieces.size()); ++j) {
                     if (punched_pieces[j].x == i) {
                         board.pieces[i][current_x] = punched_pieces[j].value;
                         current_x++;
@@ -128,25 +130,4 @@ void shift_pieces(Board& board, int direction) {
             }
         }
     }
-}
-
-void display_game_state(const GameState& game_state) {
-    const Board& board = game_state.board;
-    // Iterate over rows of the board
-    for (int row = 0; row < board.height; ++row) {
-        // Iterate over pieces in each row
-        for (int col = 0; col < board.width; ++col) {
-            if (board.pieces[row][col] == -1) {
-                std::cout << " ";
-            } else {
-                std::cout << board.pieces[row][col];
-            }
-        }
-        std::cout << std::endl;
-    }
-    std::cout << "Number of moves: " << game_state.num_moves << "\n\n";
-}
-
-bool is_solved(const GameState& game_state) {
-    return (game_state.board.pieces == game_state.goal_state.pieces);
 }

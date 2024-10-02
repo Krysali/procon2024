@@ -1,4 +1,4 @@
-#ifndef PROCON_API_H
+﻿#ifndef PROCON_API_H
 #define PROCON_API_H
 
 #include <string>

@@ -1,42 +1,33 @@
+﻿#include <stdafx.h>
 #include <types.h>
 #include <ops.h>
 #include <procon_api.h>
-using namespace std;
+#include <gui.h>
 
-int main() {
-    std::string serverUrl = "localhost:8080";
-    std::string teamToken = "token1";
-    std::string problemData;
-    try {
-        problemData = GetRequest(serverUrl + "/problem", teamToken);
-    }
-    catch (runtime_error) {
-        std::cerr << "curl request failed, fallback to file json parsing\n";
-        problemData = ReadJsonFile("../problem.json");
-    }
-    std::cout << "Problem Data:\n" << problemData << std::endl;
-    GameState game_state = ParseJson(problemData);
+void Main() {
+	std::string serverUrl = "localhost:8080";
+	std::string teamToken = "token1";
+	std::string problemData;
 
-    // Display the game state
-    cout << "Initial Game State:" << endl;
-    display_game_state(game_state);
+	try {
+		// Get the problem data from the server
+		problemData = GetRequest(serverUrl + "/problem", teamToken);
+		Console << U"Successfully read problem data from " << Unicode::Widen(serverUrl);
+	}
+	catch (std::runtime_error) {
+		// If the request fails, fallback to reading the problem data from a file
+		Console << U"curl request failed, fallback to file json parsing\n";
+		problemData = ReadJsonFile("../problem.json");
+	}
 
-    // example die application
-    apply_die(game_state, 26, 1, 1, 2);
+	// Parse the problem data into a GameState object
+	GameState game_state = ParseJson(problemData);
+	
+	GUI game(game_state);
+	game.serverUrl = serverUrl;
+	game.token = teamToken;
 
-    display_game_state(game_state);
-
-    // Post the answer and get the revision
-    cout << OutputJson(game_state) << endl;
-    std::string revision;
-    try {
-        revision = PostRequest(serverUrl + "/answer", teamToken, OutputJson(game_state));
-    }
-    catch (runtime_error) {
-        std::cerr << "curl request failed\n";
-        revision = "None";
-    }
-    cout << revision;
-
-    return 0;
+	while (System::Update()) {
+		game.Render();
+	}
 }

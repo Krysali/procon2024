@@ -1,5 +1,5 @@
+﻿#include <stdafx.h>
 #include <iostream>
-#include <curl/curl.h>
 #include <procon_api.h>
 
 // Callback function to handle the response data
