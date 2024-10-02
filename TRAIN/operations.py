@@ -1,14 +1,9 @@
-import math
-import numpy as np
-from copy import deepcopy
-from random import randint
-from Actions import *
 
-# action(top_x, top_y, dice_num, action.dir)
-
-def is_inside(x, y, n, m):
-    if((x >= 0 and x < m) and (y >= 0 and y < n)): return 1
-    else: return 0
+def is_inside(x, y, dtype, n , m ):
+    if dtype == 2:
+        return (0 <= y < n)
+    else:
+        return (0 <= x < m)
 
 def apply_die(b, action):
 
@@ -21,8 +16,8 @@ def apply_die(b, action):
     else: dice_type = action.dice_num - ((power - 1) * 3)                                        
 
     n, m = board.shape
-
-    print(f"dice_num:{action.dice_num}, n:{n}, m:{m}, power:{power}, size:{size}, dice_type:{dice_type}, dir:{action.dir}")
+    # print(f"x:{action.x}, y:{action.y}, dice_num:{action.dice_num}, dir:{action.dir}")
+    # print(f"power:{power}, size:{size}, dice_type:{dice_type}")
 
     cut_pieces = []
 
@@ -40,7 +35,7 @@ def apply_die(b, action):
 
     if dice_type == 2:
         first = (height + 1) % 2
-        if is_inside(action.x, action.y, n, m):
+        if is_inside(action.x, action.y, dice_type, n, m):
             if not first:
                 chosen_row_num += 1
             first = 1
@@ -53,7 +48,7 @@ def apply_die(b, action):
 
     if dice_type == 3:
         first = (width + 1) % 2
-        if is_inside(action.x, action.y, n, m):
+        if is_inside(action.x, action.y, dice_type, n, m):
             if not first: 
                 chosen_col_num += 1 
             first = 1
@@ -64,7 +59,7 @@ def apply_die(b, action):
                 first = 1
                 chosen_col_num += 1
     
-    print(f"x_start:{x_start}, x_end:{x_end}, ystart:{y_start}, y_end:{y_end}, width:{width}, height:{height}, chosen_row_num:{chosen_row_num}, chosen_col_num:{chosen_col_num}")
+    #print(f"x_start:{x_start}, x_end:{x_end}, ystart:{y_start}, y_end:{y_end}, width:{width}, height:{height}, chosen_row_num:{chosen_row_num}, chosen_col_num:{chosen_col_num}")
     
 
     # CUT PHASE
@@ -76,7 +71,7 @@ def apply_die(b, action):
 
     if dice_type == 2:
         x = (first + 1) % 2
-        if is_inside(action.x, action.y, n, m):
+        if is_inside(action.x, action.y, dice_type, n, m):
             for r in range(y_start, y_end + 1, 2):
                 for c in range(x_start, x_end + 1):
                     cut_pieces.append(board[r][c])
@@ -89,7 +84,7 @@ def apply_die(b, action):
 
     if dice_type == 3:
         x = (first + 1) % 2
-        if is_inside(action.x, action.y, n, m):
+        if is_inside(action.x, action.y, dice_type, n, m):
             for r in range(y_start, y_end + 1):
                 for c in range(x_start, x_end + 1, 2):
                     cut_pieces.append(board[r][c])
@@ -100,8 +95,8 @@ def apply_die(b, action):
                     cut_pieces.append(board[r][c])
                     board[r][c] = 0
 
-    print(cut_pieces)
-    print(board)
+    #print(cut_pieces)
+    #print(board)
 
     # Save the board after cut to a text file
     with open("board.txt", "w") as file:
@@ -225,7 +220,7 @@ def apply_die(b, action):
                 bxs = 0
                 bxe = chosen_col_num - 1
     
-    print(f"bxs:{bxs}, bxe:{bxe}, bys:{bys}, bye:{bye}")
+    #print(f"bxs:{bxs}, bxe:{bxe}, bys:{bys}, bye:{bye}")
 
     if dice_type == 1:
         cnt = 0
@@ -257,25 +252,6 @@ def apply_die(b, action):
     with open("bbbt.txt", "w") as file:
         for row in board:
             file.write(" ".join(map(str, row)) + "\n")
-            
+
     return board
 
-
-"""
-# Define the Action class
-class Action:
-    def __init__(self, x, y, dice_num, dir):
-        self.x = x
-        self.y = y
-        self.dice_num = dice_num
-        self.dir = dir
-
-
-A = np.arange(1, 37)
-A = A.reshape((6, 6))
-
-action = Action(1, 1, 12, 1)
-
-B = apply_die(A, action)
-print(B)
-"""
