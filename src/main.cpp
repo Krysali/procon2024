@@ -1,29 +1,33 @@
+﻿#include <stdafx.h>
 #include <types.h>
 #include <ops.h>
 #include <procon_api.h>
-#include <chrono>
+#include <gui.h>
 
-int main() {
-    std::string serverUrl = "localhost:8080";
-    std::string teamToken = "token1";
-    std::string problemData;
-    problemData = GetRequest(serverUrl + "/problem", teamToken);
-    std::cout << "Problem Data:\n" << problemData << std::endl;
-    GameState game_state = ParseJson(problemData);
+void Main() {
+	std::string serverUrl = "localhost:8080";
+	std::string teamToken = "token1";
+	std::string problemData;
 
-    Action action = {23, 1, 3, 2};
-    auto start = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < 100; ++i) {
-        apply_die(game_state, action);
-    }
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	try {
+		// Get the problem data from the server
+		problemData = GetRequest(serverUrl + "/problem", teamToken);
+		Console << U"Successfully read problem data from " << Unicode::Widen(serverUrl);
+	}
+	catch (std::runtime_error) {
+		// If the request fails, fallback to reading the problem data from a file
+		Console << U"curl request failed, fallback to file json parsing\n";
+		problemData = ReadJsonFile("../problem.json");
+	}
 
-    display_game_state(game_state);
+	// Parse the problem data into a GameState object
+	GameState game_state = ParseJson(problemData);
+	
+	GUI game(game_state);
+	game.serverUrl = serverUrl;
+	game.token = teamToken;
 
-    std::cout << "Optimized apply_die time: " << duration.count() << " microseconds\nAverage time:" << duration.count() / 100 << " microseconds" << std::endl;
-
-    PostRequest(serverUrl + "/answer", teamToken, OutputJson(game_state));
-
-    return 0;
+	while (System::Update()) {
+		game.Render();
+	}
 }
