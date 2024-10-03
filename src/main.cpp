@@ -1,42 +1,29 @@
 #include <types.h>
 #include <ops.h>
 #include <procon_api.h>
-using namespace std;
+#include <chrono>
 
 int main() {
     std::string serverUrl = "localhost:8080";
     std::string teamToken = "token1";
     std::string problemData;
-    try {
-        problemData = GetRequest(serverUrl + "/problem", teamToken);
-    }
-    catch (runtime_error) {
-        std::cerr << "curl request failed, fallback to file json parsing\n";
-        problemData = ReadJsonFile("../problem.json");
-    }
+    problemData = GetRequest(serverUrl + "/problem", teamToken);
     std::cout << "Problem Data:\n" << problemData << std::endl;
     GameState game_state = ParseJson(problemData);
 
-    // Display the game state
-    cout << "Initial Game State:" << endl;
+    Action action = {22, 1, 3, 2};
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < 10; ++i) {
+        apply_die(game_state, action);
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+
     display_game_state(game_state);
 
-    // example die application
-    apply_die(game_state, 26, 1, 1, 2);
+    std::cout << "Optimized apply_die time: " << duration.count() << " microseconds\nAverage time:" << duration.count() / 10 << " microseconds" << std::endl;
 
-    display_game_state(game_state);
-
-    // Post the answer and get the revision
-    cout << OutputJson(game_state) << endl;
-    std::string revision;
-    try {
-        revision = PostRequest(serverUrl + "/answer", teamToken, OutputJson(game_state));
-    }
-    catch (runtime_error) {
-        std::cerr << "curl request failed\n";
-        revision = "None";
-    }
-    cout << revision;
+    PostRequest(serverUrl + "/answer", teamToken, OutputJson(game_state));
 
     return 0;
 }

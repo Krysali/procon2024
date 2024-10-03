@@ -1,132 +1,283 @@
 #include <ops.h>
 
-void apply_die(GameState& game_state, int die_index, int x, int y, int direction) {
-    const Die& die = game_state.dies[die_index];
-    Board& board = game_state.board;
-    
-    // Calculate overlap boundaries
-    int overlap_x_start = std::max(0, x);
-    int overlap_y_start = std::max(0, y); 
-    int overlap_x_end = std::min(board.width, x + die.width);
-    int overlap_y_end = std::min(board.height, y + die.height);
+void apply_die(GameState& game_state, Action action) {
 
-    // Store punched-out pieces
-    struct Piece {
-        int x;
-        int y;
-        int value;
-    };
-    std::vector<Piece> punched_pieces;
+    auto board = game_state.board.pieces;
+    int n = game_state.board.height;
+    int m = game_state.board.width;
+    // Set up
+    int power = ceil(action.die_index / 3.0);
+    int size = int(pow(2, power));
+    int dice_type = (power == 0) ? 1 : action.die_index - ((power - 1) * 3);
 
-    for (int i = overlap_y_start; i < overlap_y_end; ++i) {
-        for (int j = overlap_x_start; j < overlap_x_end; ++j) {
-            int die_i = i - y;
-            int die_j = j - x;
-            if (die.cells[die_i][die_j]) {
-                punched_pieces.push_back({i, j, board.pieces[i][j]});
-                board.pieces[i][j] = -1; // Mark as empty
-            } 
+    // cout << "dice_index:" << action.dice_index << ", n:" << n << ", m:" << m << ", power:" << power << ", size:" << size 
+    //      << ", dice_type:" << dice_type << ", dir:" << action.direction << endl;
+
+    std::vector<int> cut_pieces;
+
+    int x_start = std::max(action.x, 0);
+    int y_start = std::max(action.y, 0);
+    int x_end = std::min(m, action.x + size) - 1;
+    int y_end = std::min(n, action.y + size) - 1;
+
+    int width = x_end - x_start + 1;
+    int height = y_end - y_start + 1;
+
+    int chosen_row_num = floor(height / 2);
+    int chosen_col_num = floor(width / 2);
+    int first = 1;
+
+    // Determining first and chosen_x_num
+    if (dice_type == 2) {
+        first = (height + 1) % 2;
+        if (is_inside(action.x, action.y, n, m, dice_type)) {
+            if (!first) {
+                chosen_row_num += 1;
+            }
+            first = 1;
+        } else if (abs(action.y) % 2 != 0) {
+            first = 0;
+        } else if (abs(action.y) % 2 == 0) {
+            if (height % 2 == 1) { // n bsn
+                first = 1;
+                chosen_row_num += 1;
+            }
         }
-    } 
-
-    // Shift pieces
-    shift_pieces(board, direction);
-    
-    // Reinsert punched pieces
-    switch (direction) {
-        case 0:
-            for (int x_index = 0; x_index < board.width; ++x_index) {
-                int current_y = board.height - 1;
-                for (int piece_index = punched_pieces.size() - 1; piece_index >= 0; --piece_index){
-                    if (punched_pieces[piece_index].y == x_index) {
-                        board.pieces[current_y][x_index] = punched_pieces[piece_index].value;
-                        current_y--;
-                    }
-                }
-            }
-        break;
-        case 1:
-            for (int i = 0; i < board.width; ++i) {
-                int current_y = 0;
-                for (int j = 0; j < punched_pieces.size(); ++j) {
-                    if (punched_pieces[j].y == i) {
-                        board.pieces[current_y][i] = punched_pieces[j].value;
-                        current_y++;
-                    }
-                }
-            }
-        break;
-        case 2:
-            for (int i = 0; i < board.height; ++i) {
-                int current_x = board.width - 1;
-                for (int j = punched_pieces.size() - 1; j >= 0; --j) {
-                    if (punched_pieces[j].x == i) {
-                        board.pieces[i][current_x] = punched_pieces[j].value;
-                        current_x--;
-                    }
-                }
-            }
-        break;
-        case 3:
-            for (int i = 0; i < board.height; ++i) {
-                int current_x = 0;
-                for (int j = 0; j < punched_pieces.size(); ++j) {
-                    if (punched_pieces[j].x == i) {
-                        board.pieces[i][current_x] = punched_pieces[j].value;
-                        current_x++;
-                    }
-                }
-            }
-        break;
     }
-    // add move to game state
-    game_state.moves.push_back({die_index, x, y, direction});
-    game_state.num_moves++;
+
+    if (dice_type == 3) {
+        first = (width + 1) % 2;
+        if (is_inside(action.x, action.y, n, m, dice_type)) {
+            if (!first) {
+                chosen_col_num += 1;
+            }
+            first = 1;
+        } else if (abs(action.x) % 2 != 0) {
+            first = 0;
+        } else if (abs(action.x) % 2 == 0) {
+            if (width % 2 == 1) { // m bsn
+                first = 1;
+                chosen_col_num += 1;
+            }
+        }
+    }
+
+    // cout << "x_start:" << x_start << ", x_end:" << x_end << ", y_start:" << y_start 
+    //      << ", y_end:" << y_end << ", width:" << width << ", height:" << height 
+    //      << ", chosen_row_num:" << chosen_row_num << ", chosen_col_num:" << chosen_col_num << endl;
+
+    // CUT PHASE
+    if (dice_type == 1) {
+        for (int r = y_start; r <= y_end; ++r) {
+            for (int c = x_start; c <= x_end; ++c) {
+                cut_pieces.push_back(board[r][c]);
+                board[r][c] = 0;
+            }
+        }
+    }
+
+    if (dice_type == 2) {
+        int x = (first + 1) % 2;
+        if (is_inside(action.x, action.y, n, m, dice_type)) {
+            for (int r = y_start; r <= y_end; r += 2) {
+                for (int c = x_start; c <= x_end; ++c) {
+                    cut_pieces.push_back(board[r][c]);
+                    board[r][c] = 0;
+                }
+            }
+        } else {
+            for (int r = y_start + x; r <= y_end; r += 2) {
+                for (int c = x_start; c <= x_end; ++c) {
+                    cut_pieces.push_back(board[r][c]);
+                    board[r][c] = 0;
+                }
+            }
+        }
+    }
+
+    if (dice_type == 3) {
+        int x = (first + 1) % 2;
+        if (is_inside(action.x, action.y, n, m, dice_type)) {
+            for (int r = y_start; r <= y_end; ++r) {
+                for (int c = x_start; c <= x_end; c += 2) {
+                    cut_pieces.push_back(board[r][c]);
+                    board[r][c] = 0;
+                }
+            }
+        } else {
+            for (int r = y_start; r <= y_end; ++r) {
+                for (int c = x_start + x; c <= x_end; c += 2) {
+                    cut_pieces.push_back(board[r][c]);
+                    board[r][c] = 0;
+                }
+            }
+        }
+    }
+
+    // SHIFT PHASE
+    if (action.direction == 0) {
+        for (int c = x_start; c <= x_end; ++c) {
+            int write_index = y_start;
+            for (int r = y_start; r < n; ++r) {
+                if (board[r][c] != 0) {
+                    board[write_index][c] = board[r][c];
+                    ++write_index;
+                }
+            }
+            for (int r = write_index; r < n; ++r) {
+                board[r][c] = 0;
+            }
+        }
+    }else if(action.direction == 1) {
+        for (int c = x_start; c <= x_end; ++c) {
+            int write_index = y_end;
+            for (int r = y_end; r >= 0; --r) {
+                if (board[r][c] != 0) {
+                    board[write_index][c] = board[r][c];
+                    --write_index;
+                }
+            }
+            for (int r = write_index; r >= 0; --r) {
+                board[r][c] = 0;
+            }
+        }
+    }else if (action.direction == 2) {
+        for (int r = y_start; r <= y_end; ++r) {
+            int write_index = x_start;
+            for (int c = x_start; c < m; ++c) {
+                if (board[r][c] != 0) {
+                    board[r][write_index] = board[r][c];
+                    ++write_index;
+                }
+            }
+            for (int c = write_index; c < m; ++c) {
+                board[r][c] = 0;
+            }
+        }
+    }else if (action.direction == 3) {
+        for (int r = y_start; r <= y_end; ++r) {
+            int write_index = x_end;
+            for (int c = x_end; c >= 0; --c) {
+                if (board[r][c] != 0) {
+                    board[r][write_index] = board[r][c];
+                    --write_index;
+                }
+            }
+            for (int c = write_index; c >= 0; --c) {
+                board[r][c] = 0;
+            }
+        }
+    }
+
+    // BBBT PHASE
+    int bxs = 0, bxe = 0, bys = 0, bye = 0;
+
+    if (dice_type == 1) {
+        if (action.direction < 2) {
+            bxs = x_start;
+            bxe = x_end;
+            if (action.direction == 0) {
+                bys = n - height;
+                bye = n - 1;
+            } else {
+                bys = 0;
+                bye = height - 1;
+            }
+        } else {
+            bys = y_start;
+            bye = y_end;
+            if (action.direction == 2) {
+                bxs = m - width;
+                bxe = m - 1;
+            } else {
+                bxs = 0;
+                bxe = width - 1;
+            }
+        }
+    } else if (dice_type == 2) {
+        if (action.direction < 2) {
+            bxs = x_start;
+            bxe = x_end;
+            if (action.direction == 0) {
+                bys = n - chosen_row_num;
+                bye = n - 1;
+            } else {
+                bys = 0;
+                bye = chosen_row_num - 1;
+            }
+        } else {
+            bys = y_start;
+            bye = y_end;
+            if (action.direction == 2) {
+                bxs = m - width;
+                bxe = m - 1;
+            } else {
+                bxs = 0;
+                bxe = width - 1;
+            }
+        }
+    } else if (dice_type == 3) {
+        if (action.direction < 2) {
+            bxs = x_start;
+            bxe = x_end;
+            if (action.direction == 0) {
+                bys = n - height;
+                bye = n - 1;
+            } else {
+                bys = 0;
+                bye = height - 1;
+            }
+        } else {
+            bys = y_start;
+            bye = y_end;
+            if (action.direction == 2) {
+                bxs = m - chosen_col_num;
+                bxe = m - 1;
+            } else {
+                bxs = 0;
+                bxe = chosen_col_num - 1;
+            }
+        }
+    }
+
+    //cout << "bxs:" << bxs << ", bxe:" << bxe << ", bys:" << bys << ", bye:" << bye << endl;
+
+    int cnt = 0;
+    if (dice_type == 1) {
+        for (int r = bys; r <= bye; ++r) {
+            for (int c = bxs; c <= bxe; ++c) {
+                board[r][c] = cut_pieces[cnt];
+                cnt++;
+            }
+        }
+    } else if (dice_type == 2 || dice_type == 3) {
+        for (int r = bys; r <= bye; ++r) {
+            for (int c = bxs; c <= bxe; ++c) {
+                if (board[r][c] == 0) {
+                    board[r][c] = cut_pieces[cnt];
+                    cnt++;
+                }
+            }
+        }
+    }
+
+    // Checking for empty cells
+    // for (int r = 0; r < n; ++r) {
+    //     for (int c = 0; c < m; ++c) {
+    //         if (board[r][c] == 0) {
+    //             cout << "AAAAAAIIIIIIIIIIIINNNNNNNNN" << endl;
+    //         }
+    //     }
+    // }
+
+    return;
 }
 
-void shift_pieces(Board& board, int direction) {
-    int start, end, step, write_index;
-
-    if (direction % 2 == 0) { 
-        start = 0;
-        end = (direction == 0) ? board.height : board.width;
-        step = 1;
+bool is_inside(int x, int y, int n, int m, int dtype) {
+    if (dtype == 2) {
+        return (x >= 0 && x < m);
     } else {
-        start = (direction == 1) ? board.height - 1 : board.width - 1;
-        end = -1;
-        step = -1;
-    }
-
-    if (direction < 2) { // Vertical shift
-        for (int j = 0; j < board.width; ++j) {
-            write_index = (direction == 0) ? 0 : board.height - 1;
-            for (int i = start; i != end; i += step) {
-                if (board.pieces[i][j] != -1) {
-                    board.pieces[write_index][j] = board.pieces[i][j];
-                    write_index += step;
-                }
-            }
-            // Fill remaining spaces with -1
-            while (write_index != end) {
-                board.pieces[write_index][j] = -1;
-                write_index += step;
-            }
-        }
-    } else { // Horizontal shift
-        for (int i = 0; i < board.height; ++i) {
-            write_index = (direction == 2) ? 0 : board.width - 1;
-            for (int j = start; j != end; j += step) {
-                if (board.pieces[i][j] != -1) {
-                    board.pieces[i][write_index] = board.pieces[i][j];
-                    write_index += step;
-                }
-            }
-            // Fill remaining spaces with -1
-            while (write_index != end) {
-                board.pieces[i][write_index] = -1;
-                write_index += step;
-            }
-        }
+        return (y >= 0 && y < n);
     }
 }
 
@@ -141,7 +292,6 @@ void display_game_state(const GameState& game_state) {
             } else {
                 std::cout << board.pieces[row][col];
             }
-            std::cout << " ";
         }
         std::cout << std::endl;
     }
