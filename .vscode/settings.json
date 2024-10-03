@@ -80,6 +80,7 @@
         "string_view": "cpp",
         "numbers": "cpp",
         "cinttypes": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "fstream": "cpp"
     }
 }
