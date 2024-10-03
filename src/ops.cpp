@@ -297,7 +297,3 @@ void display_game_state(const GameState& game_state) {
     }
     std::cout << "Number of moves: " << game_state.num_moves << "\n\n";
 }
-
-bool is_solved(const GameState& game_state) {
-    return (game_state.board.pieces == game_state.goal_state.pieces);
-}
