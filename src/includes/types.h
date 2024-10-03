@@ -1,8 +1,9 @@
-﻿#ifndef TYPES_H
+#ifndef TYPES_H
 #define TYPES_H
 
 #include <vector>
 #include <string>
+#include <nlohmann/json.hpp>
 
 const int MAX_DIMENSION = 256;
 
@@ -21,21 +22,21 @@ public:
 };
 
 // Structure to represent a move
-class Move {
+class Action {
 public:
     int die_index;
     int x, y;
     int direction;
 };
 
-// Class to represent the entire game state
+// Structure to represent the entire game state
 class GameState {
 public:
     Board board;
     Board goal_state;
-    std::vector<Die> dies;
-    std::vector<Move> moves;
-	int num_moves;
+    std::vector<Die> dies;  // Includes both fixed and general dies
+    int num_moves;
+    std::vector<Action> moves;
 };
 
 // DEPRECATED: Use only as a fallback when the API fails
