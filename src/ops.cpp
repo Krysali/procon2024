@@ -31,7 +31,7 @@ void apply_die(GameState& game_state, Action action) {
     if (dice_type == 2) {
         first = (height + 1) % 2;
         if (is_inside(action.x, action.y, n, m, dice_type)) {
-            if (!first) {
+            if (first == 0) {
                 chosen_row_num += 1;
             }
             first = 1;
@@ -48,7 +48,7 @@ void apply_die(GameState& game_state, Action action) {
     if (dice_type == 3) {
         first = (width + 1) % 2;
         if (is_inside(action.x, action.y, n, m, dice_type)) {
-            if (!first) {
+            if (first == 0) {
                 chosen_col_num += 1;
             }
             first = 1;
