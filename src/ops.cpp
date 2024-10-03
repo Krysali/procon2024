@@ -1,4 +1,4 @@
-#include <ops.h>
+﻿#include <ops.h>
 
 void apply_die(GameState& game_state, Action action) {
 

@@ -854,9 +854,9 @@ void GUI::RenderBottom() {
 
 void GUI::RenderAction() {
 	if (gui::Button(U"Apply", directionArea.bl().movedBy(0, margin), directionArea.w, buttonSize, selectedDieType != -1 && selectedDirection != -1 && !showGoal && !solved)) {
-		applied_moves.push_back({ game_state.board, {dieIndex, posX, posY, selectedDirection} });
-		apply_die(game_state, dieIndex, posX, posY, selectedDirection);
-		undone_moves.clear();
+		applied_actions.push_back({ game_state.board, {dieIndex, posX, posY, selectedDirection} });
+		apply_die(game_state, { dieIndex, posX, posY, selectedDirection });
+		undone_actions.clear();
 
 		if (game_state.board.pieces == game_state.goal_state.pieces) {
 			solved = true;
@@ -865,19 +865,19 @@ void GUI::RenderAction() {
 			System::MessageBoxOK(U"Solved", U"Congratulations!");
 		}
 	}
-	if (gui::Button(U"\U000F054C", actionArea.tl(), buttonSize, buttonSize, !applied_moves.empty() && !showGoal && !solved)) {
-		game_state.board = applied_moves.back().first;
-		undone_moves.push_back({ applied_moves.back().first, applied_moves.back().second });
-		applied_moves.pop_back();
+	if (gui::Button(U"\U000F054C", actionArea.tl(), buttonSize, buttonSize, !applied_actions.empty() && !showGoal && !solved)) {
+		game_state.board = applied_actions.back().first;
+		undone_actions.push_back({ applied_actions.back().first, applied_actions.back().second });
+		applied_actions.pop_back();
 		game_state.num_moves--;
 		game_state.moves.pop_back();
 
 	}
-	if (gui::Button(U"\U000F044E", actionArea.tl().movedBy(buttonSize, 0), buttonSize, buttonSize, !undone_moves.empty() && !showGoal && !solved)) {
-		game_state.board = undone_moves.back().first;
-		game_state.moves.push_back(undone_moves.back().second);
-		applied_moves.clear();
-		undone_moves.pop_back();
+	if (gui::Button(U"\U000F044E", actionArea.tl().movedBy(buttonSize, 0), buttonSize, buttonSize, !undone_actions.empty() && !showGoal && !solved)) {
+		game_state.board = undone_actions.back().first;
+		game_state.moves.push_back(undone_actions.back().second);
+		applied_actions.clear();
+		undone_actions.pop_back();
 	}
 }
 

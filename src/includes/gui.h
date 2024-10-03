@@ -51,8 +51,8 @@ private:
 	TextEditState _selectedGeneralDie, _posX, _posY;
 	int selectedGeneralDie, posX, posY;
 	bool showGoal, solved;
-	std::vector<std::pair<Board, Move>> applied_moves;
-	std::vector<std::pair<Board, Move>> undone_moves;
+	std::vector<std::pair<Board, Action>> applied_actions;
+	std::vector<std::pair<Board, Action>> undone_actions;
 	Stopwatch stopwatch;
 	Font label;
 
