@@ -8,31 +8,35 @@
 const int MAX_DIMENSION = 256;
 
 // Structure to represent a die
-struct Die {
+class Die {
+public:
     int width, height;
     std::vector<std::vector<bool>> cells;  // Use bool for 0/1 values
 };
 
 // Structure to represent the game board
-struct Board {
+class Board {
+public:
     int width, height;
     std::vector<std::vector<int>> pieces;
 };
 
 // Structure to represent a move
-struct Move {
+class Action {
+public:
     int die_index;
     int x, y;
     int direction;
 };
 
 // Structure to represent the entire game state
-struct GameState {
+class GameState {
+public:
     Board board;
     Board goal_state;
     std::vector<Die> dies;  // Includes both fixed and general dies
     int num_moves;
-    std::vector<Move> moves;
+    std::vector<Action> moves;
 };
 
 // DEPRECATED: Use only as a fallback when the API fails
