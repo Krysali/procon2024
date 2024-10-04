@@ -27,7 +27,6 @@ public:
     int die_index;
     int x, y;
     int direction;
-    Action(int die_index, int x, int y, int direction);
 };
 
 // Structure to represent the entire game state
