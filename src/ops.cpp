@@ -291,6 +291,7 @@ void apply_die(GameState& game_state, Action action) {
 	//     }
 	// }
 	game_state.num_actions++;
+	game_state.actions.push_back(action);
 	return;
 }
 
