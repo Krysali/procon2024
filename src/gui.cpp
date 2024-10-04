@@ -593,8 +593,8 @@ namespace gui {
 	}
 };
 
-GUI::GUI(GameState& _game_state) {
-	game_state = _game_state;
+GUI::GUI(GameState& game_state) {
+	this->game_state = game_state;
 	desiredWindowHeight = 1200;
 	margin = desiredWindowHeight / 10;
 	cellSize = (desiredWindowHeight - margin * 5 / 4) / game_state.board.height;
@@ -853,33 +853,33 @@ void GUI::RenderBottom() {
 }
 
 void GUI::RenderAction() {
-	if (gui::Button(U"Apply", directionArea.bl().movedBy(0, margin), directionArea.w, buttonSize, selectedDieType != -1 && selectedDirection != -1 && !showGoal && !solved)) {
-		applied_actions.push_back({ game_state.board, {dieIndex, posX, posY, selectedDirection} });
-		Action action = { dieIndex, posX, posY, selectedDirection };
-		apply_die(game_state, action);
-		undone_actions.clear();
+    if (gui::Button(U"Apply", directionArea.bl().movedBy(0, margin), directionArea.w, buttonSize, selectedDieType != -1 && selectedDirection != -1 && !showGoal && !solved)) {
+        applied_actions.push_back({ game_state.board, {dieIndex, posX, posY, selectedDirection } });
+        Action action = { dieIndex, posX, posY, selectedDirection };
+        apply_die(game_state, action);
+        undone_actions.clear();
 
-		if (game_state.board.pieces == game_state.goal_state.pieces) {
-			solved = true;
-			stopwatch.pause();
-			Reset();
-			System::MessageBoxOK(U"Solved", U"Congratulations!");
-		}
-	}
-	if (gui::Button(U"\U000F054C", actionArea.tl(), buttonSize, buttonSize, !applied_actions.empty() && !showGoal && !solved)) {
-		game_state.board = applied_actions.back().first;
-		undone_actions.push_back({ applied_actions.back().first, applied_actions.back().second });
-		applied_actions.pop_back();
-		game_state.num_actions--;
-		game_state.actions.pop_back();
+        if (game_state.board.pieces == game_state.goal_state.pieces) {
+            solved = true;
+            stopwatch.pause();
+            Reset();
+            System::MessageBoxOK(U"Solved", U"Congratulations!");
+        }
+    }
+    if (gui::Button(U"\U000F054C", actionArea.tl(), buttonSize, buttonSize, !applied_actions.empty() && !showGoal && !solved)) {
+        game_state.board = applied_actions.back().first;
+        undone_actions.push_back({ applied_actions.back().first, applied_actions.back().second });
+        applied_actions.pop_back();
+        game_state.num_actions--;
+        game_state.actions.pop_back();
 
-	}
-	if (gui::Button(U"\U000F044E", actionArea.tl().movedBy(buttonSize, 0), buttonSize, buttonSize, !undone_actions.empty() && !showGoal && !solved)) {
-		game_state.board = undone_actions.back().first;
-		game_state.actions.push_back(undone_actions.back().second);
-		applied_actions.clear();
-		undone_actions.pop_back();
-	}
+    }
+    if (gui::Button(U"\U000F044E", actionArea.tl().movedBy(buttonSize, 0), buttonSize, buttonSize, !undone_actions.empty() && !showGoal && !solved)) {
+        game_state.board = undone_actions.back().first;
+        game_state.actions.push_back(undone_actions.back().second);
+        applied_actions.clear();
+        undone_actions.pop_back();
+    }
 }
 
 void GUI::RenderStopwatch() {

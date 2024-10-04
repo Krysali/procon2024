@@ -38,7 +38,7 @@ namespace gui {
 class GUI {
 
 public:
-	GUI(GameState& _game_state);
+	GUI(GameState& game_state);
 	GameState game_state;
 	std::string serverUrl, token, revision;
 	void Render();
