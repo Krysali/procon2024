@@ -1,4 +1,4 @@
-#ifndef TYPES_H
+﻿#ifndef TYPES_H
 #define TYPES_H
 
 #include <vector>
@@ -35,8 +35,8 @@ public:
     Board board;
     Board goal_state;
     std::vector<Die> dies;  // Includes both fixed and general dies
-    int num_moves;
-    std::vector<Action> moves;
+    int num_actions;
+    std::vector<Action> actions;
 };
 
 // DEPRECATED: Use only as a fallback when the API fails

@@ -63,21 +63,21 @@ GameState ParseJson(const std::string& problem_json) {
         game_state.dies.push_back({die["width"], die["height"], general_die_cells});
     }
 
-    game_state.num_moves = 0;
+    game_state.num_actions = 0;
     
     return game_state;
 }
 
 std::string OutputJson(const GameState& game_state) {
     nlohmann::json output_json;
-    output_json["n"] = game_state.num_moves;
+    output_json["n"] = game_state.num_actions;
     output_json["ops"] = nlohmann::json::array();
-    for (const auto& move : game_state.moves) {
+    for (const auto& action : game_state.actions) {
         nlohmann::json ops;
-        ops["p"] = move.die_index;
-        ops["x"] = move.x;
-        ops["y"] = move.y;
-        ops["s"] = move.direction;
+        ops["p"] = action.die_index;
+        ops["x"] = action.x;
+        ops["y"] = action.y;
+        ops["s"] = action.direction;
         output_json["ops"].push_back(ops);
     }
     return output_json.dump();
