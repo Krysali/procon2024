@@ -21,10 +21,10 @@ int main() {
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 
     display_game_state(game_state);
-    
+
     std::cout << "Optimized apply_die time: " << duration.count() << " microseconds\nAverage time:" << duration.count() / 5000 << " microseconds" << std::endl;
-	std::string outputData = OutputJson(game_state);
-    PostRequest(serverUrl + "/answer", teamToken, outputData);
+
+    PostRequest(serverUrl + "/answer", teamToken, OutputJson(game_state));
 
     return 0;
 }
