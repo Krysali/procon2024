@@ -16,7 +16,8 @@ int main() {
     display_game_state(game_state);
 
     // example die application
-    apply_die(game_state, 25, 6, 1, 0);
+    Action action(6, 1, 25, 0);
+    apply_die(game_state, action);
 
     display_game_state(game_state);
 

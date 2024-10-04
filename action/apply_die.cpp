@@ -1,15 +1,19 @@
+#include <cmath>
+#include <test.h>
+using namespace std;
+
 // Function to apply the die action
-void apply_die(GameState& game_state, Move action) {
+void apply_die(GameState& game_state, Action action) {
 
     auto board = game_state.board.pieces;
-    int n = game_state.board.height;
-    int m = game_state.board.width;
+    int n = game_state.board.n;
+    int m = game_state.board.m;
     // Set up
-    int power = ceil(action.dice_index / 3.0);
+    int power = ceil(action.die_index / 3.0);
     int size = int(pow(2, power));
-    int dice_type = (power == 0) ? 1 : action.dice_index - ((power - 1) * 3);
+    int dice_type = (power == 0) ? 1 : action.die_index - ((power - 1) * 3);
 
-    // cout << "dice_index:" << action.dice_index << ", n:" << n << ", m:" << m << ", power:" << power << ", size:" << size 
+    // cout << "die_index:" << action.die_index << ", n:" << n << ", m:" << m << ", power:" << power << ", size:" << size 
     //      << ", dice_type:" << dice_type << ", dir:" << action.dir << endl;
 
     vector<int> cut_pieces;
@@ -19,16 +23,16 @@ void apply_die(GameState& game_state, Move action) {
     int x_end = min(m, action.x + size) - 1;
     int y_end = min(n, action.y + size) - 1;
 
-    int width = x_end - x_start + 1;
-    int height = y_end - y_start + 1;
+    int m = x_end - x_start + 1;
+    int n = y_end - y_start + 1;
 
-    int chosen_row_num = floor(height / 2);
-    int chosen_col_num = floor(width / 2);
+    int chosen_row_num = floor(n / 2);
+    int chosen_col_num = floor(m / 2);
     int first = 1;
 
     // Determining first and chosen_x_num
     if (dice_type == 2) {
-        first = (height + 1) % 2;
+        first = (n + 1) % 2;
         if (is_inside(action.x, action.y, n, m, dice_type)) {
             if (!first) {
                 chosen_row_num += 1;
@@ -37,7 +41,7 @@ void apply_die(GameState& game_state, Move action) {
         } else if (abs(action.y) % 2 != 0) {
             first = 0;
         } else if (abs(action.y) % 2 == 0) {
-            if (height % 2 == 1) { // n bsn
+            if (n % 2 == 1) { // n bsn
                 first = 1;
                 chosen_row_num += 1;
             }
@@ -45,7 +49,7 @@ void apply_die(GameState& game_state, Move action) {
     }
 
     if (dice_type == 3) {
-        first = (width + 1) % 2;
+        first = (m + 1) % 2;
         if (is_inside(action.x, action.y, n, m, dice_type)) {
             if (!first) {
                 chosen_col_num += 1;
@@ -54,7 +58,7 @@ void apply_die(GameState& game_state, Move action) {
         } else if (abs(action.x) % 2 != 0) {
             first = 0;
         } else if (abs(action.x) % 2 == 0) {
-            if (width % 2 == 1) { // m bsn
+            if (m % 2 == 1) { // m bsn
                 first = 1;
                 chosen_col_num += 1;
             }
@@ -62,7 +66,7 @@ void apply_die(GameState& game_state, Move action) {
     }
 
     // cout << "x_start:" << x_start << ", x_end:" << x_end << ", y_start:" << y_start 
-    //      << ", y_end:" << y_end << ", width:" << width << ", height:" << height 
+    //      << ", y_end:" << y_end << ", m:" << m << ", n:" << n 
     //      << ", chosen_row_num:" << chosen_row_num << ", chosen_col_num:" << chosen_col_num << endl;
 
     // CUT PHASE
@@ -176,21 +180,21 @@ void apply_die(GameState& game_state, Move action) {
             bxs = x_start;
             bxe = x_end;
             if (action.dir == 0) {
-                bys = n - height;
+                bys = n - n;
                 bye = n - 1;
             } else {
                 bys = 0;
-                bye = height - 1;
+                bye = n - 1;
             }
         } else {
             bys = y_start;
             bye = y_end;
             if (action.dir == 2) {
-                bxs = m - width;
+                bxs = m - m;
                 bxe = m - 1;
             } else {
                 bxs = 0;
-                bxe = width - 1;
+                bxe = m - 1;
             }
         }
     } else if (dice_type == 2) {
@@ -208,11 +212,11 @@ void apply_die(GameState& game_state, Move action) {
             bys = y_start;
             bye = y_end;
             if (action.dir == 2) {
-                bxs = m - width;
+                bxs = m - m;
                 bxe = m - 1;
             } else {
                 bxs = 0;
-                bxe = width - 1;
+                bxe = m - 1;
             }
         }
     } else if (dice_type == 3) {
@@ -220,11 +224,11 @@ void apply_die(GameState& game_state, Move action) {
             bxs = x_start;
             bxe = x_end;
             if (action.dir == 0) {
-                bys = n - height;
+                bys = n - n;
                 bye = n - 1;
             } else {
                 bys = 0;
-                bye = height - 1;
+                bye = n - 1;
             }
         } else {
             bys = y_start;

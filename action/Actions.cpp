@@ -1,19 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
-
-struct Action {
-    int x, y;
-    int die_index;
-    int direction;
-
-    Action(int X, int Y, int di, int dir){
-        x = X;
-        y = Y;
-        die_index = di;
-        direction = dir;
-    }
-};
+#include <test.h>
 
 int nearest(int x)
 {
