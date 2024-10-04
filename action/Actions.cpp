@@ -1,3 +1,6 @@
+#include <iostream>
+#include <vector>
+
 vector<Action> gen_actions(int n, int m)
 {
     int topX, topY, botX, botY, width, height, mxSide, sz, diceNum;
