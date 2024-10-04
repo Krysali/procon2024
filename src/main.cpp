@@ -8,12 +8,13 @@ int main() {
     std::string teamToken = "token1";
     std::string problemData;
     problemData = GetRequest(serverUrl + "/problem", teamToken);
-    std::cout << "Problem Data:\n" << problemData << std::endl;
+    // std::cout << "Problem Data:\n" << problemData << std::endl;
     GameState game_state = ParseJson(problemData);
+    game_state.num_actions = 0;
 
-    Action action = {23, 1, 3, 2};
+    Action action = { 23, 1, 3, 2 };
     auto start = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 1000; ++i) {
         apply_die(game_state, action);
     }
     auto end = std::chrono::high_resolution_clock::now();
@@ -21,7 +22,7 @@ int main() {
 
     display_game_state(game_state);
 
-    std::cout << "Optimized apply_die time: " << duration.count() << " microseconds\nAverage time:" << duration.count() / 100 << " microseconds" << std::endl;
+    std::cout << "Optimized apply_die time: " << duration.count() << " microseconds\nAverage time:" << duration.count() / 1000 << " microseconds" << std::endl;
 
     PostRequest(serverUrl + "/answer", teamToken, OutputJson(game_state));
 
