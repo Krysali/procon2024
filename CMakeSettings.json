@@ -10,14 +10,7 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "cmakeExecutable": "C:/Program Files/CMake/bin/cmake.exe",
-      "variables": [
-        {
-          "name": "Z_VCPKG_PWSH_PATH",
-          "value": "D:/Tselmeg/PROCON24/procon2024/vcpkg/vcpkg.exe",
-          "type": "FILEPATH"
-        }
-      ]
+      "cmakeExecutable": "C:/Program Files/CMake/bin/cmake.exe"
     }
   ]
 }
