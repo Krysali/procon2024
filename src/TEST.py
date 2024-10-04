@@ -528,7 +528,6 @@ def gen_action(n, m):
                     for i in range(2, 4):
                         action = Action(topX, topY, dice_num - 2, i)
                         actions.append(action)
-
                     # TYPE II
                     for i in range(2, 4):
                         action = Action(topX, topY, dice_num - 1, i)
@@ -1185,12 +1184,11 @@ if 1:
         if llr_tuple not in check:
             check[llr_tuple] = 1
             tooluur += 1
-            # print(f"x: {a.x} y: {a.y} dice: {a.dice_num} dir: {a.dir}")  # Uncomment if needed for debugging
+            #print(f"x: {a.x} y: {a.y} dice: {a.dice_num} dir: {a.dir}")  # Uncomment if needed for debugging
         else:
-            b = check[llr_tuple]
             print("DAVHARDAJ BAINA")
-            print(f"x: {b.x} y: {b.y} dice: {b.dice_num} dir: {b.dir}")  # Duplicate state
-            # display_game_state(nextState)  # Uncomment if needed for debugging
+            print(f"x: {a.x} y: {a.y} dice: {a.dice_num} dir: {a.dir}")  # Duplicate state
+            #display_game_state(nextState)  # Uncomment if needed for debugging
 
         number += 1
 

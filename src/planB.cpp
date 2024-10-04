@@ -48,7 +48,6 @@ int main() {
 					//b[i][j] == 0
 					if ( b[i][j] == 0) {
 
-						cout << 0 << " ";
 						auto itr = s0.lower_bound({i, j});
 						
 						pair<int, int> pr = *itr;
@@ -176,12 +175,10 @@ int main() {
 						}
 
 						v.clear();
-
-						cout << X << " " << Y << " " << dist2 << " " << dist << '\n';
 					}
 					// b[i][j] == 1
 					else if ( b[i][j] == 1) {
-						cout << 1 << " ";
+
 						auto itr = s1.lower_bound({i, j});
 						
 						pair<int, int> pr = *itr;
@@ -303,12 +300,10 @@ int main() {
 						}
 
 						v.clear();
-
-						cout<< X << " " << Y << " " << dist << " " << dist2 <<" " << '\n';
 					}
 					// b[i][j] == 2
 					else if ( b[i][j] == 2) {
-						cout << 2 << " ";
+
 						auto itr = s2.lower_bound({i, j});
 						
 						pair<int, int> pr = *itr;
@@ -430,12 +425,10 @@ int main() {
 						}
 
 						v.clear();
-
-						cout << X << " "  << Y << " " << dist << " " << dist2 << " " <<'\n';
 					}
 					//b[i][j] == 3
 					else {
-						cout<< 3 << " ";
+
 						auto itr = s3.lower_bound({i, j});
 						
 						pair<int, int> pr = *itr;
@@ -557,11 +550,18 @@ int main() {
 						}
 
 						v.clear();
-
-						cout << X << " "  << Y << " " << dist << " " << dist2 << " " <<'\n';
 					}
 					
+					cout << '\n';
+					for ( int I = 0; I < n; I ++) {
 
+						for ( int J = 0; J < m; J ++) {
+
+							cout << a[I][J] << " ";
+						}
+
+						cout << '\n';
+					}
 
 					cnt += dist + dist2;
 					
@@ -571,6 +571,7 @@ int main() {
 		
 	}
     
+	/*
 	for ( int i = 0; i < n; i ++) {
 
 		for ( int j = 0; j < m; j ++) {
@@ -579,7 +580,7 @@ int main() {
 		}
 
 		cout << '\n';
-	}
+	}*/
 
     cout << cnt << '\n';
     

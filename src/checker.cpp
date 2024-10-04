@@ -46,7 +46,10 @@ bool log2check(int x) {
 
 int main()
 {
-    int topX, topY, botX, botY, width, height, mxSide, sz, diceNum;
+    for ( int i = 4; i <= 256; i ++) {
+        for ( int j = i; j <= 256; j ++) {
+
+            int topX, topY, botX, botY, width, height, mxSide, sz, diceNum;
     std::cout << "test" << endl;
     // n = height, m = width
     int n, m;
@@ -821,6 +824,9 @@ int main()
         std::cout << number << " ";
         std::cout << tooluur;
     }
+        }
+    }
+    
 
     return 0;
 }
