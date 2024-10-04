@@ -1,3 +1,7 @@
+#include <iostream>
+#include <vector>
+
+
 // Function to check if the point (x, y) is inside the boundaries
 bool is_inside(int x, int y, int n, int m, int dtype) {
     if (dtype == 2) {
@@ -9,10 +13,10 @@ bool is_inside(int x, int y, int n, int m, int dtype) {
 
 Board reverseTypeI(int X, int Y, int size, int s, int n, int m, vector<vector<int>> board)
 {
-    int otx = max(X, 0);
-    int oty = max(Y, 0);
-    int obx = min(X + size - 1, m - 1);
-    int oby = min(Y + size - 1, n - 1);
+    int otx = std::max(X, 0);
+    int oty = std::max(Y, 0);
+    int obx = std::min(X + size - 1, m - 1);
+    int oby = std::min(Y + size - 1, n - 1);
     int w = obx - otx + 1;
     int h = oby - oty + 1;
     vector<int> rem[256], chosen[128];

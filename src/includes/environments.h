@@ -121,7 +121,6 @@ class Cube3: public Environment {
     virtual int getNumActions() const;
 };
 
-
 class Cube4: public Environment {
 	private:
 		static const int numActions = 24;

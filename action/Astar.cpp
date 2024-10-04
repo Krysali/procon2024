@@ -113,9 +113,9 @@ void aStarSearch(vector<vector<int>>& start, int x, int y) {
 int main() {
     // Initial state of the 8-puzzle
     vector<vector<int>> start = {
-        { 1, 2, 3 },
-        { 4, 5, 6 },
-        { 0, 7, 8 }
+        { 5, 0, 3 },
+        { 4, 1, 6 },
+        { 2, 7, 8 }
     };
 
     // Position of the empty tile (0)

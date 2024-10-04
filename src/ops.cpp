@@ -163,3 +163,4 @@ void display_game_state(const GameState& game_state) {
 bool is_solved(const GameState& game_state) {
     return (game_state.board.pieces == game_state.goal_state.pieces);
 }
+

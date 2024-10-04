@@ -68,25 +68,29 @@ struct GameState {
     }
 };
 
+bool is_solved(const GameState& game_state) {
+    return (game_state.board.pieces == game_state.goal_state.pieces);
+}
+
 void GameState::apply_die(GameState& game_state, Action action) {
 
     auto board = game_state.board.pieces;
-    int n = game_state.board.height;
-    int m = game_state.board.width;
+    int n = game_state.board.n;
+    int m = game_state.board.m;
     // Set up
-    int power = ceil(action.dice_index / 3.0);
+    int power = ceil(action.die_index / 3.0);
     int size = int(pow(2, power));
-    int dice_type = (power == 0) ? 1 : action.dice_index - ((power - 1) * 3);
+    int dice_type = (power == 0) ? 1 : action.die_index - ((power - 1) * 3);
 
-    // cout << "dice_index:" << action.dice_index << ", n:" << n << ", m:" << m << ", power:" << power << ", size:" << size 
+    // cout << "die_index:" << action.die_index << ", n:" << n << ", m:" << m << ", power:" << power << ", size:" << size 
     //      << ", dice_type:" << dice_type << ", dir:" << action.dir << endl;
 
-    vector<int> cut_pieces;
+    std::vector<int> cut_pieces;
 
-    int x_start = max(action.x, 0);
-    int y_start = max(action.y, 0);
-    int x_end = min(m, action.x + size) - 1;
-    int y_end = min(n, action.y + size) - 1;
+    int x_start = std::max(action.x, 0);
+    int y_start = std::max(action.y, 0);
+    int x_end = std::min(m, action.x + size) - 1;
+    int y_end = std::min(n, action.y + size) - 1;
 
     int width = x_end - x_start + 1;
     int height = y_end - y_start + 1;
@@ -484,10 +488,10 @@ Board reverseTypeI(int X, int Y, int size, int s, int n, int m, vector<vector<in
 
 Board reverseTypeII(int X, int Y, int size, int s, int n, int m, vector<vector<int>> board)
 {
-    int otx = max(X, 0);
-    int oty = max(Y, 0);
-    int obx = min(X + size - 1, m - 1);
-    int oby = min(Y + size - 1, n - 1);
+    int otx = std::max(X, 0);
+    int oty = std::max(Y, 0);
+    int obx = std::min(X + size - 1, m - 1);
+    int oby = std::min(Y + size - 1, n - 1);
     int w = obx - otx + 1;
     int h = oby - oty + 1;
 
@@ -510,7 +514,7 @@ Board reverseTypeII(int X, int Y, int size, int s, int n, int m, vector<vector<i
 
     // cout << "otx:" << otx << " oty:" << oty << " obx:" << obx << " oby:" << oby << " w:" << w << " h:" << h << " chosenRowNum:" << chosenRowNum << " first:" << first << '\n';
 
-    vector<int> rem[256], chosen[128];
+    std::vector<int> rem[256], chosen[128];
 
     if(s == 0){
 
@@ -711,12 +715,12 @@ Board reverseTypeII(int X, int Y, int size, int s, int n, int m, vector<vector<i
     return res;
 }
  
-Board reverseTypeIII(int X, int Y, int size, int s, int n, int m, vector<vector<int>> board)
+Board reverseTypeIII(int X, int Y, int size, int s, int n, int m, std::vector<std::vector<int>> board)
 {
-    int otx = max(X, 0);
-    int oty = max(Y, 0);
-    int obx = min(X + size - 1, m - 1);
-    int oby = min(Y + size - 1, n - 1);
+    int otx = std::max(X, 0);
+    int oty = std::max(Y, 0);
+    int obx = std::min(X + size - 1, m - 1);
+    int oby = std::min(Y + size - 1, n - 1);
     int w = obx - otx + 1;
     int h = oby - oty + 1;
 
@@ -929,17 +933,17 @@ Board reverseTypeIII(int X, int Y, int size, int s, int n, int m, vector<vector<
 
 Board reverse(Board bord, Action a) {
     // Setup
-    vector<vector<int>> cboard = bord.pieces;
+    std::vector<std::vector<int>> cboard = bord.pieces;
     int n = bord.n;
     int m = bord.m;
-    int power = ceil(double(a.diceNum) / 3.0);
+    int power = ceil(double(a.die_index) / 3.0);
     int size = int(pow(2, power));
     int dice_type;
 
     if (power == 0) {
         dice_type = 1;
     } else {
-        dice_type = a.diceNum - ((power - 1) * 3);
+        dice_type = a.die_index - ((power - 1) * 3);
     }
 
     // Determine the dice type and call the corresponding reverse function
