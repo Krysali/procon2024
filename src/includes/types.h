@@ -27,6 +27,7 @@ public:
     int die_index;
     int x, y;
     int direction;
+    Action(int die_index, int x, int y, int direction);
 };
 
 // Structure to represent the entire game state
@@ -35,8 +36,8 @@ public:
     Board board;
     Board goal_state;
     std::vector<Die> dies;  // Includes both fixed and general dies
-    int num_moves;
-    std::vector<Action> moves;
+    int num_actions;
+    std::vector<Action> actions;
 };
 
 // DEPRECATED: Use only as a fallback when the API fails
