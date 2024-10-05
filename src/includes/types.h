@@ -1,17 +1,73 @@
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef TEST_H
+#define TEST_H
 
-#include <string>
-#include <test.h>
-#include <nlohmann/json.hpp>
+#include <vector>
 
-// DEPRECATED: Use only as a fallback when the API fails
-std::string ReadJsonFile(const std::string& file_path);
+// Structure to represent a custom die
+class CustomDie {
+public:
+    int width, height;
+    std::vector<std::vector<bool>> cells;  // Use bool for 0/1 values
 
-// Function to parse json data into a game state
-GameState ParseJson(const std::string& problem_json);
+    CustomDie(int width, int height){
+        this -> width = width;
+        this -> height = height;
+    }
+};
 
-// Function to output json using the game state
-std::string OutputJson(const GameState& game_state);
+// Structure to represent the game board
+class Board {
+public:
+    int height, width;
+    std::vector<std::vector<int>> pieces;
 
-#endif // TYPES_H
+    Board() : height(0), width(0) {}
+
+    Board(int height, int width, std::vector<std::vector<int>> pieces){
+        this -> height = height;
+        this -> width = width;
+        this -> pieces = pieces;
+    }
+};
+
+// Structure to represent a move
+class Action {
+public:
+    int x, y;
+    int die_index;
+    int direction;
+
+    Action(int x, int y, int die_index, int direction) {
+        this -> x = x;
+        this -> y = y;
+        this -> die_index = die_index;
+        this -> direction = direction;
+    }
+};
+
+// Structure to represent the entire game state
+class GameState {
+public:
+    Board board;
+    Board goal_state;
+    std::vector<Action> actions;
+
+    GameState() {
+    }
+
+    GameState(Board b, Board g){
+        board = b;
+        goal_state = g;
+    }
+    
+    void apply_die(Action action);
+    void raction(Action action);
+    void display_game_state();
+    bool is_solved();
+};
+
+void reverseTypeI(int X, int Y, int size, int s, int n, int m, Board& _board);
+void reverseTypeII(int X, int Y, int size, int s, int n, int m, Board& _board);
+void reverseTypeIII(int X, int Y, int size, int s, int n, int m, Board& _board);
+
+#endif // TEST_H
