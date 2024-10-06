@@ -23,7 +23,7 @@ struct PuzzleState {
     bool operator<(const PuzzleState& other) const {
         return f > other.f;  // Min-heap (lower f gets higher priority)
     }
-};
+}; 
 
 // Directions for movement (up, down, left, right)
 int dx[4] = { -1, 1, 0, 0 };
