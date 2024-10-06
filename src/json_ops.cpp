@@ -1,6 +1,8 @@
 #include <types.h>
+#include <nlohmann/json.hpp>
 #include <iostream>
 #include <fstream>
+#include <string>
 
 std::string ReadJsonFile(const std::string& file_path) {
     std::ifstream file(file_path);
@@ -20,7 +22,6 @@ std::string ReadJsonFile(const std::string& file_path) {
 // Parse the JSON data and return the game state
 GameState ParseJson(const std::string& problem_json) {
     GameState game_state;
-    game_state.dies = GenerateFixedDies();
     auto json_data = nlohmann::json::parse(problem_json);
     auto board_data = json_data["board"];
 
@@ -48,7 +49,7 @@ GameState ParseJson(const std::string& problem_json) {
     }
     game_state.goal_state = {board_data["width"], board_data["height"], goal_pieces};
 
-    // Parse die data
+    // Parse custom die data
     auto general_dies_data = json_data["general"];
     for (auto& die : general_dies_data["patterns"]) {
         std::vector<std::vector<bool>> general_die_cells;
@@ -59,19 +60,18 @@ GameState ParseJson(const std::string& problem_json) {
             }
             general_die_cells.push_back(die_row);
         }
-        game_state.dies.push_back({die["width"], die["height"], general_die_cells});
+        ///avahgui bga shuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //game_state.dies.push_back({die["width"], die["height"], general_die_cells});
     }
-
-    game_state.num_moves = 0;
     
     return game_state;
 }
 
 std::string OutputJson(const GameState& game_state) {
     nlohmann::json output_json;
-    output_json["n"] = game_state.num_moves;
+    output_json["n"] = int(game_state.actions.size());
     output_json["ops"] = nlohmann::json::array();
-    for (const auto& move : game_state.moves) {
+    for (const auto& move : game_state.actions) {
         nlohmann::json ops;
         ops["p"] = move.die_index;
         ops["x"] = move.x;

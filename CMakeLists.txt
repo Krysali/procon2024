@@ -3,8 +3,15 @@ set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.c
 project(PROCON2024)
 # Add an executable target
 add_executable(main 
+<<<<<<< HEAD
     src/Goku.cpp 
     src/types.cpp
+=======
+    src/main.cpp
+    src/types.cpp
+    src/json_ops.cpp
+    src/procon_api.cpp
+>>>>>>> 0b599747e9fded3e4e426f81e3508a9d96d85d14
 )
 
 # Specify include directories

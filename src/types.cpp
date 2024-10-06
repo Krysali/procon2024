@@ -295,6 +295,10 @@ void GameState::apply_die(Action action) {
 			}
 		}
 	}
+<<<<<<< HEAD
+=======
+	actions.push_back(action);
+>>>>>>> 0b599747e9fded3e4e426f81e3508a9d96d85d14
 	return;
 }
 
@@ -334,6 +338,7 @@ void GameState::display_game_state()
         }
         std::cout << '\n';
     }
+<<<<<<< HEAD
     return;
 }
 
@@ -366,6 +371,12 @@ bool GameState::operator<(const GameState & other) const{
 
 
 
+=======
+	std::cout << "Number of actions: " << actions.size() << std::endl;
+    return;
+}
+
+>>>>>>> 0b599747e9fded3e4e426f81e3508a9d96d85d14
 void reverseTypeI(int X, int Y, int size, int s, int n, int m, Board& _board) {
 	std::vector<std::vector<int>> board = _board.pieces;
 	int otx = std::max(X, 0);
@@ -1562,6 +1573,7 @@ std::vector<Action> gen_actions(int n, int m)
 	return actions;
 }
 
+<<<<<<< HEAD
 int rowcheck(Board odoogiinstate , Board goalstate , int n , int m) {
     int total = 0;
     for(int i = 0; i < n; i++) {
@@ -1596,4 +1608,6 @@ int columncheck(Board odoogiinstate , Board goalstate , int n , int m) {
     }
     return total;
 }
+=======
+>>>>>>> 0b599747e9fded3e4e426f81e3508a9d96d85d14
 
