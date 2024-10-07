@@ -7,16 +7,15 @@
 #include <set>
 #include <string>
 
-using namespace std;    
 
 // A* search algorithm
 void aStarSearch(GameState CurrentState) {
-    priority_queue<GameState> open;
-    set<GameState> closed;
+    std::priority_queue<GameState> open;
+    std::set<GameState> closed;
     
-    map<vector<vector<int>>, GameState*> google;
+    std::map<std::vector<std::vector<int>>, GameState*> google;
 
-    vector<Action> actions;
+    std::vector<Action> actions;
     actions = gen_actions(CurrentState.board.height , CurrentState.board.width);
     
     open.push(CurrentState);
@@ -24,11 +23,11 @@ void aStarSearch(GameState CurrentState) {
     while (!open.empty()) {
         GameState current = open.top();
         open.pop();
-        map<vector<vector<int>> , int> check;
+        std::map<std::vector<std::vector<int>> , int> check;
 
         // If the goal state is reached, print the solution and exit
         if(current.is_solved()){
-            cout << "Solution found";
+            std::cout << "Solution found";
             current.print_path();
             return;
         }
@@ -63,48 +62,48 @@ void aStarSearch(GameState CurrentState) {
             }
         }
     }
-    cout << "No solution found!" << endl;
+    std::cout << "No solution found!" << std::endl;
 }
 
 int main() {
-    cout << "Astar" << endl;
+    std::cout << "Astar" << std::endl;
     //inputs
     int n, m;
     std::cout << "Width: ";
-    cin >> m;
-    std::cout << endl;
+    std::cin >> m;
+    std::cout << std::endl;
     std::cout << "Height: ";
-    cin >> n;
+    std::cin >> n;
 
     // urgelj m ni urt tal ni baina 
-    if(n > m) swap(n, m);
+    if(n > m) std::swap(n, m);
 
     // Start state 
     Board StartBoard , GoalBoard;
 
     //Startboard
-    std::cout << "Startboard ;" << endl;
+    std::cout << "Startboard ;" << std::endl;
     StartBoard.height = n;
     StartBoard.width = m;
     for(int i = 0; i < n; i++){
-        vector<int> row;
+        std::vector<int> row;
         for(int j = 0; j < m; j++){
             int piece;
-            cin >> piece;
+            std::cin >> piece;
             row.push_back(piece);
         }
         StartBoard.pieces.push_back(row);
     }
     
     //GoalBoard
-    std::cout << "Goalboard ;" << endl;
+    std::cout << "Goalboard ;" << std::endl;
     GoalBoard.height = n;
     GoalBoard.width = m;
     for(int i = 0; i < n; i++){
-        vector<int> row;
+        std::vector<int> row;
         for(int j = 0; j < m; j++){
             int piece;
-            cin >> piece;
+            std::cin >> piece;
             row.push_back(piece);
         }
         GoalBoard.pieces.push_back(row);

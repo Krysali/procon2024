@@ -85,5 +85,5 @@ bool is_inside(int x, int y, int n, int m, int dtype);
 int rowcheck(Board odoogiinstate , Board goalstate , int n , int m);
 int columncheck(Board odoogiinstate , Board goalstate , int n , int m);
 
-~
+
 #endif //TYPES_H
