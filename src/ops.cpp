@@ -2,7 +2,7 @@
 
 void apply_die(GameState& game_state, Action action) {
 
-	auto board = game_state.board.pieces;
+	std::vector<std::vector<int>>& board = game_state.board.pieces;
 	int n = game_state.board.height;
 	int m = game_state.board.width;
 	// Set up
@@ -282,14 +282,6 @@ void apply_die(GameState& game_state, Action action) {
 		}
 	}
 
-	// Checking for empty cells
-	// for (int r = 0; r < n; ++r) {
-	//     for (int c = 0; c < m; ++c) {
-	//         if (board[r][c] == 0) {
-	//             cout << "AAAAAAIIIIIIIIIIIINNNNNNNNN" << endl;
-	//         }
-	//     }
-	// }
 	game_state.num_actions++;
 	game_state.actions.push_back(action);
 	return;
