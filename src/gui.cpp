@@ -595,7 +595,7 @@ namespace gui {
 
 GUI::GUI(GameState& game_state) {
 	this->game_state = game_state;
-	desiredWindowHeight = 1200;
+	desiredWindowHeight = 900;
 	margin = desiredWindowHeight / 10;
 	cellSize = (desiredWindowHeight - margin * 5 / 4) / game_state.board.height;
 	windowHeight = static_cast<int>(game_state.board.height * cellSize + margin);
