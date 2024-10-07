@@ -653,6 +653,14 @@ Gamestate::Gamestate(const std::vector<uint8_t>& initialState, int height, int w
     }
 
 }
+
+
+
+Gamestate::Gamestate(const Board& newBoard) {
+	const Board newBoard = newBoard;
+}
+
+
 Gamestate::~Gamestate() {}
 
 
