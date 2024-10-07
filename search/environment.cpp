@@ -1,4 +1,4 @@
-#include "die.h"
+#include "environment.h"
 #include <map>
 bool is_inside(int x, int y, int n, int m, int dtype) {
 	if (dtype == 2) {
@@ -634,7 +634,7 @@ std::vector<Action> gen_actions(int n, int m)
 Environment::~Environment() {
 }
 
-Gamestate::Gamestate(const std::vector<uint8_t>& initialState, int height, int width) {
+Gamestate::Gamestate(const std::vector<uint8_t>& initialState, int height, int width, const std::vector<uint8_t>& goalState) {
     this->board.height = height;
     this->board.width = width;
 
@@ -645,6 +645,13 @@ Gamestate::Gamestate(const std::vector<uint8_t>& initialState, int height, int w
             board.pieces[i][j] = static_cast<int>(initialState[i * width + j]);
         }
     }
+	goal_state.pieces.resize(height, std::vector<int>(width)) ; 
+	for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            goal_state.pieces[i][j] = static_cast<int>(goalState[i * width + j]);
+        }
+    }
+
 }
 Gamestate::~Gamestate() {}
 

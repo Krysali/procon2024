@@ -195,14 +195,25 @@ void parallelWeightedAStar(const Environment* env, float depthPenalty, int numPa
 int main() {
     std::vector<uint8_t> init;
     std::string input;
+    std::vector<uint8_t> goal_init;
+    std::string goal_input;
 
     std::cout << "Enter the initial board state values (space-separated integers): ";
     std::getline(std::cin, input);
+
+    std::cout << "Enter the goal board state values (space-separated integers): ";
+    std::getline(std::cin, goal_input);
 
     std::stringstream ssin(input);
     int val;
     while (ssin >> val) {
         init.push_back(static_cast<int>(val));
+    }
+
+    std::stringstream asin(goal_input);
+    int vl;
+    while (asin >> vl) {
+        goal_init.push_back(static_cast<int>(vl));
     }
 
     float depthPenalty;
@@ -218,7 +229,7 @@ int main() {
     printArray(init);
 
     Environment* env = nullptr;
-    env = new Gamestate(init, 32, 32);
+    env = new Gamestate(init, 4, 4, goal_init);
 
     parallelWeightedAStar(env, depthPenalty, numParallel);
 

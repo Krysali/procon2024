@@ -51,7 +51,7 @@ private:
 
 public:
     // Constructor that initializes the game state from a 1D vector representing the initial state.
-    Gamestate(const std::vector<uint8_t>& initialState, int height, int width) {
+    Gamestate(const std::vector<uint8_t>& initialState, int height, int width, const std::vector<uint8_t>& goalState) {
     }
     Gamestate(const Board& newBoard);
 
