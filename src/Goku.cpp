@@ -6,8 +6,7 @@
 #include <cmath>
 #include <set>
 #include <string>
-
-
+bool Ans = true;
 // A* search algorithm
 void aStarSearch(GameState CurrentState) {
     std::priority_queue<GameState> open;
@@ -26,9 +25,10 @@ void aStarSearch(GameState CurrentState) {
         std::map<std::vector<std::vector<int>> , int> check;
 
         // If the goal state is reached, print the solution and exit
-        if(current.is_solved()){
+        if(current.is_solved() && Ans == false){
             std::cout << "Solution found";
             current.print_path();
+            Ans = true;
             return;
         }
         
