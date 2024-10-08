@@ -4,7 +4,6 @@
 #include <types.h>
 #include <iostream>
 
-// Function to display the current game state to the console
-void display_game_state(const GameState& game_state);
+// placeholder
 
 #endif // OPS_H
