@@ -4,11 +4,10 @@
 #include <types.h>
 #include <iostream>
 
-// Function to apply a die to the board
-void apply_die(GameState& game_state, Action action);
-
-// Function to check if a given cell is inside the board
-bool is_inside(int x, int y, int n, int m, int dtype);
+void apply_die(GameState& game_state, const Action& action);
+std::vector<int> punch_pieces(GameState& game_state, const Action& action);
+void shift_pieces(GameState& game_state, const Action& action);
+void put_back_pieces(GameState& game_state, const Action& action, std::vector<int>& punched_pieces);
 
 // Function to display the current game state to the console
 void display_game_state(const GameState& game_state);
