@@ -2,6 +2,7 @@
 #include<set>
 #include<vector>
 #include<algorithm>
+#include <types.h>
 using namespace std;
 
 struct Data {
@@ -13,27 +14,24 @@ int cnt = 0;
 
 set<pair<int, int>> s0, s1, s2, s3;
 
-int main() {
+void solve(GameState game_state) {
 
-	int n, m, dist, dist2;
-	cin >> n >> m;
+	vector<vector<int>>& a = game_state.board.pieces;
+	vector<vector<int>>& b = game_state.goal_state.pieces;
 
-	int a[32][32], b[32][32];
+	int n = game_state.board.height;
+	int m = game_state.board.width;
+
+	int dist, dist2;
 
 	for ( int i = 0; i < n; i ++)
 		for ( int j = 0; j < m; j ++) {
-
-			cin >> a[i][j];
 
 			if ( a[i][j] == 0) s0.insert({i, j});
 			else if ( a[i][j] == 1) s1.insert({i, j});
 			else if ( a[i][j] == 2) s2.insert({i, j});
 			else s3.insert({i, j});
 		}
-
-	for ( int i = 0; i < n; i ++)
-		for ( int j = 0; j < m; j ++)
-			cin >> b[i][j];
 
 	if ( true) {
 
@@ -584,5 +582,47 @@ int main() {
 
     cout << cnt << '\n';
     
-	return 0;
+	return ;
+}
+
+
+int main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    vector<vector<int>> a(n, vector<int>(m));
+	vector<vector<int>> b(n, vector<int>(m));
+
+    for ( int i = 0; i < n; i ++) {
+
+    	for ( int j = 0; j < m; j ++) {
+
+    		cin >> a[i][j];
+    	}
+    }
+
+	for ( int i = 0; i < n; i ++) {
+
+    	for ( int j = 0; j < m; j ++) {
+
+    		cin >> b[i][j];
+    	}
+    }
+
+	Board A, B;
+
+	A.pieces = a;
+	B.pieces = b;
+
+	GameState game;
+	game.board = A;
+	game.goal_state = B;
+
+    solve(game);
+
+    return 0;
 }

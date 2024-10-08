@@ -17,6 +17,10 @@ struct Die {
 struct Board {
     int width, height;
     std::vector<std::vector<int>> pieces;
+
+
+    Board() : width(0), height(0) {}
+
 };
 
 struct Move {
