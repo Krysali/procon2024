@@ -12,8 +12,8 @@ include_directories(src/includes)
 include_directories(vcpkg)
 
 # Link CURL
-find_package(CURL REQUIRED)
-target_link_libraries(main PRIVATE CURL::libcurl)
+#find_package(CURL REQUIRED)
+#target_link_libraries(main PRIVATE CURL::libcurl)
 
 # Set the C++ standard
 set(CMAKE_CXX_STANDARD 20)

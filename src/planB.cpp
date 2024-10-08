@@ -126,7 +126,7 @@ void solve(GameState game_state) {
 								v.push_back(data);
 							}
 						}
-						else {
+					}else {
 
 							dist2 = j - Y;
 
@@ -251,7 +251,7 @@ void solve(GameState game_state) {
 						v.clear();
 					}
 					// b[i][j] == 1
-					else if ( b[i][j] == 1) {
+					}else if ( b[i][j] == 1) {
 
 						auto itr = s1.lower_bound({i, j});
 						
@@ -315,7 +315,8 @@ void solve(GameState game_state) {
 								v.push_back(data);
 							}
 						}
-						else {
+					}
+				}	else {
 
 							dist2 = j - Y;
 
@@ -439,6 +440,7 @@ void solve(GameState game_state) {
 
 						v.clear();
 					}
+				}
 					// b[i][j] == 2
 					else if ( b[i][j] == 2) {
 
@@ -834,8 +836,10 @@ void solve(GameState game_state) {
 				}
 				
 			}
-		
+		}
 	}
+	}
+}
     
 	/*
 	for ( int i = 0; i < n; i ++) {
