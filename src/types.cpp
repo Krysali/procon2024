@@ -123,3 +123,20 @@ std::vector<Die> GenerateFixedDies() {
 
     return dies;
 }
+
+void GameState::display_current_board() {
+    // Iterate over rows of the board
+    for (int row = 0; row < board.height; ++row) {
+        // Iterate over pieces in each row
+        for (int col = 0; col < board.width; ++col) {
+            if (board.pieces[row][col] == -1) {
+                std::cout << " ";
+            }
+            else {
+                std::cout << board.pieces[row][col];
+            }
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "Number of actions: " << actions.size() << "\n\n";
+}

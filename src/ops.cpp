@@ -2,17 +2,16 @@
 #include <iostream>
 #include <algorithm>
 
-void apply_die(GameState& game_state, const Action& action) {
-	std::vector<int> punched_pieces = punch_pieces(game_state, action);
-	shift_pieces(game_state, action);
-	put_back_pieces(game_state, action, punched_pieces);
-	game_state.actions.push_back(action);
+void GameState::apply_die(const Action& action) {
+	std::vector<int> punched_pieces = punch_pieces(action);
+	shift_pieces(action);
+	put_back_pieces(action, punched_pieces);
+	actions.push_back(action);
 }
 
-std::vector<int> punch_pieces(GameState& game_state, const Action& action) {
+std::vector<int> GameState::punch_pieces(const Action& action) {
 	std::vector<int> punched_pieces;
-	Die& die = game_state.dies[action.die_index];
-	Board& board = game_state.board;
+	Die& die = dies[action.die_index];
 
 	// Calculate the overlapping region
 	int start_x = std::max(0, action.x);
@@ -50,8 +49,7 @@ std::vector<int> punch_pieces(GameState& game_state, const Action& action) {
 	return punched_pieces;
 }
 
-void shift_pieces(GameState& game_state, const Action& action) {
-	Board& board = game_state.board;
+void GameState::shift_pieces(const Action& action) {
 
 	if (action.direction == 2) { // Left
 		for (int y = 0; y < board.height; ++y) {
@@ -143,8 +141,7 @@ void shift_pieces(GameState& game_state, const Action& action) {
 	}
 }
 
-void put_back_pieces(GameState& game_state, const Action& action, std::vector<int>& punched_pieces) {
-	Board& board = game_state.board;
+void GameState::put_back_pieces(const Action& action, std::vector<int>& punched_pieces) {
 	int piece_index = 0;
 
 	if (action.direction == 2 || action.direction == 3) { // Left and Right
@@ -165,22 +162,4 @@ void put_back_pieces(GameState& game_state, const Action& action, std::vector<in
 			}
 		}
 	}
-}
-
-void display_game_state(const GameState& game_state) {
-	const Board& board = game_state.board;
-	// Iterate over rows of the board
-	for (int row = 0; row < board.height; ++row) {
-		// Iterate over pieces in each row
-		for (int col = 0; col < board.width; ++col) {
-			if (board.pieces[row][col] == -1) {
-				std::cout << " ";
-			}
-			else {
-				std::cout << board.pieces[row][col];
-			}
-		}
-		std::cout << std::endl;
-	}
-	std::cout << "Number of actions: " << game_state.actions.size() << "\n\n";
 }

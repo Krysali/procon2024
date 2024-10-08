@@ -11,16 +11,15 @@ int main() {
 	// std::cout << "Problem Data:\n" << problemData << std::endl;
 	GameState game_state = ParseJson(problemData);
 
-	display_game_state(game_state);
+	game_state.display_current_board();
 
 	auto start = std::chrono::high_resolution_clock::now();
 	for (int i = 0; i < 100000; i++)
-		apply_die(game_state, { i % 27, i % 200, i% 200, i % 4 });
+		game_state.apply_die({ i % 27, i % 200, i % 200, i % 4 });
 	auto end = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	
-
-	display_game_state(game_state);
+	game_state.display_current_board();
 
 	std::cout << "Optimized apply_die time: " << duration.count() << " microseconds\nAverage time:" << duration.count() / 100000 << " microseconds" << std::endl;
 
