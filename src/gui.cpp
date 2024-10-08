@@ -663,6 +663,9 @@ void GUI::Render() {
 	RenderDiePositionSelection();
 	RenderAction();
 	RenderBottom();
+	if (gui::Button(U"solve", { margin / 4, margin / 4 }, 100, unitSize, !solved)) {
+		solve(game_state);
+	}
 }
 
 void GUI::RenderText(gui::GUIElement element) {

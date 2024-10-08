@@ -12,4 +12,6 @@ void put_back_pieces(GameState& game_state, const Action& action, std::vector<in
 // Function to display the current game state to the console
 void display_game_state(const GameState& game_state);
 
+void solve(GameState& game_state);
+
 #endif // OPS_H
