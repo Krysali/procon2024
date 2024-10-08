@@ -126,7 +126,7 @@ void solve(GameState game_state) {
 								v.push_back(data);
 							}
 						}
-					}else {
+						else {
 
 							dist2 = j - Y;
 
@@ -151,6 +151,7 @@ void solve(GameState game_state) {
 
 									s3.erase({X, I});
 								}
+							}
 
 							for ( int I = 0; I <= j; I ++) {
 
@@ -212,6 +213,7 @@ void solve(GameState game_state) {
 
 								s3.erase({J, j});
 							}
+						}
 
 						for ( int J = n - 1; J >= i; J --) {
 
@@ -251,7 +253,7 @@ void solve(GameState game_state) {
 						v.clear();
 					}
 					// b[i][j] == 1
-					}else if ( b[i][j] == 1) {
+					else if ( b[i][j] == 1) {
 
 						auto itr = s1.lower_bound({i, j});
 						
@@ -315,8 +317,7 @@ void solve(GameState game_state) {
 								v.push_back(data);
 							}
 						}
-					}
-				}	else {
+						else {
 
 							dist2 = j - Y;
 
@@ -341,6 +342,7 @@ void solve(GameState game_state) {
 
 									s3.erase({X, I});
 								}
+							}
 
 							for ( int I = 0; I <= j; I ++) {
 
@@ -402,6 +404,7 @@ void solve(GameState game_state) {
 
 								s3.erase({J, j});
 							}
+						}
 
 						for ( int J = n - 1; J >= i; J --) {
 
@@ -440,7 +443,6 @@ void solve(GameState game_state) {
 
 						v.clear();
 					}
-				}
 					// b[i][j] == 2
 					else if ( b[i][j] == 2) {
 
@@ -531,6 +533,7 @@ void solve(GameState game_state) {
 
 									s3.erase({X, I});
 								}
+							}
 
 							for ( int I = 0; I <= j; I ++) {
 
@@ -592,6 +595,7 @@ void solve(GameState game_state) {
 
 								s3.erase({J, j});
 							}
+						}
 
 						for ( int J = n - 1; J >= i; J --) {
 
@@ -720,6 +724,7 @@ void solve(GameState game_state) {
 
 									s3.erase({X, I});
 								}
+							}
 
 							for ( int I = 0; I <= j; I ++) {
 
@@ -781,6 +786,7 @@ void solve(GameState game_state) {
 
 								s3.erase({J, j});
 							}
+						}
 
 						for ( int J = n - 1; J >= i; J --) {
 
@@ -819,27 +825,14 @@ void solve(GameState game_state) {
 
 						v.clear();
 					}
-					
-					cout << '\n';
-					for ( int I = 0; I < n; I ++) {
-
-						for ( int J = 0; J < m; J ++) {
-
-							cout << a[I][J] << " ";
-						}
-
-						cout << '\n';
-					}
 
 					cnt += dist + dist2;
 					
 				}
 				
 			}
-		}
+		
 	}
-	}
-}
     
 	/*
 	for ( int i = 0; i < n; i ++) {
