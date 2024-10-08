@@ -1,22 +1,8 @@
 #include <vector>
 #include <fstream>
-#include <cstdint>
 
 /*** Abstract Environment Class ***/
 
-class Board {
-public:
-    int height, width;
-    std::vector<std::vector<int>> pieces;
-
-    Board() : height(0), width(0) {}
-
-    Board(int height, int width, std::vector<std::vector<int>> pieces) {
-        this->height = height;
-        this->width = width;
-        this->pieces = pieces;
-    }
-};
 
 class Action {
 public:
@@ -25,69 +11,54 @@ public:
     int direction;
 
     Action(int x, int y, int die_index, int direction) {
-        this->x = x;
-        this->y = y;
-        this->die_index = die_index;
-        this->direction = direction;
+        this -> x = x;
+        this -> y = y;
+        this -> die_index = die_index;
+        this -> direction = direction;
     }
 };
+
+
 class Environment {
   public:
-    virtual ~Environment() {}
+		virtual ~Environment()=0;
     virtual Environment *getNextState(Action action) const = 0;
-    virtual std::vector<Environment*> getNextStates() const = 0;
-    virtual std::vector<int> getState() const = 0;
-    virtual bool is_solved() const = 0;
+
+    virtual std::vector< Environment*> getNextStates() const = 0;
+
+    virtual std::vector<std::vector<int>>  getState() const = 0;
+
+    virtual bool isSolved() const = 0;
+
     virtual int getNumActions() const = 0;
 };
 
+/*** PuzzleN ***/
+class GameState: public Environment {
+	private:
 
-class Gamestate : public Environment {
-private:
-    Board board;
-    Board goal_state;
-    int numActions;
-    std::vector<Action> actions;
+		std::vector<std::vector<int>> state; 
+        std::vector<std::vector<int>> goalstate;
+		int height;
+		int width;
+        int numTiles= 0 ; 
+        int numActions=0; 
+        std::vector<Action>actions; 
 
-public:
-    // Constructor that initializes the game state from a 1D vector representing the initial state.
-    Gamestate(const std::vector<uint8_t>& initialState, int height, int width, const std::vector<uint8_t>& goalState) {
-    }
-    Gamestate(const Board& newBoard);
+    virtual void construct(std::vector<std::vector<int>> state, std::vector<std::vector<int>> goalstate, int height, int width);
+	public:
+		GameState(std::vector<std::vector<int>> state, std::vector<std::vector<int>> goalstate, int height, int width );
+		~GameState();
 
-    ~Gamestate() {}
+		
+    virtual GameState *getNextState(Action actions) const ;
 
-    // Override Environment's pure virtual functions
-    virtual Environment* getNextState(Action action) const override {
-        // Logic to get the next state based on the action
-        return nullptr;
-    }
+    virtual std::vector< Environment*> getNextStates() const = 0;
 
-    virtual std::vector<Environment*> getNextStates() const override {
-        // Logic to generate all possible next states
-        std::vector<Environment*> nextStates;
-        return nextStates;
-    }
+    virtual std::vector<std::vector<int>>  getState() const;
 
-    virtual std::vector<int> getState() const override {
-        // Flatten the board state into a 1D vector and return it
-        std::vector<int> flattenedState;
-        for (const auto& row : board.pieces) {
-            flattenedState.insert(flattenedState.end(), row.begin(), row.end());
-        }
-        return flattenedState;
-    }
+    virtual bool isSolved() const;
 
-    virtual bool is_solved() const override {
-
-        bool solved= true ; 
-        if (board.pieces != goal_state.pieces){
-            solved=false ; 
-        }
-	return (solved);
-    }
-
-    virtual int getNumActions() const override {
-        return numActions;
-    }
+    virtual int getNumActions() const;
 };
+

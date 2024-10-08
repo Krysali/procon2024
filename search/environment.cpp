@@ -1,5 +1,8 @@
 #include "environment.h"
 #include <map>
+
+
+
 bool is_inside(int x, int y, int n, int m, int dtype) {
 	if (dtype == 2) {
 		return (x >= 0 && x < m);
@@ -18,6 +21,8 @@ int nearest(int x)
 	return res;
 }
 
+
+
 std::vector<Action> gen_actions(int n, int m)
 {
 	int topX, topY, botX, botY, width, height, mxSide, sz, diceNum;
@@ -30,7 +35,7 @@ std::vector<Action> gen_actions(int n, int m)
 	if (1) {
 		for (topY = 1; topY < n - 1; topY++) {
 			for (topX = 1; topX < m - 1; topX++) {
-				for (sz = 1; sz <= std::min(n - topY - 1, m - topX - 1); sz *= 2) {
+				for (sz = 1; sz <= min(n - topY - 1, m - topX - 1); sz *= 2) {
 					// 3rd diceNum of this size
 					diceNum = log2(sz) * 3;
 					for (int s = 0; s < 4; s++) {
@@ -61,7 +66,7 @@ std::vector<Action> gen_actions(int n, int m)
 			for (botX = 0; botX < m - 1; botX++) {
 				width = botX - topX + 1;
 				height = botY - topY + 1;
-				mxSide = std::max(width, height);
+				mxSide = max(width, height);
 				sz = nearest(mxSide);
 
 				// 3rd diceNum of this size
@@ -112,7 +117,7 @@ std::vector<Action> gen_actions(int n, int m)
 
 				height = botY - topY + 1;
 				width = botX - topX + 1;
-				mxSide = std::max(height, width);
+				mxSide = max(height, width);
 				sz = nearest(mxSide);
 
 				// 3th type dice of this size
@@ -152,7 +157,7 @@ std::vector<Action> gen_actions(int n, int m)
 
 				height = botY - topY + 1;
 				width = botX - topX + 1;
-				mxSide = std::max(height, width);
+				mxSide = max(height, width);
 				sz = nearest(mxSide);
 
 				// 3th type dice of this size
@@ -190,7 +195,7 @@ std::vector<Action> gen_actions(int n, int m)
 
 				height = botY - topY + 1;
 				width = botX - topX + 1;
-				mxSide = std::max(height, width);
+				mxSide = max(height, width);
 				sz = nearest(mxSide);
 
 				if (sz == 1) {
@@ -244,7 +249,7 @@ std::vector<Action> gen_actions(int n, int m)
 			for (botY = 0; botY < n - 1; botY++) {
 				width = m;
 				height = botY - topY + 1;
-				mxSide = std::max(width, height);
+				mxSide = max(width, height);
 				sz = nearest(mxSide);
 				// 3th type dice of this size
 				diceNum = (log2(sz) * 3);
@@ -283,7 +288,7 @@ std::vector<Action> gen_actions(int n, int m)
 			for (botX = 0; botX < m - 1; botX++) {
 				width = botX - topX + 1;
 				height = n;
-				mxSide = std::max(width, height);
+				mxSide = max(width, height);
 				sz = nearest(mxSide);
 				// 3th type dice of this size
 				diceNum = (log2(sz) * 3);
@@ -320,7 +325,7 @@ std::vector<Action> gen_actions(int n, int m)
 			for (botX = m - 1; botX > 0; botX--) {
 				width = topX - botX + 1;
 				height = n;
-				mxSide = std::max(width, height);
+				mxSide = max(width, height);
 				sz = nearest(mxSide);
 				// 3th type dice of this size
 				diceNum = (log2(sz) * 3);
@@ -346,7 +351,7 @@ std::vector<Action> gen_actions(int n, int m)
 			for (topY = n - 1; topY > 0; topY--) {
 				width = m;
 				height = topY - botY + 1;
-				mxSide = std::max(width, height);
+				mxSide = max(width, height);
 				sz = nearest(mxSide);
 				// 3th type dice of this size
 				diceNum = (log2(sz) * 3);
@@ -373,7 +378,7 @@ std::vector<Action> gen_actions(int n, int m)
 		topY = 0;
 		for (topX = 1; topX < m - 1; topX++) {
 			for (width = 1; width <= (m - 1 - topX); width *= 2) {
-				for (height = 1; height <= std::min(width, n - 1); height++) {
+				for (height = 1; height <= min(width, n - 1); height++) {
 					sz = width;
 
 					if (sz == 1) {
@@ -423,7 +428,7 @@ std::vector<Action> gen_actions(int n, int m)
 		topY = n - 1;
 		for (topX = 1; topX < m - 1; topX++) {
 			for (width = 1; width <= (m - 1 - topX); width *= 2) {
-				for (height = 1; height <= std::min(width, n - 1); height++) {
+				for (height = 1; height <=min(width, n - 1); height++) {
 
 					int oh = n - height;
 					int ow = width;
@@ -634,41 +639,27 @@ std::vector<Action> gen_actions(int n, int m)
 Environment::~Environment() {
 }
 
-Gamestate::Gamestate(const std::vector<uint8_t>& initialState, int height, int width, const std::vector<uint8_t>& goalState) {
-    this->board.height = height;
-    this->board.width = width;
-
-    // Initialize the board pieces from the given 1D initialState vector
-    board.pieces.resize(height, std::vector<int>(width));
-    for (int i = 0; i < height; ++i) {
-        for (int j = 0; j < width; ++j) {
-            board.pieces[i][j] = static_cast<int>(initialState[i * width + j]);
-        }
-    }
-	goal_state.pieces.resize(height, std::vector<int>(width)) ; 
-	for (int i = 0; i < height; ++i) {
-        for (int j = 0; j < width; ++j) {
-            goal_state.pieces[i][j] = static_cast<int>(goalState[i * width + j]);
-        }
-    }
-
+GameState::GameState(std::vector<std::vector<int>> state, std::vector<std::vector<int>> goalstate, int height , int width) {
+	this->construct(state, goalstate, height, width);
 }
 
+GameState::~GameState() {}
 
-
-Gamestate::Gamestate(const Board& newBoard) {
-	const Board newBoard = newBoard;
+void GameState::construct(std::vector<std::vector<int>> state, std::vector<std::vector<int>> goalstate , int height, int width) {
+	this->goalstate=goalstate; 
+	this->state = state;
+	this->height = height;
+	this->width = width;
+	this->numTiles = height*width;
+	this->actions=gen_actions(height, width) ; 	
+	this->numActions=actions.size() ; 
 }
 
-
-Gamestate::~Gamestate() {}
-
-
-Environment* Gamestate::getNextState(Action action) const{
-    Board newBoard = this->board;
-	std::vector<std::vector<int>>& b = newBoard.pieces;
-	int n = board.height;
-	int m = board.width;
+GameState* GameState::getNextState(Action action) const {
+	std::vector<std::vector<int>>b(this->state);
+	// std::vector<std::vector<int>>& b = board.pieces;
+	int n = this->height;
+	int m = this->width;
 	// Set up
 	int power = ceil(action.die_index / 3.0);
 	int size = int(pow(2, power));
@@ -679,10 +670,10 @@ Environment* Gamestate::getNextState(Action action) const{
 
 	std::vector<int> cut_pieces;
 
-	int x_start = std::max(action.x, 0);
-	int y_start = std::max(action.y, 0);
-	int x_end = std::min(m, action.x + size) - 1;
-	int y_end = std::min(n, action.y + size) - 1;
+	int x_start = max(action.x, 0);
+	int y_start = max(action.y, 0);
+	int x_end = min(m, action.x + size) - 1;
+	int y_end = min(n, action.y + size) - 1;
 
 	int width = x_end - x_start + 1;
 	int height = y_end - y_start + 1;
@@ -943,43 +934,35 @@ Environment* Gamestate::getNextState(Action action) const{
 			}
 		}
 	}
-    Gamestate* nextState = new Gamestate(newBoard);
-    nextState->actions = this->actions;		
-    nextState->actions.push_back(action); 
-
-    return nextState;
+	std::vector<Action> newActions = this->actions;
+	newActions.push_back(action);
+	GameState* nextState =  GameState(b, goalstate, this->height, this->width);
+	return nextState;
 }
 
-
-std::vector<Environment*> Gamestate::getNextStates() const {
+std::vector<Environment*> GameState::getNextStates() const {
     std::vector<Environment*> nextStates;
-    std::vector<Action> all_actions;
-
-    all_actions = gen_actions(board.height, board.width); 
-    int numActions = all_actions.size(); 
-
-    for (int i = 0; i < numActions; i++) {
-        // Pass the action at the current index to getNextState
-        nextStates.push_back(this->getNextState(all_actions[i])); 
+    for (const Action& action : this->actions) {
+        GameState* nextState = getNextState(action);
+        nextStates.push_back(nextState);
     }
-
-    return nextStates; 
+    return nextStates;
 }
 
-std::vector<int> Gamestate::getState() const {
-    std::vector<int> flatState;
-    for (const auto& row : this->board.pieces) {
-        flatState.insert(flatState.end(), row.begin(), row.end());
-    }
-    return flatState;
+std::vector<std::vector<int>> GameState::getState() const {
+	return(this->state);
+}
+
+bool GameState::isSolved() const {
+	bool isSolved = true;
+	if (state != goalstate){
+		isSolved=false; 
+	}
+
+	return(isSolved);
 }
 
 
-bool Gamestate::is_solved() const {  
-
-    return (board.pieces == goal_state.pieces);
-}
-int Gamestate::getNumActions() const {
+int GameState::getNumActions() const {
 	return(this->numActions);
 }
-
