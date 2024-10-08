@@ -8,10 +8,10 @@
 void apply_die(GameState& game_state, int die_index, int x, int y, int direction);
 
 // Function to shift pieces on the board in a given direction
-void shift_pieces(Board& board, int direction, int xstart, int ystart, int xend, int yend);
+void shift_pieces(Board& board, int direction);
 
-// Function to check if the puzzle is solved
-bool is_solved(const GameState& game_state);
+// Function to check if a given cell is inside the board
+bool is_inside(int x, int y, int n, int m, int dtype);
 
 // Function to display the current game state to the console
 void display_game_state(const GameState& game_state);

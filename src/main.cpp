@@ -1,5 +1,6 @@
 #include <types.h>
 #include <ops.h>
+<<<<<<< HEAD
 #include <iostream>
 #include <cmath>
 #include <vector>
@@ -32,6 +33,26 @@ bool isPowerOfTwo(int x)
     if(x % 2 == 1) return 0;
     return isPowerOfTwo(x / 2);
 }
+=======
+#include <procon_api.h>
+#include <chrono>
+
+int main() {
+    std::string serverUrl = "localhost:8080";
+    std::string teamToken = "token1";
+    std::string problemData;
+    problemData = GetRequest(serverUrl + "/problem", teamToken);
+    std::cout << "Problem Data:\n" << problemData << std::endl;
+    GameState game_state = ParseJson(problemData);
+
+    Action action = {23, 1, 3, 2};
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < 100; ++i) {
+        apply_die(game_state, action);
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+>>>>>>> 442c7fec46223a2a5a16cc6f5766198119e3384a
 
 int main()
 {
@@ -695,6 +716,10 @@ int main()
         std::cout<<number<<" ";
         std::cout << tooluur;
     }
+
+    std::cout << "Optimized apply_die time: " << duration.count() << " microseconds\nAverage time:" << duration.count() / 100 << " microseconds" << std::endl;
+
+    PostRequest(serverUrl + "/answer", teamToken, OutputJson(game_state));
 
     return 0;
 }

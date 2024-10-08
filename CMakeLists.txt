@@ -1,17 +1,24 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.30)
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake")
 project(PROCON2024)
-
 # Add an executable target
 add_executable(main 
     src/planB.cpp 
     src/ops.cpp 
     src/types.cpp
+    src/procon_api.cpp
 )
 
 # Specify include directories
 include_directories(src/includes)
+include_directories(vcpkg)
+
+# Link CURL
+find_package(CURL REQUIRED)
+target_link_libraries(main PRIVATE CURL::libcurl)
 
 # Set the C++ standard
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 

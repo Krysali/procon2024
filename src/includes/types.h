@@ -3,18 +3,20 @@
 
 #include <vector>
 #include <string>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 const int MAX_DIMENSION = 256;
 
 // Structure to represent a die
-struct Die {
+class Die {
+public:
     int width, height;
     std::vector<std::vector<bool>> cells;  // Use bool for 0/1 values
 };
 
 // Structure to represent the game board
-struct Board {
+class Board {
+public:
     int width, height;
     std::vector<std::vector<int>> pieces;
 
@@ -23,27 +25,38 @@ struct Board {
 
 };
 
-struct Move {
+// Structure to represent a move
+class Action {
+public:
     int die_index;
     int x, y;
     int direction;
 };
 
 // Structure to represent the entire game state
-struct GameState {
+class GameState {
+public:
     Board board;
     Board goal_state;
     std::vector<Die> dies;  // Includes both fixed and general dies
     int num_moves;
-    std::vector<Move> moves;
+    std::vector<Action> moves;
 };
 
-// Function to read json file
+// DEPRECATED: Use only as a fallback when the API fails
 std::string ReadJsonFile(const std::string& file_path);
 
+<<<<<<< HEAD
 // Function to parse json
 GameState ParseJson(const nlohmann::json& json_data);
 
+=======
+// Function to parse json data into a game state
+GameState ParseJson(const std::string& problem_json);
+>>>>>>> 442c7fec46223a2a5a16cc6f5766198119e3384a
+
+// Function to output json using the game state
+std::string OutputJson(const GameState& game_state);
 
 // Function to generate dies
 std::vector<Die> GenerateFixedDies();

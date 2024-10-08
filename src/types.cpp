@@ -17,6 +17,7 @@ std::string ReadJsonFile(const std::string& file_path) {
     return json_data;
 }
 
+// Parse the JSON data and return the game state
 GameState ParseJson(const std::string& problem_json) {
     GameState game_state;
     game_state.dies = GenerateFixedDies();
@@ -64,6 +65,21 @@ GameState ParseJson(const std::string& problem_json) {
     game_state.num_moves = 0;
     
     return game_state;
+}
+
+std::string OutputJson(const GameState& game_state) {
+    nlohmann::json output_json;
+    output_json["n"] = game_state.num_moves;
+    output_json["ops"] = nlohmann::json::array();
+    for (const auto& move : game_state.moves) {
+        nlohmann::json ops;
+        ops["p"] = move.die_index;
+        ops["x"] = move.x;
+        ops["y"] = move.y;
+        ops["s"] = move.direction;
+        output_json["ops"].push_back(ops);
+    }
+    return output_json.dump();
 }
 
 std::vector<Die> GenerateFixedDies() {
