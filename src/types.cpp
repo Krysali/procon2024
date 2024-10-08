@@ -62,15 +62,13 @@ GameState ParseJson(const std::string& problem_json) {
         }
         game_state.dies.push_back({die["width"], die["height"], general_die_cells});
     }
-
-    game_state.num_actions = 0;
     
     return game_state;
 }
 
 std::string OutputJson(const GameState& game_state) {
     nlohmann::json output_json;
-    output_json["n"] = game_state.num_actions;
+    output_json["n"] = game_state.actions.size();
     output_json["ops"] = nlohmann::json::array();
     for (const auto& action : game_state.actions) {
         nlohmann::json ops;
