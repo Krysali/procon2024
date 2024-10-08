@@ -841,10 +841,13 @@ void GUI::RenderBottom() {
 			if (!solved) {
 				if (System::MessageBoxYesNo(U"Warning", U"Current state not same with the goal, continue?", MessageBoxStyle::Warning) == MessageBoxResult::Yes) {
 					revision = PostRequest(serverUrl + "/answer", token, OutputJson(game_state));
+					System::MessageBoxOK(U"", U"Submit successful", MessageBoxStyle::Info);
 				}
 			}
-			else revision = PostRequest(serverUrl + "/answer", token, OutputJson(game_state));
-			System::MessageBoxOK(U"", U"Submit successful", MessageBoxStyle::Info);
+			else {
+				revision = PostRequest(serverUrl + "/answer", token, OutputJson(game_state));
+				System::MessageBoxOK(U"", U"Submit successful", MessageBoxStyle::Info);
+			}
 		}
 		catch (std::runtime_error) {
 			System::MessageBoxOK(U"", U"Submit failed", MessageBoxStyle::Error);
@@ -859,7 +862,7 @@ void GUI::RenderAction() {
     if (gui::Button(U"Apply", directionArea.bl().movedBy(0, margin), directionArea.w, buttonSize, selectedDieType != -1 && selectedDirection != -1 && !showGoal && !solved)) {
         applied_actions.push_back({ game_state.board, {dieIndex, posX, posY, selectedDirection } });
         Action action = { dieIndex, posX, posY, selectedDirection };
-        apply_die(game_state, action);
+        game_state.apply_die(action);
         undone_actions.clear();
 
         if (game_state.board.pieces == game_state.goal_state.pieces) {
