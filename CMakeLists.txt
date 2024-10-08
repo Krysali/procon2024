@@ -7,11 +7,14 @@ add_executable(main
     src/ops.cpp 
     src/types.cpp
     src/procon_api.cpp
-)
+    src/pch.cpp)
 
 # Specify include directories
 include_directories(src/includes)
 include_directories(vcpkg)
+
+target_precompile_headers(main PRIVATE src/includes/pch.h) 
+target_sources(main PRIVATE src/pch.cpp)
 
 # Link CURL
 find_package(CURL REQUIRED)
