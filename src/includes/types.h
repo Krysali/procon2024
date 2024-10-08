@@ -35,7 +35,6 @@ public:
     Board board;
     Board goal_state;
     std::vector<Die> dies;  // Includes both fixed and general dies
-    int num_actions;
     std::vector<Action> actions;
 };
 
