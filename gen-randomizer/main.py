@@ -34,7 +34,7 @@ def convert_to_4_color_grayscale(image_path, width, height):
     return quantized_img
 
 # Get user input
-image_path = os.path.join(os.path.dirname(__file__), "image.jpg")
+image_path = os.path.join(os.path.dirname(__file__), "image.png")
 width = int(input("Enter the desired width (64-256): "))
 height = int(input("Enter the desired height (64-256): "))
 
