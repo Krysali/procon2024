@@ -936,7 +936,8 @@ GameState* GameState::getNextState(Action action) const {
 	}
 	std::vector<Action> newActions = this->actions;
 	newActions.push_back(action);
-	GameState* nextState =  GameState(b, goalstate, this->height, this->width);
+	// GameState* nextState =  GameState(b, goalstate, this->height, this->width);
+	GameState* nextState ; 
 	return nextState;
 }
 

@@ -36,7 +36,6 @@ class Environment {
 /*** PuzzleN ***/
 class GameState: public Environment {
 	private:
-
 		std::vector<std::vector<int>> state; 
         std::vector<std::vector<int>> goalstate;
 		int height;
