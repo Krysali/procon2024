@@ -9,7 +9,7 @@
 #include <cstdlib>
 #include "xxhash.hpp"
 #include "environment.h"
-
+#define NOMINMAX
 
 void error(const char *msg) {
     perror(msg);
@@ -106,7 +106,7 @@ void parallelWeightedAStar(const Environment* env, float depthPenalty, int numPa
 
         // Remove from open
         int openSize = open.size();
-        int numPop = min(openSize, numParallel);
+        int numPop = std::min(openSize, numParallel);
         std::vector<Node*> popped;
 
         for (int i = 0; i < numPop; ++i) {
@@ -136,7 +136,7 @@ void parallelWeightedAStar(const Environment* env, float depthPenalty, int numPa
             int depth = popped[i]->depth + 1;
 
             for (size_t j = 0; j < children_env.size(); ++j) {
-                float heuristic_lb = max(popped[i]->heuristic - 1, 0.0f);
+                float heuristic_lb = std::max(popped[i]->heuristic - 1, 0.0f);
                 float cost = heuristic_lb * (!children_env[j]->isSolved()) + depthPenalty * static_cast<float>(depth);
                 Node* node = new Node{ children_env[j], depth, static_cast<int>(j), cost, heuristic_lb, popped[i] };
                 children[i * env->getNumActions() + j] = node;
