@@ -10,6 +10,7 @@
 #include "xxhash.hpp"
 #include "environment.h"
 
+
 void error(const char *msg) {
     perror(msg);
     exit(EXIT_FAILURE);
@@ -61,7 +62,7 @@ struct NodePointerEq {
 
 struct Hash {
     size_t operator()(const Node* node) const {
-        std::vector<int> state = node->env->getState();
+        std::vector<std::vector<int>> state = node->env->getState();
         return xxh::xxhash<64>(state);
     }
 };
@@ -105,7 +106,7 @@ void parallelWeightedAStar(const Environment* env, float depthPenalty, int numPa
 
         // Remove from open
         int openSize = open.size();
-        int numPop = std::min(openSize, numParallel);
+        int numPop = min(openSize, numParallel);
         std::vector<Node*> popped;
 
         for (int i = 0; i < numPop; ++i) {
@@ -113,7 +114,7 @@ void parallelWeightedAStar(const Environment* env, float depthPenalty, int numPa
             popped.push_back(node);
             open.pop();
 
-            if (node->env->is_solved()) {
+            if (node->env->isSolved()) {
                 if (solvedNode == nullptr || solvedNode->cost > node->cost) {
                     solvedNode = node;
                 }
@@ -135,8 +136,8 @@ void parallelWeightedAStar(const Environment* env, float depthPenalty, int numPa
             int depth = popped[i]->depth + 1;
 
             for (size_t j = 0; j < children_env.size(); ++j) {
-                float heuristic_lb = std::max(popped[i]->heuristic - 1, 0.0f);
-                float cost = heuristic_lb * (!children_env[j]->is_solved()) + depthPenalty * static_cast<float>(depth);
+                float heuristic_lb = max(popped[i]->heuristic - 1, 0.0f);
+                float cost = heuristic_lb * (!children_env[j]->isSolved()) + depthPenalty * static_cast<float>(depth);
                 Node* node = new Node{ children_env[j], depth, static_cast<int>(j), cost, heuristic_lb, popped[i] };
                 children[i * env->getNumActions() + j] = node;
             }
@@ -192,30 +193,75 @@ void parallelWeightedAStar(const Environment* env, float depthPenalty, int numPa
     std::cout << "Total time: " << totalTime << std::endl;
 }
 
+// int main(int argc, const char *argv[]) {
+
+// 	printf("The argument supplied is %s\n", argv[1]);
+	
+// 	/* Get input from file*/
+// 	std::string input = argv[1];
+// 	float depthPenalty = (float) atof(argv[2]);
+// 	int numParallel = atoi(argv[3]);
+// 	std::string socketName = argv[4];
+// 	std::string envName =  argv[5];
+
+// 	std::string str;
+
+// 	/* Parse State */
+// 	std::vector<uint8_t> init;
+
+// 	std::stringstream ssin(input);
+// 	while (ssin.good()){
+// 		int val;
+// 		ssin >> val;
+// 		init.push_back((uint8_t) val);
+// 	}
+
+// 	/* Search */
+// 	printf("State:\n");
+// 	printArr(init);
+// 	printf("\n");
+
+// 	Environment *env = NULL;
+// 	if (envName == "puzzle15") {
+// 		env = new PuzzleN(init,4);
+// 	} else if (envName == "puzzle24") {
+// 		env = new PuzzleN(init,5);
+// 	} else if (envName == "puzzle35") {
+// 		env = new PuzzleN(init,6);
+// 	} else if (envName == "puzzle48") {
+// 		env = new PuzzleN(init,7);
+// 	} else if (envName == "cube3") {
+// 		env = new Cube3(init);
+// 	} else if (envName == "cube4") {
+// 		env = new Cube4(init);
+// 	} else if (envName == "lightsout7") {
+// 		env = new LightsOut(init,7);
+// 	}
+
+// 	parallelWeightedAStar(env, depthPenalty, numParallel, socketName);
+
+// 	delete env;
+
+// 	return 0;
+// }
+
 int main() {
-    std::vector<uint8_t> init;
-    std::string input;
-    std::vector<uint8_t> goal_init;
-    std::string goal_input;
-
-    std::cout << "Enter the initial board state values (space-separated integers): ";
-    std::getline(std::cin, input);
-
-    std::cout << "Enter the goal board state values (space-separated integers): ";
-    std::getline(std::cin, goal_input);
-
-    std::stringstream ssin(input);
-    int val;
-    while (ssin >> val) {
-        init.push_back(static_cast<int>(val));
+   
+    std::vector<std::vector<int>> goal_init;
+    std::vector<std::vector<int>> init;
+    int n , m ; 
+    std::cin >>  n >> m  ; 
+    for ( int i = 0 ; i< n ; i++ ){
+        for ( int j = 0 ; j< m ; j++ ){
+            std::cin >> init[i][j] ; 
+        }
     }
-
-    std::stringstream asin(goal_input);
-    int vl;
-    while (asin >> vl) {
-        goal_init.push_back(static_cast<int>(vl));
+    for ( int i = 0 ; i< n ; i++ ){
+        for ( int j = 0 ; j< m ; j++ ){
+            std::cin >> goal_init[i][j] ; 
+        }
     }
-
+    
     float depthPenalty;
     int numParallel;
 
@@ -225,11 +271,10 @@ int main() {
     std::cout << "Enter the number of parallel nodes (integer): ";
     std::cin >> numParallel;
 
-    std::cout << "Initial State:" << std::endl;
-    printArray(init);
+
 
     Environment* env = nullptr;
-    env = new Gamestate(init, 4, 4, goal_init);
+    env =new GameState(init, goal_init, n, m ); 
 
     parallelWeightedAStar(env, depthPenalty, numParallel);
 
