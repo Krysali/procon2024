@@ -29,13 +29,13 @@ class Game:
         board = np.copy(state)
 
         # Set up                                        
-        power = math.ceil(action.dice_num / 3)                                        
+        power = math.ceil(action.die_index / 3)                                        
         size = int(math.pow(2, power))     
         if power == 0: dice_type = 1                            
-        else: dice_type = action.dice_num - ((power - 1) * 3)                                        
+        else: dice_type = action.die_index - ((power - 1) * 3)                                        
 
         n, m = board.shape
-        # print(f"x:{action.x}, y:{action.y}, dice_num:{action.dice_num}, direction:{action.direction}")
+        # print(f"x:{action.x}, y:{action.y}, die_index:{action.die_index}, direction:{action.direction}")
         # print(f"power:{power}, size:{size}, dice_type:{dice_type}")
 
         cut_pieces = []
@@ -331,7 +331,7 @@ class Game:
         print(height)
 
       # Check if size is within the valid range
-        if not 4 <= width <= 256 or not 4 <= height <= 256:
+        if not 2 <= width <= 256 or not 2 <= height <= 256:
             raise ValueError("Width and height must be between 64 and 256.")
 
         # Load the image
@@ -352,7 +352,7 @@ class Game:
         image_path = "images/" + str(image_index) + ".jpg"
 
         is_noise = random.randint(0, 1)
-        power = random.randint(2, 3)
+        power = random.randint(1, 1)
         size = pow(2, power)
 
         width = size
@@ -417,7 +417,7 @@ class PROCONNet(nn.Module):
         self.policy_die = nn.Linear(512, 25)  # Die selection: 25 options
         self.policy_x = nn.Linear(512, 511)    # X-coordinate: 511 options
         self.policy_y = nn.Linear(512, 511)    # Y-coordinate: 511 options
-        self.policy_directionection = nn.Linear(512, 4)  # directionection: 4 options
+        self.policy_direction = nn.Linear(512, 4)  # direction: 4 options
 
         # Value head
         self.value_head = nn.Linear(512, 1)  # Heuristic value
@@ -425,6 +425,12 @@ class PROCONNet(nn.Module):
     def forward(self, x):
         # Convolutional layers with ReLU activation and max pooling
         x = F.relu(self.conv1(x))
+
+        print(x.shape)  # Debugging the shape
+        # Ensure the input is 4D
+        if x.dim() == 3:  # If input is 3D
+            x = x.unsqueeze(1)  # Add a channel dimension
+
         x = F.relu(self.batch_norm(self.conv2(x)))
         x = F.relu(self.conv3(x))
         x = self.max_pool(x)
@@ -440,7 +446,7 @@ class PROCONNet(nn.Module):
         die_probs = F.softmax(self.policy_die(x), dim=-1)
         x_probs = F.softmax(self.policy_x(x), dim=-1)
         y_probs = F.softmax(self.policy_y(x), dim=-1)
-        directionection_probs = F.softmax(self.policy_directionection(x), dim=-1)
+        direction_probs = F.softmax(self.policy_direction(x), dim=-1)
 
         # Value output
         heuristic_value = self.value_head(x)
@@ -449,7 +455,7 @@ class PROCONNet(nn.Module):
             'die_probs': die_probs,
             'x_probs': x_probs,
             'y_probs': y_probs,
-            'directionection_probs': directionection_probs,
+            'direction_probs': direction_probs,
             'heuristic_value': heuristic_value
         }
 
@@ -487,17 +493,22 @@ class SigmaX:
                     best_action = action
 
             print(state)
-            print(f"x:{best_action.x}, y:{best_action.y}, dice_index:{best_action.die_index}, directionection:{best_action.directionection}")
+            print(f"x:{best_action.x}, y:{best_action.y}, dice_index:{best_action.die_index}, direction:{best_action.direction}")
             print(best_action)
 
             # Store the state, best action, and value as a training sample
+
+            best_action = np.array([best_action.die_index, (best_action.x + 255), (best_action.y + 255), best_action.direction])
+
+            print(best_action)
+
             training_data.append((self.game.encode_state(state), best_action, best_value))
 
         print("TRAINING DATA GENERATED")
 
         return training_data
 
-    def train(self, memory, training_data):
+    def train(self, memory):
 
         random.shuffle(memory)
         for batchIdx in range(0, len(memory), self.args["batch_size"]):
@@ -508,25 +519,29 @@ class SigmaX:
             states = torch.tensor(states, dtype=torch.float32).to(self.device)
 
             best_actions = np.array(best_actions)
+
+            print(best_actions)
+
             best_actions = torch.tensor(best_actions, dtype=torch.float32).to(self.device)
 
-            best_values = np.array(best_values).reshape(-1, 1)
+            #best_values = np.array(best_values).reshape(-1, 1)
             best_values = torch.tensor(best_values, dtype=torch.float32).to(self.device)
 
             # Forward pass through the model
+            states = states.squeeze()
             outputs = self.model(states)
 
             # Compute policy loss
-            die_loss = self.policy_loss_fn(outputs['die_probs'], best_actions[:, 0])
-            x_loss = self.policy_loss_fn(outputs['x_probs'], best_actions[:, 1])
-            y_loss = self.policy_loss_fn(outputs['y_probs'], best_actions[:, 2])
-            directionection_loss = self.policy_loss_fn(outputs['directionection_probs'], best_actions[:, 3])
+            die_loss = self.policy_loss_fn(outputs['die_probs'], best_actions[:, 0].long())
+            x_loss = self.policy_loss_fn(outputs['x_probs'], best_actions[:, 1].long())
+            y_loss = self.policy_loss_fn(outputs['y_probs'], best_actions[:, 2].long())
+            direction_loss = self.policy_loss_fn(outputs['direction_probs'], best_actions[:, 3].long())
 
             # Compute value loss
             value_loss = self.value_loss_fn(outputs['heuristic_value'].squeeze(), best_values)
 
             # Total loss (combination of policy and value loss)
-            total_loss = die_loss + x_loss + y_loss + directionection_loss + value_loss
+            total_loss = die_loss + x_loss + y_loss + direction_loss + value_loss
 
             # Backpropagation and optimization
             self.optimizer.zero_grad()
@@ -546,8 +561,6 @@ class SigmaX:
 
             print("DATA SIZE:", len(memory))
 
-            return
-
             self.model.train()
             for epoch in trange(self.args["num_epochs"]):
                 self.train(memory)
@@ -566,7 +579,7 @@ def test():
     print("Die Probabilities:", output['die_probs'])
     print("X Probabilities:", output['x_probs'])
     print("Y Probabilities:", output['y_probs'])
-    print("directionection Probabilities:", output['directionection_probs'])
+    print("direction Probabilities:", output['direction_probs'])
     print("Heuristic Value:", output['heuristic_value'])
 
 def main():

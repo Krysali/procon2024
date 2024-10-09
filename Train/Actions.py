@@ -7,7 +7,7 @@ class Action:
     def __init__(self, x, y, die_index, direction):
         self.x = x
         self.y = y
-        self.dice_num = die_index
+        self.die_index = die_index
         self.direction = direction
 
 def nearest(x):
