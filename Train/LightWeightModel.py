@@ -426,6 +426,7 @@ class PROCONNet(nn.Module):
         # Convolutional layers with ReLU activation and max pooling
         x = F.relu(self.conv1(x))
 
+        print("dim DEBUG")
         print(x.shape)  # Debugging the shape
         # Ensure the input is 4D
         if x.dim() == 3:  # If input is 3D
@@ -499,10 +500,23 @@ class SigmaX:
             # Store the state, best action, and value as a training sample
 
             best_action = np.array([best_action.die_index, (best_action.x + 255), (best_action.y + 255), best_action.direction])
-
+            best_action = torch.tensor(best_action)
             print(best_action)
 
-            training_data.append((self.game.encode_state(state), best_action, best_value))
+            encoded_state = self.game.encode_state(state)
+
+            print("BEFORE SQUEEZE")
+            print(encoded_state.shape)
+
+            encoded_state = encoded_state.squeeze()
+            
+            print("AFTER SQUEEZE")
+            print(encoded_state.shape)
+
+            best_value = torch.tensor(best_value)
+            training_data.append((encoded_state, best_action, best_value))
+
+            print(f"type of states:{type(encoded_state)}, type of best actions:{type(best_action)}, type of best_values{type(best_value)}")
 
         print("TRAINING DATA GENERATED")
 
@@ -515,20 +529,28 @@ class SigmaX:
             sample = memory[batchIdx:min(len(memory) - 1, batchIdx + self.args["batch_size"])] 
             states, best_actions, best_values = zip(*sample)
 
-            states = np.array(states)
-            states = torch.tensor(states, dtype=torch.float32).to(self.device)
-
-            best_actions = np.array(best_actions)
-
+            print(states)
             print(best_actions)
+            print(best_values)
 
-            best_actions = torch.tensor(best_actions, dtype=torch.float32).to(self.device)
+            states = torch.stack(states)
 
-            #best_values = np.array(best_values).reshape(-1, 1)
-            best_values = torch.tensor(best_values, dtype=torch.float32).to(self.device)
+            best_actions = torch.stack(best_actions)
+
+            best_values = list(best_values)
+            best_values = torch.stack(best_values)
+
+            print(f"type of states:{type(states)}, type of best actions:{type(best_actions)}, type of best_values{type(best_values)}")
+
+            #states = torch.tensor(states, dtype=torch.float32).to(self.device)
+
+            # best_actions = np.array(best_actions)
+            # best_actions = torch.tensor(best_actions, dtype=torch.float32).to(self.device)
+
+            # #best_values = np.array(best_values).reshape(-1, 1)
+            # best_values = torch.tensor(best_values, dtype=torch.float32).to(self.device)
 
             # Forward pass through the model
-            states = states.squeeze()
             outputs = self.model(states)
 
             # Compute policy loss
@@ -594,7 +616,7 @@ def main():
         "num_iterations": 1,
         "batch_size": 32,
         "num_gen_data": 1,
-        "num_god" : 10
+        "num_god" : 3
     }
 
     # Instantiate the model, optimizer, and loss functions
