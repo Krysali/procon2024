@@ -7,6 +7,392 @@ import random
 from collections import deque
 
 from Actions import *
+from tqdm import trange
+
+import numpy as np
+import cv2
+import random
+import os
+
+class Game:
+    def __init__(self, model, device):
+        self.model = model
+        self.device = device
+        self.initial_state_state, self.goal_state = self.gen_board()
+        self.actions = gen_actions(self.initial_state_state.shape[0], self.initial_state_state.shape[1])
+
+    def random_action(self):
+        random_index = randint(1, len(self.actions) - 1)
+        return (self.actions[random_index])
+    
+    def apply_die(self, state, action):
+        board = np.copy(state)
+
+        # Set up                                        
+        power = math.ceil(action.dice_num / 3)                                        
+        size = int(math.pow(2, power))     
+        if power == 0: dice_type = 1                            
+        else: dice_type = action.dice_num - ((power - 1) * 3)                                        
+
+        n, m = board.shape
+        # print(f"x:{action.x}, y:{action.y}, dice_num:{action.dice_num}, direction:{action.direction}")
+        # print(f"power:{power}, size:{size}, dice_type:{dice_type}")
+
+        cut_pieces = []
+
+        x_start = max(action.x, 0)
+        y_start = max(action.y, 0)
+        x_end = min(m, action.x + size) - 1
+        y_end = min(n, action.y + size) - 1
+
+        width = x_end - x_start + 1
+        height = y_end - y_start + 1
+
+        chosen_row_num = math.floor(height / 2)
+        chosen_col_num = math.floor(width / 2)
+        first = 1
+
+        if dice_type == 2:
+            first = (height + 1) % 2
+            if is_inside(action.x, action.y, dice_type, n, m):
+                if not first:
+                    chosen_row_num += 1
+                first = 1
+            elif abs(action.y) % 2 != 0:
+                first = 0
+            elif abs(action.y) % 2 == 0:
+                if height % 2 == 1: #n bsn
+                    first = 1
+                    chosen_row_num += 1
+
+        if dice_type == 3:
+            first = (width + 1) % 2
+            if is_inside(action.x, action.y, dice_type, n, m):
+                if not first: 
+                    chosen_col_num += 1 
+                first = 1
+            elif abs(action.x) % 2 != 0:
+                first = 0
+            elif abs(action.x) % 2 == 0:
+                if width % 2 == 1: # m bsn
+                    first = 1
+                    chosen_col_num += 1
+
+        #print(f"x_start:{x_start}, x_end:{x_end}, ystart:{y_start}, y_end:{y_end}, width:{width}, height:{height}, chosen_row_num:{chosen_row_num}, chosen_col_num:{chosen_col_num}")
+
+
+        # CUT PHASE
+        if dice_type == 1:
+            for r in range(y_start, y_end + 1):
+                for c in range(x_start, x_end + 1):
+                    cut_pieces.append(board[r][c])
+                    board[r][c] = 0
+
+        if dice_type == 2:
+            x = (first + 1) % 2
+            if is_inside(action.x, action.y, dice_type, n, m):
+                for r in range(y_start, y_end + 1, 2):
+                    for c in range(x_start, x_end + 1):
+                        cut_pieces.append(board[r][c])
+                        board[r][c] = 0
+            else:
+                for r in range(y_start + x, y_end + 1, 2):
+                    for c in range(x_start, x_end + 1):
+                        cut_pieces.append(board[r][c])
+                        board[r][c] = 0
+
+        if dice_type == 3:
+            x = (first + 1) % 2
+            if is_inside(action.x, action.y, dice_type, n, m):
+                for r in range(y_start, y_end + 1):
+                    for c in range(x_start, x_end + 1, 2):
+                        cut_pieces.append(board[r][c])
+                        board[r][c] = 0
+            else:
+                for r in range(y_start, y_end + 1):
+                    for c in range(x_start + x, x_end + 1, 2):
+                        cut_pieces.append(board[r][c])
+                        board[r][c] = 0
+
+        #print(cut_pieces)
+        #print(board)
+
+        # Save the board after cut to a text file
+        with open("notepad/board.txt", "w") as file:
+            for row in board:
+                file.write(" ".join(map(str, row)) + "\n")
+
+
+        # Save the cut pieces to a text file
+        with open("notepad/cutpieces.txt", "w") as file:
+                file.write(" ".join(map(str, cut_pieces)) + "\n")
+
+
+        # SHIFT PHASE
+
+        if action.direction == 0:
+            for c in range(x_start, x_end + 1):
+                write_index = y_start
+                for r in range(y_start, n):
+                    if board[r][c] != 0:
+                        board[write_index][c] = board[r][c]
+                        write_index += 1
+                for r in range(write_index, n):
+                    board[r][c] = 0
+
+        if action.direction == 1:
+            for c in range(x_start, x_end + 1):
+                write_index = y_end
+                for r in range(y_end, -1, -1):
+                    if board[r][c] != 0:
+                        board[write_index][c] = board[r][c]
+                        write_index -= 1
+                for r in range(write_index, -1, -1):
+                    board[r][c] = 0
+
+        if action.direction == 2:
+            for r in range(y_start, y_end + 1):
+                write_index = x_start
+                for c in range(x_start, m):
+                    if board[r][c] != 0:
+                        board[r][write_index] = board[r][c]
+                        write_index += 1
+                for c in range(write_index, m):
+                    board[r][c] = 0
+
+        if action.direction == 3:
+            for r in range(y_start, y_end + 1):
+                write_index = x_end
+                for c in range(x_end, -1, -1):
+                    if board[r][c] != 0:
+                        board[r][write_index] = board[r][c]
+                        write_index -= 1
+                for c in range(write_index, -1, -1):
+                    board[r][c] = 0
+
+        # Save the shifted board to a text file
+        with open("notepad/shift.txt", "w") as file:
+            for row in board:
+                file.write(" ".join(map(str, row)) + "\n")
+
+        # BBBT PHASE
+        bxs = 0
+        bxe = 0
+        bys = 0
+        bye = 0
+
+        if dice_type == 1:
+            if action.direction < 2:
+                bxs = x_start
+                bxe = x_end
+                if action.direction == 0:
+                    bys = n - height
+                    bye = n - 1
+                else:
+                    bys = 0
+                    bye = height - 1
+            else:
+                bys = y_start
+                bye = y_end
+                if action.direction == 2:
+                    bxs = m - width
+                    bxe = m - 1
+                else:
+                    bxs = 0
+                    bxe = width - 1
+        if dice_type == 2:
+            if action.direction < 2:
+                bxs = x_start
+                bxe = x_end
+                if action.direction == 0:
+                    bys = n - chosen_row_num
+                    bye = n - 1
+                else:
+                    bys = 0
+                    bye = chosen_row_num - 1
+            else:
+                bys = y_start
+                bye = y_end
+                if action.direction == 2:
+                    bxs = m - width
+                    bxe = m - 1
+                else:
+                    bxs = 0
+                    bxe = width - 1
+        if dice_type == 3:
+            if action.direction < 2:
+                bxs = x_start
+                bxe = x_end
+                if action.direction == 0:
+                    bys = n - height
+                    bye = n - 1
+                else:
+                    bys = 0
+                    bye = height - 1
+            else:
+                bys = y_start
+                bye = y_end
+                if action.direction == 2:
+                    bxs = m - chosen_col_num
+                    bxe = m - 1
+                else:
+                    bxs = 0
+                    bxe = chosen_col_num - 1
+
+        #print(f"bxs:{bxs}, bxe:{bxe}, bys:{bys}, bye:{bye}")
+
+        if dice_type == 1:
+            cnt = 0
+            for r in range(bys, bye + 1):
+                for c in range(bxs, bxe + 1):
+                    board[r][c] = cut_pieces[cnt]
+                    cnt += 1
+        elif dice_type == 2:
+            cnt = 0
+            for r in range(bys, bye + 1):
+                for c in range(bxs, bxe + 1):
+                    if board[r][c] == 0:
+                        board[r][c] = cut_pieces[cnt]
+                        cnt += 1
+        else:
+            cnt = 0
+            for r in range(bys, bye + 1):
+                for c in range(bxs, bxe + 1):
+                    if board[r][c] == 0:
+                        board[r][c] = cut_pieces[cnt]
+                        cnt += 1
+
+        for r in range(n):
+            for c in range(m):
+                if board[r][c] == 0:
+                    print("AAAAAAIIIIIIIIIIIINNNNNNNNN")
+                    # Save the shuffled array to a text file
+
+        with open("notepad/bbbt.txt", "w") as file:
+            for row in board:
+                file.write(" ".join(map(str, row)) + "\n")
+
+        return board
+
+    def encode_state(self, state):
+        n, m = state.shape
+        one = np.zeros((256, 256))
+        two = np.zeros((256, 256))
+        three = np.zeros((256, 256))
+        four = np.zeros((256, 256))
+
+        mp = {
+            1 : one,
+            2 : two,
+            3 : three,
+            4 : four
+        }
+
+        for r in range(n):
+            for c in range(m):
+                x = int(state[r][c])
+                mp[x][r][c] = x
+
+        res = np.stack((one, two, three, four), axis=-1)
+        res = np.expand_dims(res, axis=0)
+        res = torch.tensor(res, dtype=torch.float32).to(self.device)
+        res = res.permute(0, 3, 1, 2)
+
+        print(res.shape)
+
+        return res
+
+    def evaluate_state(self, state):
+        encoded_state = self.encode_state(state)
+        output = self.model(encoded_state)
+        return output["heuristic_value"]   
+
+    def get_children(self, state):
+        children = []
+        for action in self.actions:
+            child = self.apply_die(state, action)
+            children.append((child, action))
+
+        return children
+
+    def convert_to_4_color_grayscale(self, image_path, width, height):
+        """
+        Converts an image to a 4-color grayscale array.
+
+        Args:
+            image_path: Path to the input image.
+            width: Desired width of the output image.
+            height: Desired height of the output image.
+
+        Returns:
+            A NumPy array representing the 4-color grayscale image.
+        """
+        print(width)
+        print(height)
+
+      # Check if size is within the valid range
+        if not 4 <= width <= 256 or not 4 <= height <= 256:
+            raise ValueError("Width and height must be between 64 and 256.")
+
+        # Load the image
+        img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+
+        # Resize the image
+        img = cv2.resize(img, (width, height))
+
+        # Quantize the grayscale values to 4 levels
+        bins = np.array([0, 64, 128, 192, 256])
+        quantized_img = np.digitize(img, bins)
+
+        return quantized_img
+
+    def gen_board(self):
+        # Get user input picture path
+        image_index = random.randint(0, 25)
+        image_path = "images/" + str(image_index) + ".jpg"
+
+        is_noise = random.randint(0, 1)
+        power = random.randint(2, 3)
+        size = pow(2, power)
+
+        width = size
+        height = size
+
+        # Convert the image
+        grayscale_array = self.convert_to_4_color_grayscale(image_path, width, height)
+
+        # Flatten the array and shuffle it
+        flat_array = grayscale_array.flatten()
+        random.shuffle(flat_array)
+
+        # Reshape the shuffled array to the original dimensions
+        shuffled_array = flat_array.reshape(grayscale_array.shape)
+
+        # Save the initial state to a text file
+        with open("notepad/initial.txt", "w") as file:
+            for row in shuffled_array:
+                file.write(" ".join(map(str, row)) + "\n")
+
+        # returns (initial state and goal state)
+        if is_noise:
+            # shuffle again
+            random.shuffle(flat_array)
+            shuffled_array_prime = flat_array.reshape(grayscale_array.shape)
+
+            # Save the goal state to a text file
+            with open("notepad/goal.txt", "w") as file:
+                for row in shuffled_array_prime:
+                    file.write(" ".join(map(str, row)) + "\n")
+
+            return(shuffled_array, shuffled_array_prime)
+        else:
+
+            # Save the goal state to a text file
+            with open("notepad/goal.txt", "w") as file:
+                for row in grayscale_array:
+                    file.write(" ".join(map(str, row)) + "\n")
+
+            return (shuffled_array, grayscale_array)
 
 class PROCONNet(nn.Module):
     def __init__(self):
@@ -31,7 +417,7 @@ class PROCONNet(nn.Module):
         self.policy_die = nn.Linear(512, 25)  # Die selection: 25 options
         self.policy_x = nn.Linear(512, 511)    # X-coordinate: 511 options
         self.policy_y = nn.Linear(512, 511)    # Y-coordinate: 511 options
-        self.policy_direction = nn.Linear(512, 4)  # Direction: 4 options
+        self.policy_directionection = nn.Linear(512, 4)  # directionection: 4 options
 
         # Value head
         self.value_head = nn.Linear(512, 1)  # Heuristic value
@@ -44,7 +430,7 @@ class PROCONNet(nn.Module):
         x = self.max_pool(x)
 
         # Flatten the output for the fully connected layers
-        x = x.view(x.size(0), -1)  # Flatten
+        x = x.reshape(x.size(0), -1)  # Flatten
 
         # Fully connected layers
         x = F.relu(self.fc1(x))
@@ -54,7 +440,7 @@ class PROCONNet(nn.Module):
         die_probs = F.softmax(self.policy_die(x), dim=-1)
         x_probs = F.softmax(self.policy_x(x), dim=-1)
         y_probs = F.softmax(self.policy_y(x), dim=-1)
-        direction_probs = F.softmax(self.policy_direction(x), dim=-1)
+        directionection_probs = F.softmax(self.policy_directionection(x), dim=-1)
 
         # Value output
         heuristic_value = self.value_head(x)
@@ -63,62 +449,150 @@ class PROCONNet(nn.Module):
             'die_probs': die_probs,
             'x_probs': x_probs,
             'y_probs': y_probs,
-            'direction_probs': direction_probs,
+            'directionection_probs': directionection_probs,
             'heuristic_value': heuristic_value
         }
 
-# BFS to evaluate the value of states and generate targets
-def bfs_evaluate(game, state):
-    queue = deque([(state, 0)])  # (state, distance from goal)
-    visited = set()
-    while queue:
-        current_state, depth = queue.popleft()
-        if game.is_goal(current_state):
-            return depth  # Return the distance (value) when goal is reached
-        for child in game.get_children(current_state):
-            if child not in visited:
-                visited.add(child)
-                queue.append((child, depth + 1))
-    return float('inf')  # If no goal found, return large value
+class SigmaX:
+    
+    def __init__(self, game, device, model, optimizer, policy_loss_fn, value_loss_fn, args):
+        self.game = game
+        self.device = device
+        self.model = model
+        self.optimizer = optimizer
+        self.policy_loss_fn = policy_loss_fn
+        self.value_loss_fn = value_loss_fn
+        self.args = args   
 
-# Data generation using ADI
-def generate_training_data(game, num_samples):
-    training_data = []
-    for _ in range(num_samples):
-        game.reset()  # Start from the solved state
-        scramble_steps = random.randint(1, 30)  # Random number of scramble steps
-        state = game.get_current_state()
+    # Data generation using ADI
+    def generate_training_data(self):
+        training_data = []
+
+        scramble_steps = random.randint(1, self.args["num_god"])  # Random number of scramble steps
+        state = self.game.goal_state
         
         # Scramble the board by applying random actions
         for _ in range(scramble_steps):
-            action = game.random_action()
-            state = game.apply_action(state, action)
+            action = self.game.random_action()
+            state = self.game.apply_die(state, action)
 
-        # Generate child states and evaluate their values using BFS
-        children = game.get_children(state)
-        best_value = -float('inf')
-        best_action = None
-        for action, child_state in children:
-            value = game.evaluate(child_state)
-            if value > best_value:
-                best_value = value
-                best_action = action
-        
-        # Store the state, best action, and value as a training sample
-        training_data.append((state, best_action, best_value))
+            # Generate child states and evaluate their values using current model
+            children = self.game.get_children(state)
+            best_value = -float('inf')
+            best_action = None
+            for child_state, action in children:
+                value = self.game.evaluate_state(child_state)
+                if value > best_value:
+                    best_value = value
+                    best_action = action
 
-    return training_data
+            print(state)
+            print(f"x:{best_action.x}, y:{best_action.y}, dice_index:{best_action.die_index}, directionection:{best_action.directionection}")
+            print(best_action)
+
+            # Store the state, best action, and value as a training sample
+            training_data.append((self.game.encode_state(state), best_action, best_value))
+
+        print("TRAINING DATA GENERATED")
+
+        return training_data
+
+    def train(self, memory, training_data):
+
+        random.shuffle(memory)
+        for batchIdx in range(0, len(memory), self.args["batch_size"]):
+            sample = memory[batchIdx:min(len(memory) - 1, batchIdx + self.args["batch_size"])] 
+            states, best_actions, best_values = zip(*sample)
+
+            states = np.array(states)
+            states = torch.tensor(states, dtype=torch.float32).to(self.device)
+
+            best_actions = np.array(best_actions)
+            best_actions = torch.tensor(best_actions, dtype=torch.float32).to(self.device)
+
+            best_values = np.array(best_values).reshape(-1, 1)
+            best_values = torch.tensor(best_values, dtype=torch.float32).to(self.device)
+
+            # Forward pass through the model
+            outputs = self.model(states)
+
+            # Compute policy loss
+            die_loss = self.policy_loss_fn(outputs['die_probs'], best_actions[:, 0])
+            x_loss = self.policy_loss_fn(outputs['x_probs'], best_actions[:, 1])
+            y_loss = self.policy_loss_fn(outputs['y_probs'], best_actions[:, 2])
+            directionection_loss = self.policy_loss_fn(outputs['directionection_probs'], best_actions[:, 3])
+
+            # Compute value loss
+            value_loss = self.value_loss_fn(outputs['heuristic_value'].squeeze(), best_values)
+
+            # Total loss (combination of policy and value loss)
+            total_loss = die_loss + x_loss + y_loss + directionection_loss + value_loss
+
+            # Backpropagation and optimization
+            self.optimizer.zero_grad()
+            total_loss.backward()
+            self.optimizer.step()
+
+            print(f"Iteration {batchIdx}, Loss: {total_loss.item()}")
+
+
+    def learn(self):
+        for iteration in range(self.args["num_iterations"]):
+            memory = []
+
+            self.model.eval()
+            for adi_iteration in trange(self.args["num_gen_data"]):
+                memory += self.generate_training_data()
+
+            print("DATA SIZE:", len(memory))
+
+            return
+
+            self.model.train()
+            for epoch in trange(self.args["num_epochs"]):
+                self.train(memory)
+
+            torch.save(self.model.state_dict(), f"model_{iteration}.pt")
+            torch.save(self.optimizer.state_dict(), f"optimizer_{iteration}.pt")
 
 # Example usage
 def test():
-    model = PROCONNet()
-    input_tensor = torch.randn(3, 4, 256, 256)  # Batch size of 1, 4 channels, 256x256 input
+    # Detect if CUDA (GPU) is available, otherwise use CPU
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = PROCONNet().to(device)
+    input_tensor = torch.randn(3, 4, 256, 256).to(device)  # Batch size of 1, 4 channels, 256x256 input
     output = model(input_tensor)
 
     print("Die Probabilities:", output['die_probs'])
     print("X Probabilities:", output['x_probs'])
     print("Y Probabilities:", output['y_probs'])
-    print("Direction Probabilities:", output['direction_probs'])
+    print("directionection Probabilities:", output['directionection_probs'])
     print("Heuristic Value:", output['heuristic_value'])
 
-test()
+def main():
+
+    # Detect if CUDA (GPU) is available, otherwise use CPU
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    # Training hyperparameters
+    learning_rate = 0.001
+    args = {
+        "num_epochs": 100,
+        "num_iterations": 1,
+        "batch_size": 32,
+        "num_gen_data": 1,
+        "num_god" : 10
+    }
+
+    # Instantiate the model, optimizer, and loss functions
+    model = PROCONNet().to(device)
+    game = Game(model, device)
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    policy_loss_fn = nn.CrossEntropyLoss()  # For policy head
+    value_loss_fn = nn.MSELoss()  # For value head
+
+    sigmax = SigmaX(game, device, model, optimizer, policy_loss_fn, value_loss_fn, args)
+
+    sigmax.learn()
+
+main()
