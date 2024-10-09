@@ -2102,4 +2102,11 @@ class Game:
 
         return children
 
-
+n = int(input())
+m = int(input())
+print(f"height: {n}")
+print(f"width: {m}")
+gen1 = list(gen_action(n , m))
+gen2 = list((gen_actions(n , m)))
+print(f"gen1: {len(gen1)}")
+print(f"gen1: {len(gen2)}")
