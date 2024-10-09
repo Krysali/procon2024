@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <nlohmann/json.hpp>
 
 const int MAX_DIMENSION = 256;
 
@@ -21,21 +22,26 @@ public:
 };
 
 // Structure to represent a move
-class Move {
+class Action {
 public:
     int die_index;
     int x, y;
     int direction;
 };
 
-// Class to represent the entire game state
+// Structure to represent the entire game state
 class GameState {
 public:
-    Board board;
-    Board goal_state;
-    std::vector<Die> dies;
-    std::vector<Move> moves;
-	int num_moves;
+	Board board;
+	Board goal_state;
+	std::vector<Die> dies;
+	std::vector<Action> actions;
+	void apply_die(const Action& action);
+	void display_current_board();
+private:
+	std::vector<int> punch_pieces(const Action& action);
+	void shift_pieces(const Action& action);
+	void put_back_pieces(const Action& action, std::vector<int>& punched_pieces);
 };
 
 // DEPRECATED: Use only as a fallback when the API fails
