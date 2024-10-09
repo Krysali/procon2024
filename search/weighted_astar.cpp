@@ -9,7 +9,7 @@
 #include <cstdlib>
 #include "xxhash.hpp"
 #include "environment.h"
-#define NOMINMAX
+
 
 void error(const char *msg) {
     perror(msg);
