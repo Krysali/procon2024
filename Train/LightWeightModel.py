@@ -500,7 +500,7 @@ class SigmaX:
             # Store the state, best action, and value as a training sample
 
             best_action = np.array([best_action.die_index, (best_action.x + 255), (best_action.y + 255), best_action.direction])
-            best_action = torch.tensor(best_action)
+            best_action = torch.tensor(best_action).to(self.device)
             print(best_action)
 
             encoded_state = self.game.encode_state(state)
@@ -513,7 +513,7 @@ class SigmaX:
             print("AFTER SQUEEZE")
             print(encoded_state.shape)
 
-            best_value = torch.tensor(best_value)
+            best_value = torch.tensor(best_value).to(self.device)
             training_data.append((encoded_state, best_action, best_value))
 
             print(f"type of states:{type(encoded_state)}, type of best actions:{type(best_action)}, type of best_values{type(best_value)}")
