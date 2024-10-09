@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include <ops.h>
 #include <iostream>
 #include <algorithm>

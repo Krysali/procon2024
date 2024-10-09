@@ -4,7 +4,7 @@
 #include <chrono>
 
 int main() {
-	std::string serverUrl = "localhost:8080";
+	std::string serverUrl = "192.168.1.166:8080";
 	std::string teamToken = "token1";
 	std::string problemData;
 	problemData = GetRequest(serverUrl + "/problem", teamToken);
