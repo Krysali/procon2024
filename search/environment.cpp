@@ -22,7 +22,6 @@ int nearest(int x)
 }
 
 
-
 std::vector<Action> gen_actions(int n, int m)
 {
 	int topX, topY, botX, botY, width, height, mxSide, sz, diceNum;
@@ -640,40 +639,36 @@ Environment::~Environment() {
 }
 
 GameState::GameState(std::vector<std::vector<int>> state, std::vector<std::vector<int>> goalstate, int height , int width) {
-	this->construct(state, goalstate, height, width);
-}
-
-GameState::~GameState() {}
-
-void GameState::construct(std::vector<std::vector<int>> state, std::vector<std::vector<int>> goalstate , int height, int width) {
 	this->goalstate=goalstate; 
 	this->state = state;
-	this->height = height;
-	this->width = width;
-	this->numTiles = height*width;
+	this->height_state = height;
+	this->width_state = width;
 	this->actions=gen_actions(height, width) ; 	
 	this->numActions=actions.size() ; 
 }
 
-GameState* GameState::getNextState(Action action) const {
+GameState::~GameState() {}
+
+
+GameState *GameState::getNextState( int x , int y, int die_index, int dir) const {
 	std::vector<std::vector<int>>b(this->state);
 	// std::vector<std::vector<int>>& b = board.pieces;
-	int n = this->height;
-	int m = this->width;
+	int n = this->height_state;
+	int m = this->width_state;
 	// Set up
-	int power = ceil(action.die_index / 3.0);
+	int power = ceil(die_index / 3.0);
 	int size = int(pow(2, power));
-	int dice_type = (power == 0) ? 1 : action.die_index - ((power - 1) * 3);
+	int dice_type = (power == 0) ? 1 : die_index - ((power - 1) * 3);
 
-	// cout << "die_index:" << action.die_index << ", n:" << n << ", m:" << m << ", power:" << power << ", size:" << size 
+	// cout << "die_index:" << die_index << ", n:" << n << ", m:" << m << ", power:" << power << ", size:" << size 
 	//      << ", dice_type:" << dice_type << ", dir:" << action.dir << endl;
 
 	std::vector<int> cut_pieces;
 
-	int x_start = max(action.x, 0);
-	int y_start = max(action.y, 0);
-	int x_end = min(m, action.x + size) - 1;
-	int y_end = min(n, action.y + size) - 1;
+	int x_start = max(x, 0);
+	int y_start = max(y, 0);
+	int x_end = min(m, x + size) - 1;
+	int y_end = min(n, y + size) - 1;
 
 	int width = x_end - x_start + 1;
 	int height = y_end - y_start + 1;
@@ -685,16 +680,16 @@ GameState* GameState::getNextState(Action action) const {
 	// Determining first and chosen_x_num
 	if (dice_type == 2) {
 		first = (height + 1) % 2;
-		if (is_inside(action.x, action.y, n, m, dice_type)) {
+		if (is_inside(x, y, n, m, dice_type)) {
 			if (!first) {
 				chosen_row_num += 1;
 			}
 			first = 1;
 		}
-		else if (abs(action.y) % 2 != 0) {
+		else if (abs(y) % 2 != 0) {
 			first = 0;
 		}
-		else if (abs(action.y) % 2 == 0) {
+		else if (abs(y) % 2 == 0) {
 			if (height % 2 == 1) { // n bsn
 				first = 1;
 				chosen_row_num += 1;
@@ -704,16 +699,16 @@ GameState* GameState::getNextState(Action action) const {
 
 	if (dice_type == 3) {
 		first = (width + 1) % 2;
-		if (is_inside(action.x, action.y, n, m, dice_type)) {
+		if (is_inside(x, y, n, m, dice_type)) {
 			if (!first) {
 				chosen_col_num += 1;
 			}
 			first = 1;
 		}
-		else if (abs(action.x) % 2 != 0) {
+		else if (abs(x) % 2 != 0) {
 			first = 0;
 		}
-		else if (abs(action.x) % 2 == 0) {
+		else if (abs(x) % 2 == 0) {
 			if (width % 2 == 1) { // m bsn
 				first = 1;
 				chosen_col_num += 1;
@@ -737,7 +732,7 @@ GameState* GameState::getNextState(Action action) const {
 
 	if (dice_type == 2) {
 		int x = (first + 1) % 2;
-		if (is_inside(action.x, action.y, n, m, dice_type)) {
+		if (is_inside(x, y, n, m, dice_type)) {
 			for (int r = y_start; r <= y_end; r += 2) {
 				for (int c = x_start; c <= x_end; ++c) {
 					cut_pieces.push_back(b[r][c]);
@@ -757,7 +752,7 @@ GameState* GameState::getNextState(Action action) const {
 
 	if (dice_type == 3) {
 		int x = (first + 1) % 2;
-		if (is_inside(action.x, action.y, n, m, dice_type)) {
+		if (is_inside(x, y, n, m, dice_type)) {
 			for (int r = y_start; r <= y_end; ++r) {
 				for (int c = x_start; c <= x_end; c += 2) {
 					cut_pieces.push_back(b[r][c]);
@@ -776,7 +771,7 @@ GameState* GameState::getNextState(Action action) const {
 	}
 
 	// SHIFT PHASE
-	if (action.direction == 0) {
+	if (dir == 0) {
 		for (int c = x_start; c <= x_end; ++c) {
 			int write_index = y_start;
 			for (int r = y_start; r < n; ++r) {
@@ -790,7 +785,7 @@ GameState* GameState::getNextState(Action action) const {
 			}
 		}
 	}
-	else if (action.direction == 1) {
+	else if (dir == 1) {
 		for (int c = x_start; c <= x_end; ++c) {
 			int write_index = y_end;
 			for (int r = y_end; r >= 0; --r) {
@@ -804,7 +799,7 @@ GameState* GameState::getNextState(Action action) const {
 			}
 		}
 	}
-	else if (action.direction == 2) {
+	else if (dir == 2) {
 		for (int r = y_start; r <= y_end; ++r) {
 			int write_index = x_start;
 			for (int c = x_start; c < m; ++c) {
@@ -818,7 +813,7 @@ GameState* GameState::getNextState(Action action) const {
 			}
 		}
 	}
-	else if (action.direction == 3) {
+	else if (dir == 3) {
 		for (int r = y_start; r <= y_end; ++r) {
 			int write_index = x_end;
 			for (int c = x_end; c >= 0; --c) {
@@ -837,10 +832,10 @@ GameState* GameState::getNextState(Action action) const {
 	int bxs = 0, bxe = 0, bys = 0, bye = 0;
 
 	if (dice_type == 1) {
-		if (action.direction < 2) {
+		if (dir < 2) {
 			bxs = x_start;
 			bxe = x_end;
-			if (action.direction == 0) {
+			if (dir == 0) {
 				bys = n - height;
 				bye = n - 1;
 			}
@@ -852,7 +847,7 @@ GameState* GameState::getNextState(Action action) const {
 		else {
 			bys = y_start;
 			bye = y_end;
-			if (action.direction == 2) {
+			if (dir == 2) {
 				bxs = m - width;
 				bxe = m - 1;
 			}
@@ -863,10 +858,10 @@ GameState* GameState::getNextState(Action action) const {
 		}
 	}
 	else if (dice_type == 2) {
-		if (action.direction < 2) {
+		if (dir < 2) {
 			bxs = x_start;
 			bxe = x_end;
-			if (action.direction == 0) {
+			if (dir == 0) {
 				bys = n - chosen_row_num;
 				bye = n - 1;
 			}
@@ -878,7 +873,7 @@ GameState* GameState::getNextState(Action action) const {
 		else {
 			bys = y_start;
 			bye = y_end;
-			if (action.direction == 2) {
+			if (dir == 2) {
 				bxs = m - width;
 				bxe = m - 1;
 			}
@@ -889,10 +884,10 @@ GameState* GameState::getNextState(Action action) const {
 		}
 	}
 	else if (dice_type == 3) {
-		if (action.direction < 2) {
+		if (dir < 2) {
 			bxs = x_start;
 			bxe = x_end;
-			if (action.direction == 0) {
+			if (dir == 0) {
 				bys = n - height;
 				bye = n - 1;
 			}
@@ -904,7 +899,7 @@ GameState* GameState::getNextState(Action action) const {
 		else {
 			bys = y_start;
 			bye = y_end;
-			if (action.direction == 2) {
+			if (dir == 2) {
 				bxs = m - chosen_col_num;
 				bxe = m - 1;
 			}
@@ -934,20 +929,24 @@ GameState* GameState::getNextState(Action action) const {
 			}
 		}
 	}
-	std::vector<Action> newActions = this->actions;
-	newActions.push_back(action);
-	// GameState* nextState =  GameState(b, goalstate, this->height, this->width);
-	GameState* nextState ; 
-	return nextState;
+	// std::vector<Action> newActions = this->actions;
+	// newActions.push_back(action);
+	GameState *nextS =new GameState(b, this->goalstate, this->height_state, this->width_state );
+	
+	return nextS;
 }
 
 std::vector<Environment*> GameState::getNextStates() const {
     std::vector<Environment*> nextStates;
     for (const Action& action : this->actions) {
-        GameState* nextState = getNextState(action);
-        nextStates.push_back(nextState);
+       
+	   int x= action.x; 
+	   int y=action.y; 
+	   int die_index=action.die_index; 
+	   int dir=action.direction; 
+        nextStates.push_back(this->getNextState(x, y, die_index, dir));
     }
-    return nextStates;
+    return (nextStates);
 }
 
 std::vector<std::vector<int>> GameState::getState() const {
