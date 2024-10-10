@@ -11,17 +11,17 @@
 #include "environment.h"
 
 
-void error(const char *msg) {
-    perror(msg);
-    exit(EXIT_FAILURE);
-}
+// void error(const char *msg) {
+//     perror(msg);
+//     exit(EXIT_FAILURE);
+// }
 
-void printArray(const std::vector<uint8_t>& arr) {
-    for (const auto& val : arr) {
-        std::cout << static_cast<int>(val) << " ";
-    }
-    std::cout << std::endl;
-}
+// void printArray(const std::vector<uint8_t>& arr) {
+//     for (const auto& val : arr) {
+//         std::cout << static_cast<int>(val) << " ";
+//     }
+//     std::cout << std::endl;
+// }
 
 std::string stateToString(const std::vector<uint8_t>& state) {
     std::ostringstream vts;
@@ -75,7 +75,7 @@ public:
 };
 
 void writeFile(int sockfd, const std::vector<Node*>& children) {
-    std::vector<uint8_t> states;
+    std::vector<std::vector<int>> states;
     for (const auto& child : children) {
         const auto& state = child->env->getState();
         states.insert(states.end(), state.begin(), state.end());

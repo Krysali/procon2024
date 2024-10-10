@@ -1,7 +1,7 @@
 #include "environment.h"
 #include <map>
-#include<cmath>
 #include<math.h>
+#include<cmath>
 
 
 bool is_inside(int x, int y, int n, int m, int dtype) {
