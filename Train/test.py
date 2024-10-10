@@ -14,6 +14,8 @@ import cv2
 import random
 import os
 
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+
 class Game:
     def __init__(self, model, device):
         self.model = model
@@ -359,7 +361,7 @@ class Game:
         image_path = "images/" + str(image_index) + ".jpg"
 
         is_noise = random.randint(0, 1)
-        power = random.randint(1, 1)
+        power = random.randint(2, 2)
         size = pow(2, power)
 
         width = size
