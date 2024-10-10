@@ -488,7 +488,7 @@ class SigmaX:
     def generate_training_data(self):
         training_data = []
 
-        scramble_steps = random.randint(1, self.args["num_god"])  # Random number of scramble steps
+        scramble_steps = random.randint(2, self.args["num_god"])  # Random number of scramble steps
         state = np.copy(self.game.goal_state)
         
         # Scramble the board by applying random actions
