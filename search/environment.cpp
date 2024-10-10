@@ -1,6 +1,7 @@
 #include "environment.h"
 #include <map>
-
+#include<cmath>
+#include<math.h>
 
 
 bool is_inside(int x, int y, int n, int m, int dtype) {
@@ -34,7 +35,7 @@ std::vector<Action> gen_actions(int n, int m)
 	if (1) {
 		for (topY = 1; topY < n - 1; topY++) {
 			for (topX = 1; topX < m - 1; topX++) {
-				for (sz = 1; sz <= min(n - topY - 1, m - topX - 1); sz *= 2) {
+				for (sz = 1; sz <= std::min(n - topY - 1, m - topX - 1); sz *= 2) {
 					// 3rd diceNum of this size
 					diceNum = log2(sz) * 3;
 					for (int s = 0; s < 4; s++) {
@@ -65,7 +66,7 @@ std::vector<Action> gen_actions(int n, int m)
 			for (botX = 0; botX < m - 1; botX++) {
 				width = botX - topX + 1;
 				height = botY - topY + 1;
-				mxSide = max(width, height);
+				mxSide = std::max(width, height);
 				sz = nearest(mxSide);
 
 				// 3rd diceNum of this size
@@ -116,7 +117,7 @@ std::vector<Action> gen_actions(int n, int m)
 
 				height = botY - topY + 1;
 				width = botX - topX + 1;
-				mxSide = max(height, width);
+				mxSide = std::max(height, width);
 				sz = nearest(mxSide);
 
 				// 3th type dice of this size
@@ -156,7 +157,7 @@ std::vector<Action> gen_actions(int n, int m)
 
 				height = botY - topY + 1;
 				width = botX - topX + 1;
-				mxSide = max(height, width);
+				mxSide = std::max(height, width);
 				sz = nearest(mxSide);
 
 				// 3th type dice of this size
@@ -194,7 +195,7 @@ std::vector<Action> gen_actions(int n, int m)
 
 				height = botY - topY + 1;
 				width = botX - topX + 1;
-				mxSide = max(height, width);
+				mxSide = std::max(height, width);
 				sz = nearest(mxSide);
 
 				if (sz == 1) {
@@ -248,7 +249,7 @@ std::vector<Action> gen_actions(int n, int m)
 			for (botY = 0; botY < n - 1; botY++) {
 				width = m;
 				height = botY - topY + 1;
-				mxSide = max(width, height);
+				mxSide = std::max(width, height);
 				sz = nearest(mxSide);
 				// 3th type dice of this size
 				diceNum = (log2(sz) * 3);
@@ -287,7 +288,7 @@ std::vector<Action> gen_actions(int n, int m)
 			for (botX = 0; botX < m - 1; botX++) {
 				width = botX - topX + 1;
 				height = n;
-				mxSide = max(width, height);
+				mxSide = std::max(width, height);
 				sz = nearest(mxSide);
 				// 3th type dice of this size
 				diceNum = (log2(sz) * 3);
@@ -324,7 +325,7 @@ std::vector<Action> gen_actions(int n, int m)
 			for (botX = m - 1; botX > 0; botX--) {
 				width = topX - botX + 1;
 				height = n;
-				mxSide = max(width, height);
+				mxSide = std::max(width, height);
 				sz = nearest(mxSide);
 				// 3th type dice of this size
 				diceNum = (log2(sz) * 3);
@@ -350,7 +351,7 @@ std::vector<Action> gen_actions(int n, int m)
 			for (topY = n - 1; topY > 0; topY--) {
 				width = m;
 				height = topY - botY + 1;
-				mxSide = max(width, height);
+				mxSide = std::max(width, height);
 				sz = nearest(mxSide);
 				// 3th type dice of this size
 				diceNum = (log2(sz) * 3);
@@ -377,7 +378,7 @@ std::vector<Action> gen_actions(int n, int m)
 		topY = 0;
 		for (topX = 1; topX < m - 1; topX++) {
 			for (width = 1; width <= (m - 1 - topX); width *= 2) {
-				for (height = 1; height <= min(width, n - 1); height++) {
+				for (height = 1; height <= std::min(width, n - 1); height++) {
 					sz = width;
 
 					if (sz == 1) {
@@ -427,7 +428,7 @@ std::vector<Action> gen_actions(int n, int m)
 		topY = n - 1;
 		for (topX = 1; topX < m - 1; topX++) {
 			for (width = 1; width <= (m - 1 - topX); width *= 2) {
-				for (height = 1; height <=min(width, n - 1); height++) {
+				for (height = 1; height <=std::min(width, n - 1); height++) {
 
 					int oh = n - height;
 					int ow = width;
@@ -665,10 +666,10 @@ GameState *GameState::getNextState( int x , int y, int die_index, int dir) const
 
 	std::vector<int> cut_pieces;
 
-	int x_start = max(x, 0);
-	int y_start = max(y, 0);
-	int x_end = min(m, x + size) - 1;
-	int y_end = min(n, y + size) - 1;
+	int x_start = std::max(x, 0);
+	int y_start = std::max(y, 0);
+	int x_end = std::min(m, x + size) - 1;
+	int y_end = std::min(n, y + size) - 1;
 
 	int width = x_end - x_start + 1;
 	int height = y_end - y_start + 1;
@@ -677,7 +678,7 @@ GameState *GameState::getNextState( int x , int y, int die_index, int dir) const
 	int chosen_col_num = floor(width / 2);
 	int first = 1;
 
-	// Determining first and chosen_x_num
+	// Deterstd::mining first and chosen_x_num
 	if (dice_type == 2) {
 		first = (height + 1) % 2;
 		if (is_inside(x, y, n, m, dice_type)) {
