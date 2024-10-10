@@ -361,7 +361,7 @@ class Game:
         image_path = "images/" + str(image_index) + ".jpg"
 
         is_noise = random.randint(0, 1)
-        power = random.randint(2, 2)
+        power = 6
         size = pow(2, power)
 
         width = size
