@@ -295,27 +295,32 @@ class Game:
 
         res = np.stack((one, two, three, four), axis=-1)
         res = np.expand_dims(res, axis=0)
-        res = torch.tensor(res, dtype=torch.float32).to(self.device)
+        res = torch.tensor(res, dtype=torch.float16).to(self.device)
         res = res.permute(0, 3, 1, 2)
 
         print(res.shape)
 
         return res
+    
+    def encode_state_opt(self, state):
+        res = np.zeros((256, 256))
+        n, m = state.shape
+        for r in range(n):
+            for c in range(m):
+                res[r][c] = state[r][c]
+        
+        res = torch.tensor(res, dtype=torch.float16).to(self.device)
+        res = res.unsqueeze(dim=0)
+        print(res.shape)
+
+        return res
 
     def evaluate_state(self, state):
-        encoded_state = self.encode_state(state)
+        encoded_state = self.encode_state(state)#float16
         with torch.inference_mode():
             output = self.model(encoded_state)
         return output["heuristic_value"]   
-
-    def get_children(self, state):
-        children = []
-        for action in self.actions:
-            child = self.apply_die(state, action)
-            children.append((child, action))
-
-        return children
-
+    
     def convert_to_4_color_grayscale(self, image_path, width, height):
         """
         Converts an image to a 4-color grayscale array.
@@ -400,28 +405,28 @@ class PROCONNet(nn.Module):
         super(PROCONNet, self).__init__()
 
         # Convolutional layers for feature extraction
-        self.conv1 = nn.Conv2d(in_channels=4, out_channels=32, kernel_size=3, padding=1)  # (256, 256, 4) -> (256, 256, 32)
-        self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, padding=1)  # -> (256, 256, 64)
-        self.conv3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, padding=1)  # -> (256, 256, 128)
+        self.conv1 = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=3, padding=1,dtype=float)  # (256, 256, 1) -> (256, 256, 32)
+        self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, padding=1,dtype=float)  # -> (256, 256, 64)
+        self.conv3 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, padding=1,dtype=float)  # -> (256, 256, 128)
 
         # Batch normalization
-        self.batch_norm = nn.BatchNorm2d(64)
+        self.batch_norm = nn.BatchNorm2d(32)
 
         # Max pooling layer
         self.max_pool = nn.MaxPool2d(kernel_size=2, stride=2)  # Reduces size to (128, 128)
 
         # Fully connected layers
-        self.fc1 = nn.Linear(128 * 128 * 128, 1024)  # Input size: 128 channels * 128 * 128
-        self.fc2 = nn.Linear(1024, 512)
+        self.fc1 = nn.Linear(128 * 128 * 64, 1024,dtype=float)  # Input size: 128 channels * 128 * 128
+        self.fc2 = nn.Linear(1024, 512,dtype=float)
 
         # Policy head
-        self.policy_die = nn.Linear(512, 25)  # Die selection: 25 options
-        self.policy_x = nn.Linear(512, 511)    # X-coordinate: 511 options
-        self.policy_y = nn.Linear(512, 511)    # Y-coordinate: 511 options
-        self.policy_direction = nn.Linear(512, 4)  # direction: 4 options
+        self.policy_die = nn.Linear(512, 25,dtype=float)  # Die selection: 25 options
+        self.policy_x = nn.Linear(512, 511,dtype=float)    # X-coordinate: 511 options
+        self.policy_y = nn.Linear(512, 511,dtype=float)    # Y-coordinate: 511 options
+        self.policy_direction = nn.Linear(512, 4,dtype=float)  # direction: 4 options
 
         # Value head
-        self.value_head = nn.Linear(512, 1)  # Heuristic value
+        self.value_head = nn.Linear(512, 1,dtype=float)  # Heuristic value
 
     def forward(self, x):
         # Convolutional layers with ReLU activation and max pooling
@@ -477,7 +482,7 @@ class SigmaX:
         training_data = []
 
         scramble_steps = random.randint(1, self.args["num_god"])  # Random number of scramble steps
-        state = self.game.goal_state
+        state = np.copy(self.game.goal_state)
         
         # Scramble the board by applying random actions
         for _ in range(scramble_steps):
@@ -485,11 +490,13 @@ class SigmaX:
             state = self.game.apply_die(state, action)
 
             # Generate child states and evaluate their values using current model
-            children = self.game.get_children(state)
             best_value = -float('inf')
             best_action = None
-            for child_state, action in children:
-                value = self.game.evaluate_state(child_state)
+                
+            for action in self.game.actions:
+                child = self.game.apply_die(state, action)
+                encoded_state = self.game.encode_state_opt(child)
+                value = self.game.evaluate_state(encoded_state)
                 if value > best_value:
                     best_value = value
                     best_action = action
@@ -501,26 +508,22 @@ class SigmaX:
             # Store the state, best action, and value as a training sample
 
             best_action = np.array([best_action.die_index, (best_action.x + 255), (best_action.y + 255), best_action.direction])
-            best_action = torch.tensor(best_action).to(self.device)
+            best_action = torch.tensor(best_action, dtype=torch.float16).to(self.device)
             print(best_action)
 
-            encoded_state = self.game.encode_state(state)
-
-            print("BEFORE SQUEEZE")
-            print(encoded_state.shape)
-
+            encoded_state = self.game.encode_state_opt(state)
             encoded_state = encoded_state.squeeze()
-            
-            print("AFTER SQUEEZE")
-            print(encoded_state.shape)
 
-            best_value = torch.tensor(best_value).to(self.device)
+            best_value = torch.tensor(best_value, dtype=torch.float16).to(self.device)
+
             training_data.append((encoded_state, best_action, best_value))
 
             print(f"type of states:{type(encoded_state)}, type of best actions:{type(best_action)}, type of best_values{type(best_value)}")
+            # del best_action
+            # del best_value
+            # del encoded_state
 
         print("TRAINING DATA GENERATED")
-
         return training_data
 
     def train(self, memory):
@@ -542,12 +545,10 @@ class SigmaX:
             best_values = torch.stack(best_values)
 
             print(f"type of states:{type(states)}, type of best actions:{type(best_actions)}, type of best_values{type(best_values)}")
-
+            
             #states = torch.tensor(states, dtype=torch.float32).to(self.device)
-
             # best_actions = np.array(best_actions)
             # best_actions = torch.tensor(best_actions, dtype=torch.float32).to(self.device)
-
             # #best_values = np.array(best_values).reshape(-1, 1)
             # best_values = torch.tensor(best_values, dtype=torch.float32).to(self.device)
 
@@ -559,10 +560,8 @@ class SigmaX:
             x_loss = self.policy_loss_fn(outputs['x_probs'], best_actions[:, 1].long())
             y_loss = self.policy_loss_fn(outputs['y_probs'], best_actions[:, 2].long())
             direction_loss = self.policy_loss_fn(outputs['direction_probs'], best_actions[:, 3].long())
-
             # Compute value loss
             value_loss = self.value_loss_fn(outputs['heuristic_value'].squeeze(), best_values)
-
             # Total loss (combination of policy and value loss)
             total_loss = die_loss + x_loss + y_loss + direction_loss + value_loss
 
@@ -570,9 +569,17 @@ class SigmaX:
             self.optimizer.zero_grad()
             total_loss.backward()
             self.optimizer.step()
-
+            # del die_loss
+            # del x_loss
+            # del y_loss
+            # del direction_loss
+            # del value_loss
             print(f"Iteration {batchIdx}, Loss: {total_loss.item()}")
-
+        #     del total_loss
+        # del outputs
+        # del states
+        # del best_actions
+        # del best_values
 
     def learn(self):
         for iteration in range(self.args["num_iterations"]):
@@ -590,13 +597,17 @@ class SigmaX:
 
             torch.save(self.model.state_dict(), f"model_{iteration}.pt")
             torch.save(self.optimizer.state_dict(), f"optimizer_{iteration}.pt")
-
+        # del memory
+        
 # Example usage
 def test():
     # Detect if CUDA (GPU) is available, otherwise use CPU
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = PROCONNet().to(device)
-    input_tensor = torch.randn(1, 4, 256, 256).to(device)  # Batch size of 1, 4 channels, 256x256 input
+    model.to(torch.float16)
+    input_tensor = torch.randn(3, 1, 256, 256).to(device)  # Batch size of 1, 4 channels, 256x256 input
+    
+    model.eval()
     with torch.inference_mode():
         output = model(input_tensor)
 
@@ -610,11 +621,13 @@ def main():
 
     # Detect if CUDA (GPU) is available, otherwise use CPU
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+    
+    
+    print(device)
     # Training hyperparameters
     learning_rate = 0.001
     args = {
-        "num_epochs": 5,
+        "num_epochs": 100,
         "num_iterations": 1,
         "batch_size": 32,
         "num_gen_data": 1,
@@ -623,14 +636,13 @@ def main():
 
     # Instantiate the model, optimizer, and loss functions
     model = PROCONNet().to(device)
-    model.to(torch.float16)
+    model.to(dtype=torch.float16)
     game = Game(model, device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     policy_loss_fn = nn.CrossEntropyLoss()  # For policy head
     value_loss_fn = nn.MSELoss()  # For value head
 
     sigmax = SigmaX(game, device, model, optimizer, policy_loss_fn, value_loss_fn, args)
-
     sigmax.learn()
 
 main()

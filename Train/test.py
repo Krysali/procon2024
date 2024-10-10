@@ -118,13 +118,13 @@ class Game:
         #print(board)
 
         # Save the board after cut to a text file
-        with open("Train/notepad/board.txt", "w") as file:
+        with open("notepad/board.txt", "w") as file:
             for row in board:
                 file.write(" ".join(map(str, row)) + "\n")
 
 
         # Save the cut pieces to a text file
-        with open("Train/notepad/cutpieces.txt", "w") as file:
+        with open("notepad/cutpieces.txt", "w") as file:
                 file.write(" ".join(map(str, cut_pieces)) + "\n")
 
 
@@ -171,7 +171,7 @@ class Game:
                     board[r][c] = 0
 
         # Save the shifted board to a text file
-        with open("Train/notepad/shift.txt", "w") as file:
+        with open("notepad/shift.txt", "w") as file:
             for row in board:
                 file.write(" ".join(map(str, row)) + "\n")
 
@@ -268,7 +268,7 @@ class Game:
                     print("AAAAAAIIIIIIIIIIIINNNNNNNNN")
                     # Save the shuffled array to a text file
 
-        with open("Train/notepad/bbbt.txt", "w") as file:
+        with open("notepad/bbbt.txt", "w") as file:
             for row in board:
                 file.write(" ".join(map(str, row)) + "\n")
 
@@ -295,26 +295,32 @@ class Game:
 
         res = np.stack((one, two, three, four), axis=-1)
         res = np.expand_dims(res, axis=0)
-        res = torch.tensor(res, dtype=torch.float32).to(self.device)
+        res = torch.tensor(res, dtype=torch.float16).to(self.device)
         res = res.permute(0, 3, 1, 2)
 
         print(res.shape)
 
         return res
 
+    def encode_state_opt(self, state):
+        res = np.zeros((256, 256))
+        n, m = state.shape
+        for r in range(n):
+            for c in range(m):
+                res[r][c] = state[r][c]
+        
+        res = torch.tensor(res, dtype=torch.float16).to(self.device)
+        res = res.unsqueeze(dim=0)
+        print("encode_state_opt debug")
+        print(res.shape)
+
+        return res
+
     def evaluate_state(self, state):
-        encoded_state = self.encode_state(state)
+        encoded_state = self.encode_state_opt(state)
         with torch.inference_mode():
             output = self.model(encoded_state)
         return output["heuristic_value"]   
-
-    def get_children(self, state):
-        children = []
-        for action in self.actions:
-            child = self.apply_die(state, action)
-            children.append((child, action))
-
-        return children
 
     def convert_to_4_color_grayscale(self, image_path, width, height):
         """
@@ -350,7 +356,7 @@ class Game:
     def gen_board(self):
         # Get user input picture path
         image_index = random.randint(0, 25)
-        image_path = "Train/images/" + str(image_index) + ".jpg"
+        image_path = "images/" + str(image_index) + ".jpg"
 
         is_noise = random.randint(0, 1)
         power = random.randint(1, 1)
@@ -370,7 +376,7 @@ class Game:
         shuffled_array = flat_array.reshape(grayscale_array.shape)
 
         # Save the initial state to a text file
-        with open("Train/notepad/initial.txt", "w") as file:
+        with open("notepad/initial.txt", "w") as file:
             for row in shuffled_array:
                 file.write(" ".join(map(str, row)) + "\n")
 
@@ -381,7 +387,7 @@ class Game:
             shuffled_array_prime = flat_array.reshape(grayscale_array.shape)
 
             # Save the goal state to a text file
-            with open("Train/notepad/goal.txt", "w") as file:
+            with open("notepad/goal.txt", "w") as file:
                 for row in shuffled_array_prime:
                     file.write(" ".join(map(str, row)) + "\n")
 
@@ -389,7 +395,7 @@ class Game:
         else:
 
             # Save the goal state to a text file
-            with open("Train/notepad/goal.txt", "w") as file:
+            with open("notepad/goal.txt", "w") as file:
                 for row in grayscale_array:
                     file.write(" ".join(map(str, row)) + "\n")
 
@@ -400,7 +406,7 @@ class PROCONNet(nn.Module):
         super(PROCONNet, self).__init__()
 
         # Convolutional layers for feature extraction
-        self.conv1 = nn.Conv2d(in_channels=4, out_channels=32, kernel_size=3, padding=1)  # (256, 256, 4) -> (256, 256, 32)
+        self.conv1 = nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3, padding=1)  # (256, 256, 4) -> (256, 256, 32)
         self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, padding=1)  # -> (256, 256, 64)
         self.conv3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, padding=1)  # -> (256, 256, 128)
 
@@ -425,6 +431,8 @@ class PROCONNet(nn.Module):
 
     def forward(self, x):
         # Convolutional layers with ReLU activation and max pooling
+        print("BUUUUUR ANH")
+        print(x.shape)
         x = F.relu(self.conv1(x))
 
         print("dim DEBUG")
@@ -432,6 +440,10 @@ class PROCONNet(nn.Module):
         # Ensure the input is 4D
         if x.dim() == 3:  # If input is 3D
             x = x.unsqueeze(1)  # Add a channel dimension
+            x = x.permute(1, 0, 2, 3)
+        
+        print("AFTER UNSQUEEZE")
+        print(x.shape)
 
         x = F.relu(self.batch_norm(self.conv2(x)))
         x = F.relu(self.conv3(x))
@@ -477,7 +489,7 @@ class SigmaX:
         training_data = []
 
         scramble_steps = random.randint(1, self.args["num_god"])  # Random number of scramble steps
-        state = self.game.goal_state
+        state = np.copy(self.game.goal_state)
         
         # Scramble the board by applying random actions
         for _ in range(scramble_steps):
@@ -485,11 +497,12 @@ class SigmaX:
             state = self.game.apply_die(state, action)
 
             # Generate child states and evaluate their values using current model
-            children = self.game.get_children(state)
             best_value = -float('inf')
             best_action = None
-            for child_state, action in children:
-                value = self.game.evaluate_state(child_state)
+                
+            for action in self.game.actions:
+                child = self.game.apply_die(state, action)
+                value = self.game.evaluate_state(child)
                 if value > best_value:
                     best_value = value
                     best_action = action
@@ -501,26 +514,22 @@ class SigmaX:
             # Store the state, best action, and value as a training sample
 
             best_action = np.array([best_action.die_index, (best_action.x + 255), (best_action.y + 255), best_action.direction])
-            best_action = torch.tensor(best_action).to(self.device)
+            best_action = torch.tensor(best_action, dtype=torch.float16).to(self.device)
             print(best_action)
 
-            encoded_state = self.game.encode_state(state)
-
-            print("BEFORE SQUEEZE")
-            print(encoded_state.shape)
-
+            encoded_state = self.game.encode_state_opt(state)
             encoded_state = encoded_state.squeeze()
-            
-            print("AFTER SQUEEZE")
-            print(encoded_state.shape)
 
-            best_value = torch.tensor(best_value).to(self.device)
+            best_value = torch.tensor(best_value, dtype=torch.float16).to(self.device)
+
             training_data.append((encoded_state, best_action, best_value))
 
             print(f"type of states:{type(encoded_state)}, type of best actions:{type(best_action)}, type of best_values{type(best_value)}")
+            # del best_action
+            # del best_value
+            # del encoded_state
 
         print("TRAINING DATA GENERATED")
-
         return training_data
 
     def train(self, memory):
@@ -542,12 +551,10 @@ class SigmaX:
             best_values = torch.stack(best_values)
 
             print(f"type of states:{type(states)}, type of best actions:{type(best_actions)}, type of best_values{type(best_values)}")
-
+            
             #states = torch.tensor(states, dtype=torch.float32).to(self.device)
-
             # best_actions = np.array(best_actions)
             # best_actions = torch.tensor(best_actions, dtype=torch.float32).to(self.device)
-
             # #best_values = np.array(best_values).reshape(-1, 1)
             # best_values = torch.tensor(best_values, dtype=torch.float32).to(self.device)
 
@@ -559,10 +566,8 @@ class SigmaX:
             x_loss = self.policy_loss_fn(outputs['x_probs'], best_actions[:, 1].long())
             y_loss = self.policy_loss_fn(outputs['y_probs'], best_actions[:, 2].long())
             direction_loss = self.policy_loss_fn(outputs['direction_probs'], best_actions[:, 3].long())
-
             # Compute value loss
             value_loss = self.value_loss_fn(outputs['heuristic_value'].squeeze(), best_values)
-
             # Total loss (combination of policy and value loss)
             total_loss = die_loss + x_loss + y_loss + direction_loss + value_loss
 
@@ -570,9 +575,17 @@ class SigmaX:
             self.optimizer.zero_grad()
             total_loss.backward()
             self.optimizer.step()
-
+            # del die_loss
+            # del x_loss
+            # del y_loss
+            # del direction_loss
+            # del value_loss
             print(f"Iteration {batchIdx}, Loss: {total_loss.item()}")
-
+        #     del total_loss
+        # del outputs
+        # del states
+        # del best_actions
+        # del best_values
 
     def learn(self):
         for iteration in range(self.args["num_iterations"]):
@@ -590,13 +603,15 @@ class SigmaX:
 
             torch.save(self.model.state_dict(), f"model_{iteration}.pt")
             torch.save(self.optimizer.state_dict(), f"optimizer_{iteration}.pt")
-
-# Example usage
+        # del memory
+        
 def test():
     # Detect if CUDA (GPU) is available, otherwise use CPU
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = PROCONNet().to(device)
     input_tensor = torch.randn(1, 4, 256, 256).to(device)  # Batch size of 1, 4 channels, 256x256 input
+    input_tensor.to(torch.float16)
+    model = PROCONNet().to(device)
+    model.eval()
     with torch.inference_mode():
         output = model(input_tensor)
 
@@ -606,6 +621,75 @@ def test():
     print("direction Probabilities:", output['direction_probs'])
     print("Heuristic Value:", output['heuristic_value'])
 
+    sz1 = len(output['die_probs'])
+    sz2 = len(output['x_probs'])  
+    sz3 = len(output['y_probs'])
+    sz4 = len(output['direction_probs'])
+    
+    print(type(output['die_probs']))
+
+    die_pro, index_die = torch.sort(output['die_probs'][0], descending=True)
+    x_pro, index_x = torch.sort(output['x_probs'][0], descending=True)
+    y_pro, index_y = torch.sort(output['y_probs'][0], descending=True)
+    dir_pro, index_dir = torch.sort(output['direction_probs'][0], descending=True)
+
+    sz1 = len(die_pro)
+    sz2 = len(x_pro)
+    sz3 = len(y_pro)
+    sz4 = len(dir_pro)
+
+    die_pro = torch.cat((die_pro, torch.tensor([-1])))
+    x_pro = torch.cat((x_pro, torch.tensor([-1])))
+    y_pro = torch.cat((y_pro, torch.tensor([-1])))
+    dir_pro = torch.cat((dir_pro, torch.tensor([-1])))
+
+    print(die_pro)
+
+
+    print(die_pro, index_die)
+
+    i = 0
+    j = 0
+    I = 0
+    J = 0
+
+    while (i + 1) * (j + 1) * (I + 1) * (J + 1) <= 1000:
+        
+        highest = [(die_pro[i + 1], 'i'), (x_pro[j + 1], 'j'), (y_pro[I + 1], 'I'), (dir_pro[J + 1], 'J')]
+
+        p = 0
+        ind = -1
+        for high in highest:
+            if high[0] > p:
+                p = high[0]
+                ind = high[1]
+
+        if ind == 'i':
+            i += 1
+        elif ind == 'j':
+            j += 1
+        elif ind == 'I':
+            I += 1
+        else:
+            J += 1
+    
+    values = []
+
+    for die in range(0, i + 1):
+        for x in range(0, j + 1):
+            for y in range(0, I + 1):
+                for dir in range(0, J + 1):
+                    f = die_pro[die] * x_pro[x] * y_pro[y] * dir_pro[dir]
+                    s = (index_die[die], index_x[x], index_y[y], index_die[dir])
+
+                    values.append((f, s))
+
+    values.sort(key=lambda x : x[0], reverse=True)
+
+    for i in range(1, 1001):
+        print(values[i][0], end=" ")
+        print(values[i][1])
+
 def main():
 
     # Detect if CUDA (GPU) is available, otherwise use CPU
@@ -614,7 +698,7 @@ def main():
     # Training hyperparameters
     learning_rate = 0.001
     args = {
-        "num_epochs": 5,
+        "num_epochs": 3,
         "num_iterations": 1,
         "batch_size": 32,
         "num_gen_data": 1,
