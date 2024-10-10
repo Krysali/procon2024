@@ -118,13 +118,13 @@ class Game:
         #print(board)
 
         # Save the board after cut to a text file
-        with open("notepad/board.txt", "w") as file:
+        with open("Train/notepad/board.txt", "w") as file:
             for row in board:
                 file.write(" ".join(map(str, row)) + "\n")
 
 
         # Save the cut pieces to a text file
-        with open("notepad/cutpieces.txt", "w") as file:
+        with open("Train/notepad/cutpieces.txt", "w") as file:
                 file.write(" ".join(map(str, cut_pieces)) + "\n")
 
 
@@ -171,7 +171,7 @@ class Game:
                     board[r][c] = 0
 
         # Save the shifted board to a text file
-        with open("notepad/shift.txt", "w") as file:
+        with open("Train/notepad/shift.txt", "w") as file:
             for row in board:
                 file.write(" ".join(map(str, row)) + "\n")
 
@@ -268,7 +268,7 @@ class Game:
                     print("AAAAAAIIIIIIIIIIIINNNNNNNNN")
                     # Save the shuffled array to a text file
 
-        with open("notepad/bbbt.txt", "w") as file:
+        with open("Train/notepad/bbbt.txt", "w") as file:
             for row in board:
                 file.write(" ".join(map(str, row)) + "\n")
 
@@ -356,7 +356,7 @@ class Game:
     def gen_board(self):
         # Get user input picture path
         image_index = random.randint(0, 25)
-        image_path = "images/" + str(image_index) + ".jpg"
+        image_path = "Train/images/" + str(image_index) + ".jpg"
 
         is_noise = random.randint(0, 1)
         power = random.randint(1, 1)
@@ -376,7 +376,7 @@ class Game:
         shuffled_array = flat_array.reshape(grayscale_array.shape)
 
         # Save the initial state to a text file
-        with open("notepad/initial.txt", "w") as file:
+        with open("Train/notepad/initial.txt", "w") as file:
             for row in shuffled_array:
                 file.write(" ".join(map(str, row)) + "\n")
 
@@ -387,7 +387,7 @@ class Game:
             shuffled_array_prime = flat_array.reshape(grayscale_array.shape)
 
             # Save the goal state to a text file
-            with open("notepad/goal.txt", "w") as file:
+            with open("Train/notepad/goal.txt", "w") as file:
                 for row in shuffled_array_prime:
                     file.write(" ".join(map(str, row)) + "\n")
 
@@ -395,7 +395,7 @@ class Game:
         else:
 
             # Save the goal state to a text file
-            with open("notepad/goal.txt", "w") as file:
+            with open("Train/notepad/goal.txt", "w") as file:
                 for row in grayscale_array:
                     file.write(" ".join(map(str, row)) + "\n")
 
