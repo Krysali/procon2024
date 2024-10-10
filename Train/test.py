@@ -356,7 +356,7 @@ class Game:
     def gen_board(self):
         # Get user input picture path
         image_index = random.randint(0, 25)
-        image_path = "Train/images/" + str(image_index) + ".jpg"
+        image_path = "images/" + str(image_index) + ".jpg"
 
         is_noise = random.randint(0, 1)
         power = random.randint(1, 1)
