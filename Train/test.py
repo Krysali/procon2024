@@ -57,7 +57,7 @@ class Game:
         # res = res.permute(0, 2, 3, 1)
 
         # concat with goal state
-        res = torch.cat((res, self.encoded_goal_state), dim=1)
+        res = torch.cat((res, self.game.encoded_goal_state), dim=1)
 
         return res
 
