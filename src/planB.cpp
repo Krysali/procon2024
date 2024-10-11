@@ -76,10 +76,6 @@ void solve(GameState game_state) {
 
 
 							for ( int I = m - 1; I >= j; I --) {
-								
-								Action act(0, i, j, 2);
-								actions.push_back(act);
-
 
 								if ( a[X][I] == 0) {
 
@@ -100,6 +96,13 @@ void solve(GameState game_state) {
 							}
 
 							dist2 = Y - j;
+
+                            for ( int d = 1; d <= dist2; d ++) {
+
+                                Action act(0, X, j, 2);
+								actions.push_back(act);
+                            }
+
 							for ( int I = m - 1; I >= j; I --) {
 
 								if ( a[X][I] == 0) {
@@ -131,9 +134,6 @@ void solve(GameState game_state) {
 							dist2 = j - Y;
 
 							for ( int I = 0; I <= j; I ++) {
-								
-								Action act(0, i, j, 3);
-								actions.push_back(act);
 
 								if ( a[X][I] == 0) {
 
@@ -152,6 +152,12 @@ void solve(GameState game_state) {
 									s3.erase({X, I});
 								}
 							}
+
+                            for ( int d = 1; d <= dist2; d ++) {
+
+                                Action act(0, X, j, 3);
+								actions.push_back(act);
+                            }
 
 							for ( int I = 0; I <= j; I ++) {
 
@@ -192,10 +198,13 @@ void solve(GameState game_state) {
 						v.clear();
 						//(J - i - dist + (n - i)) % (n - i) + i ene bol n - 1 ees j hurtel dist udaa yvaad garah index
 
-						for ( int J = n - 1; J >= i; J --) {
+                        for ( int d = 1; d <= dist; d ++) {
 
-							Action act(0, i, j, 0);
+                            Action act(0, i, j, 0);
 							actions.push_back(act);
+                        }
+
+						for ( int J = n - 1; J >= i; J --) {
 
 							if ( a[J][j] == 0) {
 
@@ -269,9 +278,6 @@ void solve(GameState game_state) {
 
 							for ( int I = m - 1; I >= j; I --) {
 
-								Action act(0, i, j, 2);
-								actions.push_back(act);
-
 								if ( a[X][I] == 0) {
 
 									s0.erase({X, I});
@@ -291,6 +297,13 @@ void solve(GameState game_state) {
 							}
 
 							dist2 = Y - j;
+
+                            for ( int d = 1; d <= dist2; d ++) {
+
+                                Action act(0, X, j, 2);
+								actions.push_back(act);
+                            }
+
 							for ( int I = m - 1; I >= j; I --) {
 
 								if ( a[X][I] == 0) {
@@ -323,9 +336,6 @@ void solve(GameState game_state) {
 
 							for ( int I = 0; I <= j; I ++) {
 
-								Action act(0, i, j, 3);
-								actions.push_back(act);
-
 								if ( a[X][I] == 0) {
 
 									s0.erase({X, I});
@@ -343,6 +353,12 @@ void solve(GameState game_state) {
 									s3.erase({X, I});
 								}
 							}
+
+                            for ( int d = 1; d <= dist2; d ++) {
+
+                                Action act(0, X, j, 3);
+								actions.push_back(act);
+                            }
 
 							for ( int I = 0; I <= j; I ++) {
 
@@ -385,9 +401,6 @@ void solve(GameState game_state) {
 
 						for ( int J = n - 1; J >= i; J --) {
 
-							Action act(0, i, j, 0);
-							actions.push_back(act);
-
 							if ( a[J][j] == 0) {
 
 								s0.erase({J, j});
@@ -405,6 +418,12 @@ void solve(GameState game_state) {
 								s3.erase({J, j});
 							}
 						}
+
+                        for ( int d = 1; d <= dist; d ++) {
+
+                            Action act(0, i, j, 0);
+							actions.push_back(act);
+                        }
 
 						for ( int J = n - 1; J >= i; J --) {
 
@@ -460,9 +479,6 @@ void solve(GameState game_state) {
 
 							for ( int I = m - 1; I >= j; I --) {
 
-								Action act(0, i, j, 2);
-								actions.push_back(act);
-
 								if ( a[X][I] == 0) {
 
 									s0.erase({X, I});
@@ -482,6 +498,13 @@ void solve(GameState game_state) {
 							}
 
 							dist2 = Y - j;
+
+                            for ( int d = 1; d <= dist2; d ++)  {
+
+                                Action act(0, X, j, 2);
+								actions.push_back(act);
+                            }
+                            
 							for ( int I = m - 1; I >= j; I --) {
 
 								if ( a[X][I] == 0) {
@@ -514,9 +537,6 @@ void solve(GameState game_state) {
 
 							for ( int I = 0; I <= j; I ++) {
 
-								Action act(0, i, j, 3);
-								actions.push_back(act);
-
 								if ( a[X][I] == 0) {
 
 									s0.erase({X, I});
@@ -534,6 +554,12 @@ void solve(GameState game_state) {
 									s3.erase({X, I});
 								}
 							}
+
+                            for ( int d = 1; d <= dist2; d ++)  {
+
+                                Action act(0, X, j, 3);
+								actions.push_back(act);
+                            }
 
 							for ( int I = 0; I <= j; I ++) {
 
@@ -576,9 +602,6 @@ void solve(GameState game_state) {
 
 						for ( int J = n - 1; J >= i; J --) {
 
-							Action act(0, i, j, 0);
-							actions.push_back(act);
-
 							if ( a[J][j] == 0) {
 
 								s0.erase({J, j});
@@ -596,6 +619,12 @@ void solve(GameState game_state) {
 								s3.erase({J, j});
 							}
 						}
+
+                        for ( int d = 1; d <= dist; d ++)  {
+
+                            Action act(0, i, j, 0);
+							actions.push_back(act);
+                        }
 
 						for ( int J = n - 1; J >= i; J --) {
 
@@ -651,9 +680,6 @@ void solve(GameState game_state) {
 
 							for ( int I = m - 1; I >= j; I --) {
 
-								Action act(0, i, j, 2);
-								actions.push_back(act);
-
 								if ( a[X][I] == 0) {
 
 									s0.erase({X, I});
@@ -673,6 +699,13 @@ void solve(GameState game_state) {
 							}
 
 							dist2 = Y - j;
+
+                            for ( int d = 1; d <= dist2; d ++)  {
+
+                                Action act(0, X, j, 2);
+								actions.push_back(act);
+                            }
+
 							for ( int I = m - 1; I >= j; I --) {
 
 								if ( a[X][I] == 0) {
@@ -705,9 +738,6 @@ void solve(GameState game_state) {
 
 							for ( int I = 0; I <= j; I ++) {
 
-								Action act(0, i, j, 3);
-								actions.push_back(act);
-
 								if ( a[X][I] == 0) {
 
 									s0.erase({X, I});
@@ -725,6 +755,12 @@ void solve(GameState game_state) {
 									s3.erase({X, I});
 								}
 							}
+
+                            for ( int d = 1; d <= dist2; d ++)  {
+
+                                Action act(0, X, j, 3);
+								actions.push_back(act);
+                            }
 
 							for ( int I = 0; I <= j; I ++) {
 
@@ -767,9 +803,6 @@ void solve(GameState game_state) {
 
 						for ( int J = n - 1; J >= i; J --) {
 
-							Action act(0, i, j, 0);
-							actions.push_back(act);
-
 							if ( a[J][j] == 0) {
 
 								s0.erase({J, j});
@@ -787,6 +820,12 @@ void solve(GameState game_state) {
 								s3.erase({J, j});
 							}
 						}
+
+                        for ( int d = 1; d <= dist; d ++) {
+
+                            Action act(0, i, j, 0);
+							actions.push_back(act);
+                        }
 
 						for ( int J = n - 1; J >= i; J --) {
 
@@ -845,7 +884,7 @@ void solve(GameState game_state) {
 		cout << '\n';
 	}*/
 
-    cout << cnt << '\n';
+    // cout << cnt << '\n';
     
 	return ;
 }
