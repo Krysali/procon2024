@@ -21,14 +21,14 @@ class Game:
         self.model = model
         self.device = device
         self.initial_state_state, self.goal_state = self.gen_board()
-        self.encoded_goal_state = self.encode_state(self.goal_state)
+        self.encoded_goal_state = self.encode_state(self.goal_state, True)
         self.actions = gen_actions(self.initial_state_state.shape[0], self.initial_state_state.shape[1])
 
     def random_action(self):
         random_index = randint(1, len(self.actions) - 1)
         return (self.actions[random_index])
 
-    def encode_state(self, state):
+    def encode_state(self, state, first):
         n, m = state.shape
         one = np.zeros((256, 256))
         two = np.zeros((256, 256))
@@ -53,7 +53,7 @@ class Game:
           
         # N C W H --> N W H C
         # res = res.permute(0, 2, 3, 1) 
-        if np.array_equal(self.goal_state, state):
+        if np.array_equal(self.goal_state, state) and first:
             return res
 
         # concat with goal state
@@ -62,7 +62,7 @@ class Game:
         return res
 
     def evaluate_state(self, state):
-        encoded_state = self.encode_state(state)
+        encoded_state = self.encode_state(state, False)
 
         with torch.inference_mode():
             output = self.model(encoded_state)
@@ -223,7 +223,7 @@ class SigmaX:
 
             # Store the state, best action, and value as a training sample
             
-            encoded_initial_state = self.game.encode_state(state)
+            encoded_initial_state = self.game.encode_state(state, False)
             # why squeeze
             #encoded_initial_state = encoded_initial_state.squeeze()
 

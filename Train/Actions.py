@@ -570,7 +570,6 @@ def reverse_type_I(X, Y, size, s, n, m, board):
     oby = min(Y + size - 1, n - 1)
     w = obx - otx + 1
     h = oby - oty + 1
-
     rem = [[] for _ in range(256)]
     chosen = [[] for _ in range(128)]
 
@@ -689,7 +688,7 @@ def reverse_type_II(X, Y, size, s, n, m, board):
     rem = [[] for _ in range(256)]
     chosen = [[] for _ in range(128)]
 
-    print(f"chosen_row_num:{chosen_row_num}, first:{first}")
+    #print(f"chosen_row_num:{chosen_row_num}, first:{first}")
 
     if s == 0:
         rem_cnt, chosen_cnt = 0, 0
@@ -821,7 +820,7 @@ def reverse_type_III(X, Y, size, s, n, m, board):
         first = 1
         chosen_col_num += 1
 
-    print(f"chosen_col_num:{chosen_col_num}, first:{first}, size:{size}")
+    #print(f"chosen_col_num:{chosen_col_num}, first:{first}, size:{size}")
 
     rem = [[] for _ in range(256)]
     chosen = [[] for _ in range(128)]
@@ -901,17 +900,13 @@ def reverse_type_III(X, Y, size, s, n, m, board):
         for index_x in range(chosen_col_num):
             for index_y in range(oty, oby + 1):
                 chosen[chosen_cnt].append(board[index_y][index_x])
-                print(chosen[chosen_cnt][index_y - oty], end=" ")
-            print()
             chosen_cnt += 1
 
-        print(f"chosen_cnt:{chosen_cnt}")
+        #print(f"chosen_cnt:{chosen_cnt}")
 
         for index_x in range(chosen_col_num, obx + 1):
             for index_y in range(oty, oby + 1):
                 rem[rem_cnt].append(board[index_y][index_x])
-                print(rem[rem_cnt][index_y - oty], end=" ")
-            print() 
             rem_cnt += 1
 
         for index_x in range(otx):
@@ -1138,7 +1133,7 @@ def apply_die(state, action):
                     board[r][c] = cut_pieces[cnt]
                     cnt += 1
     
-    
+
     return board
 
 def checker(n, m):
@@ -1153,49 +1148,23 @@ def checker(n, m):
     for a in actions:
         # Debug output can be enabled if needed
         # print(f"x: {a.x} y: {a.y} diceType: {a.diceType} dir: {a.dir}")
+
         next_board = apply_die(board, a)
 
         pre_board = raction(next_board, a)
 
-        err = 0
-        for i in range(n):
-            for j in range(m):
-                if board[i][j] != pre_board[i][j]:
-                    print("ERROR")
-                    print(f"x: {a.x} y: {a.y} die_index: {a.die_index} dir: {a.direction}")
+        if not np.array_equal(pre_board, board):
+            print("ERROR")
+            print(f"x: {a.x} y: {a.y} die_index: {a.die_index} dir: {a.direction}")
 
-                    print("ORIGINAL BOARD")
-                    print(board)
+            print("ORIGINAL BOARD")
+            print(board)
 
-                    print("actioned BOARD")
-                    print(next_board)
+            print("actioned BOARD")
+            print(next_board)
 
-                    print("reversed BOARD")
-                    print(pre_board)
-
-                    err = 1
-                    break
-            if err: break
-
-        llr = []
-        for i in range(n):
-            for j in range(m):
-                too = next_board[i][j]
-                llr.append(too)
-
-        # Convert list to tuple to use it as a key in the dictionary
-        llr_tuple = tuple(llr)
-        if llr_tuple not in check:
-            check[llr_tuple] = a
-            tooluur += 1
-            # print(f"x: {a.x} y: {a.y} dice: {a.die_index} dir: {a.dir}")  # Uncomment if needed for debugging
-        else:
-            b = check[llr_tuple]
-            print("DAVHARDAJ BAINA")
-            print(f"x: {b.x} y: {b.y} dice: {b.die_index} dir: {b.direction}")  # Duplicate state
-            # display_game_state(nextState)  # Uncomment if needed for debugging
-
-        number += 1
+            print("reversed BOARD")
+            print(pre_board)
 
     print("BOLOOOOOOOO")
         
@@ -1210,3 +1179,5 @@ def __main__():
         n, m = m, n  # swap n and m
 
     checker(n, m)
+
+__main__()
