@@ -224,8 +224,7 @@ class SigmaX:
             # Store the state, best action, and value as a training sample
             
             encoded_initial_state = self.game.encode_state(state, False)
-            # why squeeze
-            #encoded_initial_state = encoded_initial_state.squeeze()
+            encoded_initial_state = encoded_initial_state.squeeze()
 
             best_action = np.array([best_action.die_index, (best_action.x + 255), (best_action.y + 255), best_action.direction])
             best_action = torch.tensor(best_action, dtype=torch.float16).to(self.device)

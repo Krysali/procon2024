@@ -1180,4 +1180,4 @@ def __main__():
 
     checker(n, m)
 
-__main__()
+
