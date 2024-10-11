@@ -109,7 +109,7 @@ class Game:
         image_index = random.randint(0, 25)
         image_path =  os.path.join(os.path.dirname(__file__), "images/" + str(image_index) + ".jpg")
 
-        power = random.randint(2, 2)
+        power = random.randint(4, 6)
         size = pow(2, power)
 
         width = size
@@ -394,11 +394,11 @@ def main():
     # Training hyperparameters
     learning_rate = 0.001
     args = {
-        "num_epochs": 3,
+        "num_epochs": 10,
         "num_iterations": 1,
         "batch_size": 32,
-        "num_gen_data": 1,
-        "num_god" : 3
+        "num_gen_data": 3,
+        "num_god" : 30
     }
 
     # Instantiate the model, optimizer, and loss functions
