@@ -175,3 +175,19 @@ for iteration in range(num_iterations):
 
     if iteration % 100 == 0:
         print(f"Iteration {iteration}, Loss: {total_loss.item()}")
+
+
+# LAG COMMENT
+def encode_state_opt(self, state):
+        res = np.zeros((256, 256))
+        n, m = state.shape
+        for r in range(n):
+            for c in range(m):
+                res[r][c] = state[r][c]
+        
+        res = torch.tensor(res, dtype=torch.float16).to(self.device)
+        res = res.unsqueeze(dim=0)
+        print("encode_state_opt debug")
+        print(res.shape)
+
+        return res

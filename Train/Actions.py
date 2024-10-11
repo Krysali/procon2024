@@ -4,10 +4,10 @@ from random import randint
 
 # Define the Action class to hold the action data
 class Action:
-    def __init__(self, x, y, die_index, direction):
+    def __init__(self, die_index, x, y, direction):
+        self.die_index = die_index
         self.x = x
         self.y = y
-        self.die_index = die_index
         self.direction = direction
 
 def nearest(x):
@@ -45,11 +45,11 @@ def gen_actions(n, m):
                     diceNum = math.log2(sz) * 3
                     for s in range(4):
                         if sz == 1:
-                            action = Action(topX, topY, int(diceNum), s)
+                            action = Action(int(diceNum), topX, topY, s)
                             actions.append(action)
                         else:
                             for i in range(3):
-                                action = Action(topX, topY, int(diceNum - i), s)
+                                action = Action(int(diceNum - i), topX, topY, s)
                                 actions.append(action)
                     sz *= 2
 
@@ -70,19 +70,19 @@ def gen_actions(n, m):
 
                 if sz == 1:
                     for i in range(0, 3, 2):  # i goes 0, 2
-                        action = Action(topX, topY, 0, i)
+                        action = Action(0, topX, topY, i)
                         actions.append(action)
                     continue
 
                 # TYPE I
                 for i in range(0, 3, 2):  # i goes 0, 2
-                    action = Action(botX - sz + 1, botY - sz + 1, int(diceNum - 2), i)
+                    action = Action(int(diceNum - 2), botX - sz + 1, botY - sz + 1, i)
                     actions.append(action)
 
                 # TYPE II
                 if height > 2:
                     for i in range(3):
-                        action = Action(botX - sz + 1, botY - sz + 1, int(diceNum - 1), i)
+                        action = Action(int(diceNum - 1), botX - sz + 1, botY - sz + 1, i)
                         actions.append(action)
 
                 # TYPE III
@@ -90,7 +90,7 @@ def gen_actions(n, m):
                     for i in range(4):
                         if i == 1:
                             continue
-                        action = Action(botX - sz + 1, botY - sz + 1, int(diceNum), i)
+                        action = Action(int(diceNum), botX - sz + 1, botY - sz + 1, i)
                         actions.append(action)
 
     # topright corner contained actions
@@ -115,13 +115,13 @@ def gen_actions(n, m):
                 # TYPE II
                 if height > 2:
                     for i in range(2):  # i = 0, 1
-                        action = Action(topX, botY - sz + 1, int(diceNum - 1), i)
+                        action = Action(int(diceNum - 1), topX, botY - sz + 1, i)
                         actions.append(action)
 
                 # TYPE III
                 if width != 1:
                     for i in range(2, 4):  # i = 2, 3
-                        action = Action(topX, botY - sz + 1, int(diceNum), i)
+                        action = Action(int(diceNum), topX, botY - sz + 1, i)
                         actions.append(action)
 
     # bottomleft corner contained actions
@@ -146,13 +146,13 @@ def gen_actions(n, m):
                 # TYPE II
                 if height != 1:
                     for i in range(2):  # i = 0, 1
-                        action = Action(botX - sz + 1, topY, int(diceNum - 1), i)
+                        action = Action(int(diceNum - 1), botX - sz + 1, topY, i)
                         actions.append(action)
 
                 # TYPE III
                 if width > 2:
                     for i in range(2, 4):  # i = 2, 3
-                        action = Action(botX - sz + 1, topY, int(diceNum), i)
+                        action = Action(int(diceNum), botX - sz + 1, topY, i)
                         actions.append(action)
 
     # bottom-right corner contained actions
@@ -170,7 +170,7 @@ def gen_actions(n, m):
 
                 if sz == 1:
                     for i in range(1, 4, 2):  # i = 1, 3
-                        action = Action(topX, topY, 0, i)
+                        action = Action(0, topX, topY, i)
                         actions.append(action)
                     continue
 
@@ -179,7 +179,7 @@ def gen_actions(n, m):
 
                 # TYPE I
                 for i in range(1, 4, 2):  # i = 1, 3
-                    action = Action(topX, topY, int(diceNum - 2), i)
+                    action = Action(int(diceNum - 2), topX, topY, i)
                     actions.append(action)
 
                 # TYPE II
@@ -187,13 +187,13 @@ def gen_actions(n, m):
                     for i in range(4):  # i = 0, 1, 2, 3
                         if i == 2:
                             continue
-                        action = Action(topX, topY, int(diceNum - 1), i)
+                        action = Action(int(diceNum - 1), topX, topY, i)
                         actions.append(action)
 
                 # TYPE III
                 if width != 1:
                     for i in range(1, 4):  # i = 1, 2, 3
-                        action = Action(topX, topY, int(diceNum), i)
+                        action = Action(int(diceNum), topX, topY, i)
                         actions.append(action)
 
     # Pairs of corners
@@ -214,21 +214,21 @@ def gen_actions(n, m):
                 diceNum = math.log2(sz) * 3
 
                 # TYPE I
-                action = Action(botX - sz + 1, botY - sz + 1, int(diceNum - 2), 0)
+                action = Action(int(diceNum - 2), botX - sz + 1, botY - sz + 1, 0)
                 actions.append(action)
 
                 # TYPE II
                 if height > 2:
                     for i in range(2):  # C++: 'for(int i = 0; i < 2; i++)'
-                        action = Action(botX - sz + 1, botY - sz + 1, int(diceNum - 1), i)
+                        action = Action(int(diceNum - 1), botX - sz + 1, botY - sz + 1, i)
                         actions.append(action)
 
                 # TYPE III
                 if m % 2 == 0:
-                    action1 = Action(botX - sz + 1, botY - sz + 1, int(diceNum), 0)
+                    action1 = Action(int(diceNum), botX - sz + 1, botY - sz + 1, 0)
                     actions.append(action1)
                 else:
-                    action1 = Action(botX + 1 - sz + 1, botY - sz + 1, int(diceNum), 0)
+                    action1 = Action(int(diceNum), botX + 1 - sz + 1, botY - sz + 1, 0)
                     actions.append(action1)
 
         # from left
@@ -246,21 +246,21 @@ def gen_actions(n, m):
                 diceNum = math.log2(sz) * 3
 
                 # TYPE I
-                action = Action(botX - sz + 1, botY - sz + 1, int(diceNum - 2), 2)
+                action = Action(int(diceNum - 2), botX - sz + 1, botY - sz + 1, 2)
                 actions.append(action)
 
                 # TYPE II
                 if n % 2 == 0:
-                    action = Action(botX - sz + 1, botY - sz + 1, int(diceNum - 1), 2)
+                    action = Action(int(diceNum - 1), botX - sz + 1, botY - sz + 1, 2)
                     actions.append(action)
                 else:
-                    action = Action(botX - sz + 1, botY + 1 - sz + 1, int(diceNum - 1), 2)
+                    action = Action(int(diceNum - 1), botX - sz + 1, botY + 1 - sz + 1, 2)
                     actions.append(action)
 
                 # TYPE III
                 if width > 2:
                     for i in range(2, 4):  # C++: 'for(int i = 2; i < 4; i++)'
-                        action = Action(botX - sz + 1, botY - sz + 1, int(diceNum), i)
+                        action = Action(int(diceNum), botX - sz + 1, botY - sz + 1, i)
                         actions.append(action)
 
         # from right
@@ -280,7 +280,7 @@ def gen_actions(n, m):
                 # TYPE III
                 if width != 1:
                     for i in range(2, 4):
-                        action = Action(botX, botY - sz + 1, int(diceNum), i)
+                        action = Action(int(diceNum), botX, botY - sz + 1, i)
                         actions.append(action)
 
         # from bottom
@@ -300,7 +300,7 @@ def gen_actions(n, m):
                 # TYPE II
                 if height != 1:
                     for i in range(2):  # C++: 'for(int i = 0; i < 2; i++)'
-                        action = Action(topX, topY, int(diceNum - 1), i)
+                        action = Action(int(diceNum - 1), topX, topY, i)
                         actions.append(action)
 
                 # TYPE III??? (Add logic here as needed)
@@ -322,7 +322,7 @@ def gen_actions(n, m):
                         for i in range(4):  # C++: 'for(int i = 0; i < 4; i++)'
                             if i == 1:
                                 continue
-                            action = Action(topX, topY, 0, i)
+                            action = Action(0, topX, topY, i)
                             actions.append(action)
                         continue
 
@@ -333,13 +333,13 @@ def gen_actions(n, m):
                     for i in range(4):  # C++: 'for(int i = 0; i < 4; i++)'
                         if i == 1:
                             continue
-                        action = Action(topX, height - width, diceNum - 2, i)
+                        action = Action(diceNum - 2, topX, height - width, i)
                         actions.append(action)
 
                     # TYPE II
                     if height > 2:
                         for i in range(4):  # C++: 'for(int i = 0; i < 4; i++)'
-                            action = Action(topX, height - width, diceNum - 1, i)
+                            action = Action(diceNum - 1, topX, height - width, i)
                             actions.append(action)
 
                     # TYPE III
@@ -350,7 +350,7 @@ def gen_actions(n, m):
                     for i in range(4):  # C++: 'for(int i = 0; i < 4; i++)'
                         if i == 1:
                             continue
-                        action = Action(topX, height - width, diceNum, i)
+                        action = Action(diceNum, topX, height - width, i)
                         actions.append(action)
 
                 width *= 2  # Move to the next width for the outer loop
@@ -372,10 +372,10 @@ def gen_actions(n, m):
                         if topX == 1 or topX == m - 2:
                             continue
                         if oh > ow:
-                            action = Action(topX, topY, 0, 1)
+                            action = Action(0, topX, topY, 1)
                             actions.append(action)
                         for i in range(2, 4):
-                            action = Action(topX, topY, 0, i)
+                            action = Action(0, topX, topY, i)
                             actions.append(action)
                         continue
 
@@ -384,16 +384,16 @@ def gen_actions(n, m):
 
                     # TYPE I
                     if oh > ow:
-                        action = Action(topX, topY - height + 1, diceNum - 2, 1)
+                        action = Action(diceNum - 2, topX, topY - height + 1, 1)
                         actions.append(action)
                     for i in range(2, 4):
-                        action = Action(topX, topY - height + 1, diceNum - 2, i)
+                        action = Action(diceNum - 2, topX, topY - height + 1, i)
                         actions.append(action)
 
                     # TYPE II
                     if height != 1:
                         for i in range(4):
-                            action = Action(topX, topY - height + 1, diceNum - 1, i)
+                            action = Action(diceNum - 1, topX, topY - height + 1, i)
                             actions.append(action)
 
                     # TYPE III
@@ -402,11 +402,11 @@ def gen_actions(n, m):
                     if sz == 2 and height == 1:
                         continue
                     if oh > ow:
-                        action = Action(topX, topY - height + 1, diceNum, 1)
+                        action = Action(diceNum, topX, topY - height + 1, 1)
                         actions.append(action)
 
                     for i in range(2, 4):
-                        action = Action(topX, topY - height + 1, diceNum, i)
+                        action = Action(diceNum, topX, topY - height + 1, i)
                         actions.append(action)
 
                 width *= 2  # Increment width for the next iteration
@@ -424,7 +424,7 @@ def gen_actions(n, m):
                         if topY == 1 or topY == n - 2:
                             continue
                         for i in range(3):
-                            action = Action(width - height, topY, 0, i)
+                            action = Action(0, width - height, topY, i)
                             actions.append(action)
                         continue
 
@@ -433,13 +433,13 @@ def gen_actions(n, m):
 
                     # TYPE I
                     for i in range(3):
-                        action = Action(width - height, topY, diceNum - 2, i)
+                        action = Action(diceNum - 2, width - height, topY, i)
                         actions.append(action)
 
                     # TYPE III
                     if width > 2:
                         for i in range(4):
-                            action = Action(width - height, topY, diceNum, i)
+                            action = Action(diceNum, width - height, topY, i)
                             actions.append(action)
 
                     # TYPE II
@@ -448,7 +448,7 @@ def gen_actions(n, m):
                     if sz == 2 and width == 1:
                         continue
                     for i in range(3):
-                        action = Action(width - height, topY, diceNum - 1, i)
+                        action = Action(diceNum - 1, width - height, topY, i)
                         actions.append(action)
 
                 height *= 2  # Increment height for the next iteration
@@ -469,10 +469,10 @@ def gen_actions(n, m):
                         if topY == 1 or topY == n - 2:
                             continue
                         if ow > oh:
-                            action = Action(topX, topY, 0, 3)
+                            action = Action(0, topX, topY, 3)
                             actions.append(action)
                         for i in range(2):
-                            action = Action(topX, topY, 0, i)
+                            action = Action(0, topX, topY, i)
                             actions.append(action)
                         continue
 
@@ -481,16 +481,16 @@ def gen_actions(n, m):
 
                     # TYPE I
                     if ow > oh:
-                        action = Action(topX - width + 1, topY, diceNum - 2, 3)
+                        action = Action(diceNum - 2, topX - width + 1, topY, 3)
                         actions.append(action)
                     for i in range(2):
-                        action = Action(topX - width + 1, topY, diceNum - 2, i)
+                        action = Action(diceNum - 2, topX - width + 1, topY, i)
                         actions.append(action)
 
                     # TYPE III
                     if width != 1:
                         for i in range(4):
-                            action = Action(topX - width + 1, topY, diceNum, i)
+                            action = Action(diceNum, topX - width + 1, topY, i)
                             actions.append(action)
 
                     # TYPE II
@@ -500,11 +500,11 @@ def gen_actions(n, m):
                         continue
 
                     if ow > oh:
-                        action = Action(topX - width + 1, topY, diceNum - 1, 3)
+                        action = Action(diceNum - 1, topX - width + 1, topY, 3)
                         actions.append(action)
 
                     for i in range(2):
-                        action = Action(topX - width + 1, topY, diceNum - 1, i)
+                        action = Action(diceNum - 1, topX - width + 1, topY, i)
                         actions.append(action)
 
                 height *= 2  # Increment height for the next iteration
@@ -523,12 +523,12 @@ def gen_actions(n, m):
 
                     # TYPE I
                     for i in range(2, 4):
-                        action = (topX, topY, diceNum - 2, i)
+                        action = Action(diceNum - 2, topX, topY, i)
                         actions.append(action)
 
                     # TYPE II
                     for i in range(2, 4):
-                        action = (topX, topY, diceNum - 1, i)
+                        action = Action(diceNum - 1, topX, topY, i)
                         actions.append(action)
 
                     if topX == 1 or topX == m - 2:
@@ -536,7 +536,7 @@ def gen_actions(n, m):
 
                     # TYPE III
                     for i in range(2, 4):
-                        action = (topX, topY, diceNum, i)
+                        action = Action(diceNum, topX, topY, i)
                         actions.append(action)
 
             szz *= 2
@@ -549,19 +549,19 @@ def is_inside(x, y, dtype, n , m ):
     else:
         return (0 <= x < m)
 
-def reverse(board, a):
+def raction(board, a):
     # Set up     
     n, m = board.shape                                   
-    power = math.ceil(a.dice_num / 3)                                        
+    power = math.ceil(a.die_index / 3)                                        
     size = int(math.pow(2, power))     
     if power == 0: dice_type = 1                            
-    else: dice_type = a.dice_num - ((power - 1) * 3)  
+    else: dice_type = a.die_index - ((power - 1) * 3)  
 
     cboard = board.copy()
 
-    if dice_type == 1: return reverse_type_I(a.x, a.y, size, a.dir, n, m, cboard)
-    elif dice_type == 2: return reverse_type_II(a.x, a.y, size, a.dir, n, m, cboard)
-    else: return reverse_type_III(a.x, a.y, size, a.dir, n, m, cboard)
+    if dice_type == 1: return reverse_type_I(a.x, a.y, size, a.direction, n, m, cboard)
+    elif dice_type == 2: return reverse_type_II(a.x, a.y, size, a.direction, n, m, cboard)
+    else: return reverse_type_III(a.x, a.y, size, a.direction, n, m, cboard)
 
 def reverse_type_I(X, Y, size, s, n, m, board):
     otx = max(X, 0)
@@ -940,34 +940,26 @@ def reverse_type_III(X, Y, size, s, n, m, board):
 
     return board
 
-def apply_die(b, action):
-
-    board = np.copy(b)
-
+def apply_die(state, action):
+    board = np.copy(state)
     # Set up                                        
-    power = math.ceil(action.dice_num / 3)                                        
+    power = math.ceil(action.die_index / 3)                                        
     size = int(math.pow(2, power))     
     if power == 0: dice_type = 1                            
-    else: dice_type = action.dice_num - ((power - 1) * 3)                                        
-
+    else: dice_type = action.die_index - ((power - 1) * 3)                                        
     n, m = board.shape
-    # print(f"x:{action.x}, y:{action.y}, dice_num:{action.dice_num}, dir:{action.dir}")
+    # print(f"x:{action.x}, y:{action.y}, die_index:{action.die_index}, direction:{action.direction}")
     # print(f"power:{power}, size:{size}, dice_type:{dice_type}")
-
     cut_pieces = []
-
     x_start = max(action.x, 0)
     y_start = max(action.y, 0)
     x_end = min(m, action.x + size) - 1
     y_end = min(n, action.y + size) - 1
-
     width = x_end - x_start + 1
     height = y_end - y_start + 1
-
     chosen_row_num = math.floor(height / 2)
     chosen_col_num = math.floor(width / 2)
     first = 1
-
     if dice_type == 2:
         first = (height + 1) % 2
         if is_inside(action.x, action.y, dice_type, n, m):
@@ -980,7 +972,6 @@ def apply_die(b, action):
             if height % 2 == 1: #n bsn
                 first = 1
                 chosen_row_num += 1
-
     if dice_type == 3:
         first = (width + 1) % 2
         if is_inside(action.x, action.y, dice_type, n, m):
@@ -993,17 +984,13 @@ def apply_die(b, action):
             if width % 2 == 1: # m bsn
                 first = 1
                 chosen_col_num += 1
-    
     #print(f"x_start:{x_start}, x_end:{x_end}, ystart:{y_start}, y_end:{y_end}, width:{width}, height:{height}, chosen_row_num:{chosen_row_num}, chosen_col_num:{chosen_col_num}")
-    
-
     # CUT PHASE
     if dice_type == 1:
         for r in range(y_start, y_end + 1):
             for c in range(x_start, x_end + 1):
                 cut_pieces.append(board[r][c])
                 board[r][c] = 0
-
     if dice_type == 2:
         x = (first + 1) % 2
         if is_inside(action.x, action.y, dice_type, n, m):
@@ -1016,7 +1003,6 @@ def apply_die(b, action):
                 for c in range(x_start, x_end + 1):
                     cut_pieces.append(board[r][c])
                     board[r][c] = 0
-
     if dice_type == 3:
         x = (first + 1) % 2
         if is_inside(action.x, action.y, dice_type, n, m):
@@ -1029,24 +1015,17 @@ def apply_die(b, action):
                 for c in range(x_start + x, x_end + 1, 2):
                     cut_pieces.append(board[r][c])
                     board[r][c] = 0
-
     #print(cut_pieces)
     #print(board)
-
     # Save the board after cut to a text file
     with open("notepad/board.txt", "w") as file:
         for row in board:
             file.write(" ".join(map(str, row)) + "\n")
-    
-
     # Save the cut pieces to a text file
     with open("notepad/cutpieces.txt", "w") as file:
             file.write(" ".join(map(str, cut_pieces)) + "\n")
-
-
     # SHIFT PHASE
-
-    if action.dir == 0:
+    if action.direction == 0:
         for c in range(x_start, x_end + 1):
             write_index = y_start
             for r in range(y_start, n):
@@ -1055,8 +1034,7 @@ def apply_die(b, action):
                     write_index += 1
             for r in range(write_index, n):
                 board[r][c] = 0
-
-    if action.dir == 1:
+    if action.direction == 1:
         for c in range(x_start, x_end + 1):
             write_index = y_end
             for r in range(y_end, -1, -1):
@@ -1065,8 +1043,7 @@ def apply_die(b, action):
                     write_index -= 1
             for r in range(write_index, -1, -1):
                 board[r][c] = 0
-
-    if action.dir == 2:
+    if action.direction == 2:
         for r in range(y_start, y_end + 1):
             write_index = x_start
             for c in range(x_start, m):
@@ -1075,8 +1052,7 @@ def apply_die(b, action):
                     write_index += 1
             for c in range(write_index, m):
                 board[r][c] = 0
-
-    if action.dir == 3:
+    if action.direction == 3:
         for r in range(y_start, y_end + 1):
             write_index = x_end
             for c in range(x_end, -1, -1):
@@ -1085,23 +1061,20 @@ def apply_die(b, action):
                     write_index -= 1
             for c in range(write_index, -1, -1):
                 board[r][c] = 0
-
     # Save the shifted board to a text file
     with open("notepad/shift.txt", "w") as file:
         for row in board:
             file.write(" ".join(map(str, row)) + "\n")
-
     # BBBT PHASE
     bxs = 0
     bxe = 0
     bys = 0
     bye = 0
-
     if dice_type == 1:
-        if action.dir < 2:
+        if action.direction < 2:
             bxs = x_start
             bxe = x_end
-            if action.dir == 0:
+            if action.direction == 0:
                 bys = n - height
                 bye = n - 1
             else:
@@ -1110,17 +1083,17 @@ def apply_die(b, action):
         else:
             bys = y_start
             bye = y_end
-            if action.dir == 2:
+            if action.direction == 2:
                 bxs = m - width
                 bxe = m - 1
             else:
                 bxs = 0
                 bxe = width - 1
     if dice_type == 2:
-        if action.dir < 2:
+        if action.direction < 2:
             bxs = x_start
             bxe = x_end
-            if action.dir == 0:
+            if action.direction == 0:
                 bys = n - chosen_row_num
                 bye = n - 1
             else:
@@ -1129,17 +1102,17 @@ def apply_die(b, action):
         else:
             bys = y_start
             bye = y_end
-            if action.dir == 2:
+            if action.direction == 2:
                 bxs = m - width
                 bxe = m - 1
             else:
                 bxs = 0
                 bxe = width - 1
     if dice_type == 3:
-        if action.dir < 2:
+        if action.direction < 2:
             bxs = x_start
             bxe = x_end
-            if action.dir == 0:
+            if action.direction == 0:
                 bys = n - height
                 bye = n - 1
             else:
@@ -1148,15 +1121,13 @@ def apply_die(b, action):
         else:
             bys = y_start
             bye = y_end
-            if action.dir == 2:
+            if action.direction == 2:
                 bxs = m - chosen_col_num
                 bxe = m - 1
             else:
                 bxs = 0
                 bxe = chosen_col_num - 1
-    
     #print(f"bxs:{bxs}, bxe:{bxe}, bys:{bys}, bye:{bye}")
-
     if dice_type == 1:
         cnt = 0
         for r in range(bys, bye + 1):
@@ -1177,17 +1148,14 @@ def apply_die(b, action):
                 if board[r][c] == 0:
                     board[r][c] = cut_pieces[cnt]
                     cnt += 1
-
     for r in range(n):
         for c in range(m):
             if board[r][c] == 0:
                 print("AAAAAAIIIIIIIIIIIINNNNNNNNN")
                 # Save the shuffled array to a text file
-
     with open("notepad/bbbt.txt", "w") as file:
         for row in board:
             file.write(" ".join(map(str, row)) + "\n")
-
     return board
 
 def checker(n, m):
@@ -1204,14 +1172,14 @@ def checker(n, m):
         # print(f"x: {a.x} y: {a.y} diceType: {a.diceType} dir: {a.dir}")
         next_board = apply_die(board, a)
 
-        pre_board = reverse(next_board, a)
+        pre_board = raction(next_board, a)
 
         err = 0
         for i in range(n):
             for j in range(m):
                 if board[i][j] != pre_board[i][j]:
                     print("ERROR")
-                    print(f"x: {a.x} y: {a.y} dice_num: {a.dice_num} dir: {a.dir}")
+                    print(f"x: {a.x} y: {a.y} die_index: {a.die_index} dir: {a.direction}")
 
                     print("ORIGINAL BOARD")
                     print(board)
@@ -1237,11 +1205,11 @@ def checker(n, m):
         if llr_tuple not in check:
             check[llr_tuple] = a
             tooluur += 1
-            # print(f"x: {a.x} y: {a.y} dice: {a.dice_num} dir: {a.dir}")  # Uncomment if needed for debugging
+            # print(f"x: {a.x} y: {a.y} dice: {a.die_index} dir: {a.dir}")  # Uncomment if needed for debugging
         else:
             b = check[llr_tuple]
             print("DAVHARDAJ BAINA")
-            print(f"x: {b.x} y: {b.y} dice: {b.dice_num} dir: {b.dir}")  # Duplicate state
+            print(f"x: {b.x} y: {b.y} dice: {b.die_index} dir: {b.direction}")  # Duplicate state
             # display_game_state(nextState)  # Uncomment if needed for debugging
 
         number += 1
