@@ -1,6 +1,7 @@
 ﻿{
   "configurations": [
     {
+<<<<<<< HEAD
       "name": "x64-Debug",
       "generator": "Ninja",
       "configurationType": "Debug",
@@ -10,6 +11,19 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": ""
+=======
+      "name": "x64-Release",
+      "generator": "Ninja",
+      "configurationType": "MinSizeRel",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "buildRoot": "${projectDir}\\output\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "cmakeToolchain": "${projectDir}\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
+      "cmakeExecutable": "C:\\Program Files\\CMake\\bin\\cmake.exe"
+>>>>>>> cd5871638c4e0137265ea842bac3d11e2f8a1d41
     }
   ]
 }
