@@ -53,23 +53,27 @@ class Game:
         res = np.expand_dims(res, axis=0)
         res = torch.tensor(res, dtype=torch.float16).to(self.device)
 
-        print(state)
-        print(res.shape)
         # N C W H --> N W H C
         # res = res.permute(0, 2, 3, 1)
+
+        # concat with goal state
+        res = torch.cat((res, self.encoded_goal_state), dim=1)
 
         return res
 
     def evaluate_state(self, state):
         encoded_state = self.encode_state(state)
-        # test needed
-        input_nn = torch.cat((encoded_state, self.encoded_goal_state), dim=1)
-
-        print(input_nn.shape)
 
         with torch.inference_mode():
-            output = self.model(input_nn)
-        return output["heuristic_value"]   
+            output = self.model(encoded_state)
+
+        # REWARD +1; -1
+        if np.array_equal(state, self.goal_state):
+            output['heuristic_value'] = output['heuristic_value'] + 1
+        else:
+            output['heuristic_value'] = output['heuristic_value'] - 1
+
+        return output["heuristic_value"]
 
     def convert_to_4_color_grayscale(self, image_path, width, height):
         """
@@ -83,9 +87,6 @@ class Game:
         Returns:
             A NumPy array representing the 4-color grayscale image.
         """
-        print("cv debug")
-        print(width)
-        print(height)
 
       # Check if size is within the valid range
         if not 2 <= width <= 256 or not 2 <= height <= 256:
@@ -93,9 +94,6 @@ class Game:
 
         # Load the image
         img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-
-        if img is None:
-            print("Image not found or unable to load:", image_path)
 
         # Resize the image
         img = cv2.resize(img, (width, height))
@@ -109,9 +107,9 @@ class Game:
     def gen_board(self):
         # Get user input picture path
         image_index = random.randint(0, 25)
-        image_path = "Train/images/" + str(image_index) + ".jpg"
+        image_path =  os.path.join(os.path.dirname(__file__), "images/" + str(image_index) + ".jpg")
 
-        power = random.randint(2, 2)
+        power = random.randint(3, 5)
         size = pow(2, power)
 
         width = size
@@ -127,19 +125,8 @@ class Game:
         # Reshape the shuffled array to the original dimensions
         shuffled_array = flat_array.reshape(grayscale_array.shape)
 
-        # Save the initial state to a text file
-        with open("Train/notepad/initial.txt", "w") as file:
-            for row in shuffled_array:
-                file.write(" ".join(map(str, row)) + "\n")
-
-        # Save the goal state to a text file
-        with open("Train/notepad/goal.txt", "w") as file:
-            for row in grayscale_array:
-                file.write(" ".join(map(str, row)) + "\n")
-
         # returns (initial state and goal state)
         return (shuffled_array, grayscale_array)
-
 
 class PROCONNet(nn.Module):
     def __init__(self):
@@ -172,12 +159,6 @@ class PROCONNet(nn.Module):
     def forward(self, x):
         # Convolutional layers with ReLU activation and max pooling
         x = F.relu(self.conv1(x))
-
-        # Ensure the input is 4D
-        # if x.dim() == 3:  # If input is 3D
-        #     x = x.unsqueeze(1)  # Add a channel dimension
-        #     x = x.permute(1, 0, 2, 3)
-
         x = F.relu(self.batch_norm(self.conv2(x)))
         x = F.relu(self.conv3(x))
         x = self.max_pool(x)
@@ -234,7 +215,7 @@ class SigmaX:
             best_action = None
                 
             for action in self.game.actions:
-                child = raction(state, action)
+                child = apply_die(state, action)
                 value = self.game.evaluate_state(child)
                 if value > best_value:
                     best_value = value

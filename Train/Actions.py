@@ -1015,15 +1015,7 @@ def apply_die(state, action):
                 for c in range(x_start + x, x_end + 1, 2):
                     cut_pieces.append(board[r][c])
                     board[r][c] = 0
-    #print(cut_pieces)
-    #print(board)
-    # Save the board after cut to a text file
-    with open("notepad/board.txt", "w") as file:
-        for row in board:
-            file.write(" ".join(map(str, row)) + "\n")
-    # Save the cut pieces to a text file
-    with open("notepad/cutpieces.txt", "w") as file:
-            file.write(" ".join(map(str, cut_pieces)) + "\n")
+    
     # SHIFT PHASE
     if action.direction == 0:
         for c in range(x_start, x_end + 1):
@@ -1061,10 +1053,7 @@ def apply_die(state, action):
                     write_index -= 1
             for c in range(write_index, -1, -1):
                 board[r][c] = 0
-    # Save the shifted board to a text file
-    with open("notepad/shift.txt", "w") as file:
-        for row in board:
-            file.write(" ".join(map(str, row)) + "\n")
+
     # BBBT PHASE
     bxs = 0
     bxe = 0
@@ -1148,14 +1137,8 @@ def apply_die(state, action):
                 if board[r][c] == 0:
                     board[r][c] = cut_pieces[cnt]
                     cnt += 1
-    for r in range(n):
-        for c in range(m):
-            if board[r][c] == 0:
-                print("AAAAAAIIIIIIIIIIIINNNNNNNNN")
-                # Save the shuffled array to a text file
-    with open("notepad/bbbt.txt", "w") as file:
-        for row in board:
-            file.write(" ".join(map(str, row)) + "\n")
+    
+    
     return board
 
 def checker(n, m):
