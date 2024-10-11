@@ -57,7 +57,10 @@ class Game:
         # res = res.permute(0, 2, 3, 1)
 
         # concat with goal state
-        res = torch.cat((res, self.game.encoded_goal_state), dim=1)
+        if np.array_equal(state, self.goal_state):
+            res = torch.cat((res, res), dim=1)
+        else:
+            res = torch.cat((res, self.encoded_goal_state), dim=1)
 
         return res
 
