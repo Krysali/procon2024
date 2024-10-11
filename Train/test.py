@@ -33,34 +33,31 @@ class Game:
         one = np.zeros((256, 256))
         two = np.zeros((256, 256))
         three = np.zeros((256, 256))
-        four = np.zeros((256, 256))
-
+        four = np.zeros((256, 256)) 
         # daraa harii
         mp = {
             1 : one,
             2 : two,
             3 : three,
             4 : four
-        }
-
+        }   
         for r in range(n):
             for c in range(m):
                 x = int(state[r][c])
-                mp[x][r][c] = x
+                mp[x][r][c] = x 
 
         # daraa harii bur chuhal
         res = np.stack((one, two, three, four))
         res = np.expand_dims(res, axis=0)
-        res = torch.tensor(res, dtype=torch.float16).to(self.device)
-
+        res = torch.tensor(res, dtype=torch.float16).to(self.device)  
+          
         # N C W H --> N W H C
-        # res = res.permute(0, 2, 3, 1)
+        # res = res.permute(0, 2, 3, 1) 
+        if np.array_equal(self.goal_state, state):
+            return res
 
         # concat with goal state
-        if np.array_equal(state, self.goal_state):
-            res = torch.cat((res, res), dim=1)
-        else:
-            res = torch.cat((res, self.encoded_goal_state), dim=1)
+        res = torch.cat((res, self.encoded_goal_state), dim=1)
 
         return res
 
