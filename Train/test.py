@@ -109,7 +109,7 @@ class Game:
         image_index = random.randint(0, 25)
         image_path =  os.path.join(os.path.dirname(__file__), "images/" + str(image_index) + ".jpg")
 
-        power = random.randint(4, 6)
+        power = random.randint(1, 2)
         size = pow(2, power)
 
         width = size
@@ -254,6 +254,10 @@ class SigmaX:
             best_actions = torch.stack(best_actions)
 
             best_values = torch.stack(best_values)
+
+            print("states shape:", states.shape)
+            print("actions shape:", best_actions.shape)
+            print("best values shape:", best_values.shape)
 
             #print(f"type of states:{type(states)}, type of best actions:{type(best_actions)}, type of best_values{type(best_values)}")
 

@@ -635,3 +635,6 @@ gmon.out
 **/App/*.html
 **/App/AS_DEBUG/
 **/App/Screenshot/
+
+## model file
+*.pt 
