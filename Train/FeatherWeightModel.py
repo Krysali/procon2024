@@ -28,6 +28,7 @@ class Game:
         self.initial_state_state, self.goal_state = self.gen_board()
         self.encoded_goal_state = self.encode_state(self.goal_state, True)
         self.actions = gen_actions(self.initial_state_state.shape[0], self.initial_state_state.shape[1])
+        print(len(self.actions))
 
     def random_action(self):
         random_index = randint(1, len(self.actions) - 1)
@@ -206,6 +207,7 @@ class SigmaX:
 
     # Data generation using ADI
     def generate_training_data(self):
+
         training_data = []
 
         scramble_steps = random.randint(2, self.args["num_god"])  # Random number of scramble steps
@@ -213,6 +215,8 @@ class SigmaX:
         
         # Scramble the board by applying random actions
         for _ in range(scramble_steps):
+            print("depth from the goal state:", _)
+            
             action = self.game.random_action()
             state = raction(state, action)
 
@@ -400,6 +404,8 @@ def main():
 
     # Detect if CUDA (GPU) is available, otherwise use CPU
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    print(device)
 
     # Training hyperparameters
     learning_rate = 0.001
