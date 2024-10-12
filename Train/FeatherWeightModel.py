@@ -414,7 +414,7 @@ def main():
         "num_iterations": 1,
         "batch_size": 64,
         "num_gen_data": 3,
-        "num_god" : 30
+        "num_god" : 3
     }
 
     # Instantiate the model, optimizer, and loss functions
