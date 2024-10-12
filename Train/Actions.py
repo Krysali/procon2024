@@ -939,7 +939,6 @@ def reverse_type_III(X, Y, size, s, n, m, board):
     return board
 
 def apply_die(state, action):
-    print("applying die")
     board = np.copy(state)
     # Set up                                        
     power = math.ceil(action.die_index / 3)                                        

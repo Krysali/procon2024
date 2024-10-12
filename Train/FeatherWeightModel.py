@@ -286,7 +286,7 @@ class SigmaX:
             print("direction_prob output shape", outputs['direction_probs'].shape)
 
             # Compute value loss
-            value_loss = self.value_loss_fn(outputs['heuristic_value'].squeeze(), best_values)
+            value_loss = self.value_loss_fn(outputs['heuristic_value'].squeeze(), best_values.squeeze())
 
             # Total loss (combination of policy and value loss)
             total_loss = die_loss + x_loss + y_loss + direction_loss + value_loss

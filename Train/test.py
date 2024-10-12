@@ -227,7 +227,7 @@ class SigmaX:
             encoded_initial_state = encoded_initial_state.squeeze()
 
             best_action = np.array([best_action.die_index, (best_action.x + 255), (best_action.y + 255), best_action.direction])
-            best_action = torch.tensor(best_action, dtype=torch.float16).to(self.device)
+            best_action = torch.tensor(best_action, dtype=torch.int64).to(self.device)
 
             best_value = torch.tensor(best_value, dtype=torch.float16).to(self.device)
 
@@ -265,10 +265,10 @@ class SigmaX:
             outputs = self.model(states)
 
             # Compute policy loss
-            die_loss = self.policy_loss_fn(outputs['die_probs'], best_actions[:, 0].long())
-            x_loss = self.policy_loss_fn(outputs['x_probs'], best_actions[:, 1].long())
-            y_loss = self.policy_loss_fn(outputs['y_probs'], best_actions[:, 2].long())
-            direction_loss = self.policy_loss_fn(outputs['direction_probs'], best_actions[:, 3].long())
+            die_loss = self.policy_loss_fn(outputs['die_probs'], best_actions[:, 0])
+            x_loss = self.policy_loss_fn(outputs['x_probs'], best_actions[:, 1])
+            y_loss = self.policy_loss_fn(outputs['y_probs'], best_actions[:, 2])
+            direction_loss = self.policy_loss_fn(outputs['direction_probs'], best_actions[:, 3])
 
             print("die_prob output shape", outputs['die_probs'].shape)
             print("x_prob output shape", outputs['x_probs'].shape)
@@ -276,7 +276,7 @@ class SigmaX:
             print("direction_prob output shape", outputs['direction_probs'].shape)
 
             # Compute value loss
-            value_loss = self.value_loss_fn(outputs['heuristic_value'].squeeze(), best_values)
+            value_loss = self.value_loss_fn(outputs['heuristic_value'].squeeze(), best_values.squeeze)
 
             # Total loss (combination of policy and value loss)
             total_loss = die_loss + x_loss + y_loss + direction_loss + value_loss
