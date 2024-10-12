@@ -550,7 +550,8 @@ def is_inside(x, y, dtype, n , m ):
         return (0 <= x < m)
 
 def raction(board, a):
-    # Set up     
+    # Set up    
+    print("ractioning") 
     n, m = board.shape                                   
     power = math.ceil(a.die_index / 3)                                        
     size = int(math.pow(2, power))     
