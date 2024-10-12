@@ -565,6 +565,7 @@ def raction(board, a):
     else: return reverse_type_III(a.x, a.y, size, a.direction, n, m, cboard)
 
 def reverse_type_I(X, Y, size, s, n, m, board):
+    print("type i")
     otx = max(X, 0)
     oty = max(Y, 0)
     obx = min(X + size - 1, m - 1)
@@ -665,6 +666,7 @@ def reverse_type_I(X, Y, size, s, n, m, board):
     return board
 
 def reverse_type_II(X, Y, size, s, n, m, board):
+    print("type II")
     otx = max(X, 0)
     oty = max(Y, 0)
     obx = min(X + size - 1, m - 1)
@@ -800,7 +802,7 @@ def reverse_type_II(X, Y, size, s, n, m, board):
     return board
 
 def reverse_type_III(X, Y, size, s, n, m, board):
-
+    print("type III")
     otx = max(X, 0)
     oty = max(Y, 0)
     obx = min(X + size - 1, m - 1)
@@ -937,6 +939,7 @@ def reverse_type_III(X, Y, size, s, n, m, board):
     return board
 
 def apply_die(state, action):
+    print("applying die")
     board = np.copy(state)
     # Set up                                        
     power = math.ceil(action.die_index / 3)                                        
