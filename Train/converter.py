@@ -34,7 +34,8 @@ def convert_to_4_color_grayscale(image_path, width, height):
 
 def MapGenerate(n, m, rand):
     # Get user input picture path
-    image_path = os.path.join(os.path.dirname(__file__), "tate.png")
+    image_index = random.randint(0, 25)
+    image_path =  os.path.join(os.path.dirname(__file__), "images/" + str(image_index) + ".jpg")
     
     height = n
     width = m
@@ -47,7 +48,7 @@ def MapGenerate(n, m, rand):
     random.shuffle(flat_array)
 
     # Save the shuffled array to a text file
-    with open("notepad/goal.txt", "w") as file:
+    with open("Train/notepad/goal.txt", "w") as file:
         for row in grayscale_array:
             file.write(" ".join(map(str, row)) + "\n")
 
@@ -56,7 +57,7 @@ def MapGenerate(n, m, rand):
     shuffled_array = flat_array.reshape(grayscale_array.shape)
 
     # Save the shuffled array to a text file
-    with open("notepad/initial.txt", "w") as file:
+    with open("Train/notepad/initial.txt", "w") as file:
         for row in shuffled_array:
             file.write(" ".join(map(str, row)) + "\n")
 
@@ -69,3 +70,9 @@ def MapGenerate(n, m, rand):
     else:
         return (shuffled_array, grayscale_array)
 
+
+n = int(input("n:"))
+
+m = int(input("m:"))
+
+MapGenerate(n, m, 0)
