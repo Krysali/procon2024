@@ -4,9 +4,16 @@
 #include <cmath>
 #define NOMINMAX
 
+#ifdef min
+#undef min
+#endif
+
+#ifdef max
+#undef max
+#endif
 
 bool is_inside(int x, int y, int n, int m, int dtype) {
-	if (dtype == 2) {
+	if (dtype == 3) {
 		return (x >= 0 && x < m);
 	}
 	else {
@@ -963,7 +970,6 @@ bool GameState::isSolved() const {
 
 	return(isSolved);
 }
-
 
 int GameState::getNumActions() const {
 	return(this->numActions);

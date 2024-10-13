@@ -10,6 +10,13 @@
 #include "xxhash.hpp"
 #include "environment.h"
 
+#ifdef min
+#undef min
+#endif
+
+#ifdef max
+#undef max
+#endif
 
 // void error(const char *msg) {
 //     perror(msg);
