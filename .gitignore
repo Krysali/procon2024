@@ -812,9 +812,8 @@ gmon.out
 ## Ignore any saved local files
 **/App/*.html
 **/App/AS_DEBUG/
-<<<<<<< HEAD
 **/App/Screenshot/
 /vcpkg
-=======
-**/App/Screenshot/
->>>>>>> cd5871638c4e0137265ea842bac3d11e2f8a1d41
+
+## model file
+*.pt
