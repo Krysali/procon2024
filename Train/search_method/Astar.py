@@ -131,7 +131,7 @@ def bwas_cpp(args, env: Environment, states: List[State], results_file: str):
         else:
             raise ValueError("Unknown c++ environment: %s" % args.env)
 
-        popen = Popen(['./cpp/parallel_weighted_astar', state_str, str(args.weight), str(args.batch_size),
+        popen = Popen(['./cpp/parallel_weighted_astar', state_str, str(args.goal_states),args.height, args.width   str(args.weight), str(args.batch_size),
                        socket_name, args.env, "0"], stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True)
         lines = []
         for stdout_line in iter(popen.stdout.readline, ""):
