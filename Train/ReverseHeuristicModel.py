@@ -109,7 +109,7 @@ class Game:
         image_index = random.randint(0, 25)
         image_path =  os.path.join(os.path.dirname(__file__), "images/" + str(image_index) + ".jpg")
 
-        power = random.randint(4, 6)
+        power = random.randint(5, 5)
         size = pow(2, power)
 
         width = size

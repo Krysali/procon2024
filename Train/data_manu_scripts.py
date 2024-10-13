@@ -35,7 +35,7 @@ def convert_to_4_color_grayscale(image_path, width, height):
 
 def GenerateGoalState(n, m, image_index):
     # Get user input picture path
-    image_path =  os.path.join(os.path.dirname(__file__), "images/" + str(image_index) + ".jpg")
+    image_path =  os.path.join(os.path.dirname(__file__), "validation_images/" + str(image_index) + ".jpg")
     
     height = n
     width = m
@@ -44,7 +44,7 @@ def GenerateGoalState(n, m, image_index):
     grayscale_array = convert_to_4_color_grayscale(image_path, width, height)
     
     # Save the array in a .pkl file
-    file_name = "encoded_data/" + str(n) + "x" + str(n) + "/" + str(image_index) + ".pkl"
+    file_name = "encoded_validation_data/" + str(n) + "x" + str(n) + "/" + str(image_index) + ".pkl"
     with open(os.path.join(os.path.dirname(__file__), file_name), 'wb') as f:
         pickle.dump(grayscale_array, f)
 
@@ -52,7 +52,7 @@ def gen_and_save_goal_states():
     sz = 32
     while sz <= 256:
 
-        for image_index in range(124):
+        for image_index in range(17):
 
             GenerateGoalState(sz, sz, image_index)
 
@@ -83,5 +83,27 @@ def delete_jpg_files():
 
         delete_files(directory, pattern)
         sz *= 2
+
+def rename_images(directory):
+
+    # Get a list of files in the directory
+    files = os.listdir(directory)
+
+    random.shuffle(files)
+
+    for index, file in enumerate(files):
+        # Construct full path for the original file
+        old_path = os.path.join(directory, file)
+        
+        # Construct new filename (index + .jpg)
+        new_name = str(index) + ".jpg"
+        
+        # Construct full path for the new file name
+        new_path = os.path.join(directory, new_name)
+
+        # Rename the file
+        os.rename(old_path, new_path)
+
+    print("Files renamed successfully.")
 
 gen_and_save_goal_states()
