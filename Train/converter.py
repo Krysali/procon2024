@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import random
 import os
+import pickle
 
 def convert_to_4_color_grayscale(image_path, width, height):
     """
@@ -32,9 +33,8 @@ def convert_to_4_color_grayscale(image_path, width, height):
 
     return quantized_img
 
-def MapGenerate(n, m, rand):
+def GenerateGoalState(n, m, image_index):
     # Get user input picture path
-    image_index = random.randint(0, 25)
     image_path =  os.path.join(os.path.dirname(__file__), "images/" + str(image_index) + ".jpg")
     
     height = n
@@ -42,37 +42,46 @@ def MapGenerate(n, m, rand):
 
     # Convert the image
     grayscale_array = convert_to_4_color_grayscale(image_path, width, height)
-
-    # Flatten the array and shuffle it
-    flat_array = grayscale_array.flatten()
-    random.shuffle(flat_array)
-
-    # Save the shuffled array to a text file
-    with open("Train/notepad/goal.txt", "w") as file:
-        for row in grayscale_array:
-            file.write(" ".join(map(str, row)) + "\n")
-
-
-    # Reshape the shuffled array to the original dimensions
-    shuffled_array = flat_array.reshape(grayscale_array.shape)
-
-    # Save the shuffled array to a text file
-    with open("Train/notepad/initial.txt", "w") as file:
-        for row in shuffled_array:
-            file.write(" ".join(map(str, row)) + "\n")
-
-    # if random
-    random.shuffle(flat_array)
-    shuffled_array_prime = flat_array.reshape(grayscale_array.shape)
     
-    if rand:
-        return(shuffled_array, shuffled_array_prime)
-    else:
-        return (shuffled_array, grayscale_array)
+    # Save the array in a .pkl file
+    file_name = "encoded_data/" + str(n) + "x" + str(n) + "/" + str(image_index) + ".pkl"
+    with open(os.path.join(os.path.dirname(__file__), file_name), 'wb') as f:
+        pickle.dump(grayscale_array, f)
 
+def gen_and_save_goal_states():
+    sz = 32
+    while sz <= 256:
 
-n = int(input("n:"))
+        for image_index in range(124):
 
-m = int(input("m:"))
+            GenerateGoalState(sz, sz, image_index)
 
-MapGenerate(n, m, 0)
+        sz *= 2
+
+def delete_files(directory, pattern):
+  """
+  Deletes files in a directory matching a specific pattern.
+
+  Args:
+      directory (str): The path to the directory containing the files.
+      pattern (str): The pattern to match for file deletion.
+  """
+
+  # Get a list of files in the directory
+  files = os.listdir(directory)
+
+  # Delete files matching the pattern
+  for file in files:
+    if pattern in file:
+      os.remove(os.path.join(directory, file))
+
+def delete_jpg_files():
+    sz = 32
+    while sz <= 256:
+        directory = os.path.join(os.path.dirname(__file__), "encoded_data/" + str(sz) + "x" + str(sz))  # Replace with the actual directory path
+        pattern = ".jpg"  # Delete all files with the ".txt" extension
+
+        delete_files(directory, pattern)
+        sz *= 2
+
+gen_and_save_goal_states()
