@@ -14,6 +14,8 @@ import cv2
 import random
 import os
 
+import pickle
+
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
 class Game:
@@ -75,48 +77,19 @@ class Game:
 
         return output["heuristic_value"]
 
-    def convert_to_4_color_grayscale(self, image_path, width, height):
-        """
-        Converts an image to a 4-color grayscale array.
-
-        Args:
-            image_path: Path to the input image.
-            width: Desired width of the output image.
-            height: Desired height of the output image.
-
-        Returns:
-            A NumPy array representing the 4-color grayscale image.
-        """
-
-      # Check if size is within the valid range
-        if not 2 <= width <= 256 or not 2 <= height <= 256:
-            raise ValueError("Width and height must be between 64 and 256.")
-
-        # Load the image
-        img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-
-        # Resize the image
-        img = cv2.resize(img, (width, height))
-
-        # Quantize the grayscale values to 4 levels
-        bins = np.array([0, 64, 128, 192, 256])
-        quantized_img = np.digitize(img, bins)
-
-        return quantized_img
-
     def gen_board(self):
         # Get user input picture path
-        image_index = random.randint(0, 25)
+        image_index = random.randint(0, 123)
         image_path =  os.path.join(os.path.dirname(__file__), "images/" + str(image_index) + ".jpg")
 
-        power = random.randint(4, 6)
+        power = random.randint(5, 6)
         size = pow(2, power)
 
-        width = size
-        height = size
+        array_path = os.path.join(os.path.dirname(__file__), "encoded_data/" + str(size) + "x" + str(size) + "/" + str(image_index) + ".pkl")
 
-        # Convert the image
-        grayscale_array = self.convert_to_4_color_grayscale(image_path, width, height)
+        # Load the array from the .pkl file
+        with open(array_path, 'rb') as f:
+            grayscale_array = pickle.load(f)
 
         # Flatten the array and shuffle it
         flat_array = grayscale_array.flatten()
@@ -189,14 +162,16 @@ class PROCONNet(nn.Module):
 
 class SigmaX:
     
-    def __init__(self, game, device, model, optimizer, policy_loss_fn, value_loss_fn, args):
-        self.game = game
+    def __init__(self, device, model, optimizer, policy_loss_fn, value_loss_fn, args):
         self.device = device
         self.model = model
         self.optimizer = optimizer
         self.policy_loss_fn = policy_loss_fn
         self.value_loss_fn = value_loss_fn
         self.args = args   
+
+    def new_game(self):
+        self.game = Game(self.model, self.device)
 
     # Data generation using ADI
     def generate_training_data(self):
@@ -227,7 +202,7 @@ class SigmaX:
             encoded_initial_state = encoded_initial_state.squeeze()
 
             best_action = np.array([best_action.die_index, (best_action.x + 255), (best_action.y + 255), best_action.direction])
-            best_action = torch.tensor(best_action, dtype=torch.float16).to(self.device)
+            best_action = torch.tensor(best_action, dtype=torch.int64).to(self.device)
 
             best_value = torch.tensor(best_value, dtype=torch.float16).to(self.device)
 
@@ -255,16 +230,20 @@ class SigmaX:
 
             best_values = torch.stack(best_values)
 
+            print("states shape:", states.shape)
+            print("actions shape:", best_actions.shape)
+            print("best values shape:", best_values.shape)
+
             #print(f"type of states:{type(states)}, type of best actions:{type(best_actions)}, type of best_values{type(best_values)}")
 
             # Forward pass through the model
             outputs = self.model(states)
 
             # Compute policy loss
-            die_loss = self.policy_loss_fn(outputs['die_probs'], best_actions[:, 0].long())
-            x_loss = self.policy_loss_fn(outputs['x_probs'], best_actions[:, 1].long())
-            y_loss = self.policy_loss_fn(outputs['y_probs'], best_actions[:, 2].long())
-            direction_loss = self.policy_loss_fn(outputs['direction_probs'], best_actions[:, 3].long())
+            die_loss = self.policy_loss_fn(outputs['die_probs'], best_actions[:, 0])
+            x_loss = self.policy_loss_fn(outputs['x_probs'], best_actions[:, 1])
+            y_loss = self.policy_loss_fn(outputs['y_probs'], best_actions[:, 2])
+            direction_loss = self.policy_loss_fn(outputs['direction_probs'], best_actions[:, 3])
 
             print("die_prob output shape", outputs['die_probs'].shape)
             print("x_prob output shape", outputs['x_probs'].shape)
@@ -272,7 +251,7 @@ class SigmaX:
             print("direction_prob output shape", outputs['direction_probs'].shape)
 
             # Compute value loss
-            value_loss = self.value_loss_fn(outputs['heuristic_value'].squeeze(), best_values)
+            value_loss = self.value_loss_fn(outputs['heuristic_value'].squeeze(), best_values.squeeze())
 
             # Total loss (combination of policy and value loss)
             total_loss = die_loss + x_loss + y_loss + direction_loss + value_loss
@@ -288,6 +267,7 @@ class SigmaX:
         for iteration in range(self.args["num_iterations"]):
             memory = []
 
+            self.new_game()
             self.model.eval()
             for adi_iteration in trange(self.args["num_gen_data"]):
                 memory += self.generate_training_data()
@@ -404,12 +384,11 @@ def main():
     # Instantiate the model, optimizer, and loss functions
     model = PROCONNet().to(device)
     model.to(torch.float16)
-    game = Game(model, device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     policy_loss_fn = nn.CrossEntropyLoss()  # For policy head
     value_loss_fn = nn.MSELoss()  # For value head
 
-    sigmax = SigmaX(game, device, model, optimizer, policy_loss_fn, value_loss_fn, args)
+    sigmax = SigmaX(device, model, optimizer, policy_loss_fn, value_loss_fn, args)
 
     sigmax.learn()
 

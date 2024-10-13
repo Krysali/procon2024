@@ -550,7 +550,7 @@ def is_inside(x, y, dtype, n , m ):
         return (0 <= x < m)
 
 def raction(board, a):
-    # Set up     
+    # Set up    
     n, m = board.shape                                   
     power = math.ceil(a.die_index / 3)                                        
     size = int(math.pow(2, power))     
@@ -799,7 +799,6 @@ def reverse_type_II(X, Y, size, s, n, m, board):
     return board
 
 def reverse_type_III(X, Y, size, s, n, m, board):
-
     otx = max(X, 0)
     oty = max(Y, 0)
     obx = min(X + size - 1, m - 1)
