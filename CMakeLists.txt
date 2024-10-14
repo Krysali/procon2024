@@ -26,3 +26,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Set the output directory for the executable
 set_target_properties(main PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/output")
 
+ 
