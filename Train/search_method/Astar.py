@@ -26,7 +26,7 @@ def main():
     parser.add_argument('--env', type=str, required=True, help="Environment: cube3, 15-puzzle, 24-puzzle")
     parser.add_argument('--batch_size', type=int, default=1, help="Batch size for BWAS")
     parser.add_argument('--weight', type=float, default=1.0, help="Weight of path cost")
-    parser.add_argument('--language', type=str, default="python", help="python or cpp")
+    parser.add_argument('--language', type=str, default="cpp", help="python or cpp")
 
     parser.add_argument('--results_dir', type=str, required=True, help="Directory to save results")
     parser.add_argument('--start_idx', type=int, default=0, help="")
@@ -134,6 +134,8 @@ def bwas_cpp(args, env: Environment, states: List[State], results_file: str):
 
         popen = Popen(['./cpp/parallel_weighted_astar', state_str, str(args.goal_states),str(args.height), str(args.width), str(args.weight), str(args.batch_size),
                        socket_name, args.env, "0"], stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True)
+
+
         lines = []
         for stdout_line in iter(popen.stdout.readline, ""):
             stdout_line = stdout_line.strip('\n')

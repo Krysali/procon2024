@@ -637,4 +637,5 @@ gmon.out
 **/App/Screenshot/
 
 ## model file
-*.pt 
+libtorch/
+*.pt
