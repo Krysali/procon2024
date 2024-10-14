@@ -12,6 +12,13 @@
 #include "xxhash.hpp"
 #include "environment.h"
 
+#ifdef min
+#undef min
+#endif
+
+#ifdef max
+#undef max
+#endif
 
 // void error(const char *msg) {
 //     perror(msg);
@@ -247,38 +254,95 @@ void parallelWeightedAStar(const Environment* env, float depthPenalty, int numPa
 // 	return 0;
 // }
 
-int main() {
+// int main() {
    
-    std::vector<std::vector<int>> goal_init(256, std::vector<int>(256,0));
-    std::vector<std::vector<int>> init(256, std::vector<int>(256,0));
-    int n , m ; 
-    std::cin >>  n >> m  ; 
-    for ( int i = 0 ; i< n ; i++ ){
-        for ( int j = 0 ; j< m ; j++ ){
-            std::cin >> init[i][j] ; 
-        }
-    }
-    for ( int i = 0 ; i< n ; i++ ){
-        for ( int j = 0 ; j< m ; j++ ){
-            std::cin >> goal_init[i][j] ; 
-        }
-    }
+//     std::vector<std::vector<int>> goal_init(256, std::vector<int>(256,0));
+//     std::vector<std::vector<int>> init(256, std::vector<int>(256,0));
+//     int n , m ; 
+//     std::cin >>  n >> m  ; 
+//     for ( int i = 0 ; i< n ; i++ ){
+//         for ( int j = 0 ; j< m ; j++ ){
+//             std::cin >> init[i][j] ; 
+//         }
+//     }
+//     for ( int i = 0 ; i< n ; i++ ){
+//         for ( int j = 0 ; j< m ; j++ ){
+//             std::cin >> goal_init[i][j] ; 
+//         }
+//     }
     
+//     float depthPenalty;
+//     int numParallel;
+
+//     std::cout << "Enter the depth penalty (float): ";
+//     std::cin >> depthPenalty;
+
+//     std::cout << "Enter the number of parallel nodes (integer): ";
+//     std::cin >> numParallel;
+
+
+
+//     Environment* env = nullptr;
+//     env = new GameState(init , goal_init , n , m);
+
+//     parallelWeightedAStar(env, depthPenalty, numParallel);
+
+//     return 0;
+// }
+
+int main() {
+    std::vector<uint8_t> one_init;
+    std::string input;
+    std::cout << "Enter the initial board state values (space-separated integers): ";
+    std::getline(std::cin, input);
+    std::stringstream ssin(input);
+
+    int val;
+    while (ssin >> val) {
+        one_init.push_back(static_cast<int>(val));
+    }
+
+    std::vector<uint8_t> one_goal_init;
+    std::string goal_input;
+    std::cout << "Enter the initial board state values (space-separated integers): ";
+    std::getline(std::cin, goal_input);
+    std::stringstream ssi(goal_input);
+
+
+    int vala;
+    while (ssi >> vala) {
+        one_goal_init.push_back(static_cast<int>(vala));
+    }
+    std::cout << "size:" ; 
+    int n , m ; 
+    std::cin >> n >> m ; 
+
     float depthPenalty;
     int numParallel;
-
     std::cout << "Enter the depth penalty (float): ";
     std::cin >> depthPenalty;
-
     std::cout << "Enter the number of parallel nodes (integer): ";
     std::cin >> numParallel;
-
-
-
+    std::cout << "Initial State:" << std::endl;
     Environment* env = nullptr;
+    std::vector<std::vector<int>> goal_init(256, std::vector<int>(256,0));
+    std::vector<std::vector<int>> init(256, std::vector<int>(256,0));
+    int cnt= 0 ; 
+    for ( int i = 0 ; i< n ; i++ ){
+        for ( int j = 0 ; j< m ; j++ ){
+            init[i][j]=one_init[cnt] ;
+            cnt++ ;  
+        }
+    }
+    cnt= 0 ;
+    for ( int i = 0 ; i< n ; i++ ){
+        for ( int j = 0 ; j< m ; j++ ){
+            goal_init[i][j]=one_goal_init[cnt]; 
+        }
+    }
+
+
     env = new GameState(init , goal_init , n , m);
-
     parallelWeightedAStar(env, depthPenalty, numParallel);
-
     return 0;
 }
