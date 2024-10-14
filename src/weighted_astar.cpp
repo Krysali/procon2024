@@ -9,8 +9,8 @@
 #include <chrono>
 #include <cstring>
 #include <cstdlib>
-#include "includes/xxhash.hpp"
-#include "includes/environment.h"
+#include "xxhash.hpp"
+#include "environment.h"
 
 #ifdef min
 #undef min
