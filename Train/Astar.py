@@ -3,16 +3,16 @@ from environments.environment_abstract import Environment, State
 import numpy as np
 from heapq import heappush, heappop
 from subprocess import Popen, PIPE
-from environments.Game import GameState
 from argparse import ArgumentParser
 import torch
-from utils import  nnet_utils, search_utils, misc_utils, data_utils
+from utils import env_utils, nnet_utils, search_utils, misc_utils, data_utils
 import pickle
 import time
 import sys
 import os
 import socket
 from torch.multiprocessing import Process
+
 
 
 def main():
@@ -59,7 +59,7 @@ def main():
 
     # --env puzzle15
     # environment
-    env: Environment = GameState(args.goal_states, args.height, args.width)
+    env: Environment = env_utils.get_environment(args.env)
 
     # initialize results
     results: Dict[str, Any] = dict()
@@ -127,11 +127,11 @@ def bwas_cpp(args, env: Environment, states: List[State], results_file: str):
     for state_idx, state in enumerate(states):
         # Get string rep of state
         if args.env.upper() == "GameState":
-            state_str: str = " ".join([str(x) for x in state.colors])
+            state_str: str = " ".join([str(x) for x in state.board])
         else:
             raise ValueError("Unknown c++ environment: %s" % args.env)
 
-        popen = Popen(['./cpp/parallel_weighted_astar', state_str, str(args.goal_states),args.height, args.width, str(args.weight), str(args.batch_size),
+        popen = Popen(['./cpp/parallel_weighted_astar', state_str, str(args.goal_states),str(args.height), str(args.width), str(args.weight), str(args.batch_size),
                        socket_name, args.env, "0"], stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True)
         lines = []
         for stdout_line in iter(popen.stdout.readline, ""):

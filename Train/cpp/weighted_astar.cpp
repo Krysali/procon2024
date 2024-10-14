@@ -91,12 +91,12 @@ void writeFile(int sockfd, const std::vector<Node*>& children) {
     // write(sockfd, states.data(), dataSendSize);
 }
 
-void parallelWeightedAStar(const Environment* env, float depthPenalty, int numParallel, std::string socketName) {
-    std::priority_queue<Node*, std::vector<Node*>, CompareNodeCost> open;
-    std::unordered_set<Node*, Hash, NodePointerEq> closed;
+void parallelWeightedAStar(const Environment *env, float depthPenalty, int numParallel, std::string socketName) {
+	/* Initialize Heuristics */
+	printf("INITIALIZING QUEUES\n");
+	std::priority_queue<Node*,std::vector<Node*>,compareNodeCost> open;
+	std::unordered_set<Node*,Hash,NodePointerEq> closed;
 
-
-    
 	int sockfd, servlen;
 	struct sockaddr_un serv_addr;
 
@@ -116,110 +116,194 @@ void parallelWeightedAStar(const Environment* env, float depthPenalty, int numPa
 	open.push(new Node{env,0,-1,0,0,NULL}); //Push root node to open
 	printf("GET START\n");
 	closed.insert(new Node{env,0,-1,0,0,NULL}); //Add root node to seen
+	
 
+	int searchItr = 1;
+	long numNodesGenerated = 1;
+	bool isSolved = false;
+	Node *solvedNode = NULL;
+	while (isSolved == false) {
+		std::chrono::high_resolution_clock::time_point startTime, t1;
+		double itrTime, remOpenTime, expandingTime, dataWriteTime, checkClosedTime, heuristicTime, costTime, addToQueueTime;
+		int maxDepth = 0, minDepth = 0;
+		float maxValue = 0, minValue = 0, minCost = 0, maxCost = 0;
 
-    auto searchStartTime = std::chrono::high_resolution_clock::now();
+		startTime = std::chrono::high_resolution_clock::now();
 
-    open.push(new Node{ env, 0, -1, 0, 0, nullptr });
-    closed.insert(new Node{ env, 0, -1, 0, 0, nullptr });
+		// Remove from open
+		int openSize = (int) open.size();
+		int numPop = std::min(openSize,numParallel);
+		std::vector<Node*> popped;
 
-    bool isSolved = false;
-    Node* solvedNode = nullptr;
+		//printf("REMOVING FROM OPEN\n");
+		t1 = std::chrono::high_resolution_clock::now();
+		bool goal_node_found_prev = solvedNode != NULL;
+		for (int i=0; i<numPop; i++) {
+			Node *node = open.top();
+			popped.push_back(node);
+			open.pop();
 
-    int searchItr = 1;
-    long numNodesGenerated = 1;
+			bool isSolved_itr = node->env->isSolved();
+			if (isSolved_itr) {
+			    if (numParallel == 1) {
+				    solvedNode = node;
+			        isSolved = true;
+			    } else {
+                    if (solvedNode == NULL) {
+                        solvedNode = node;
+                    } else if (solvedNode->cost > node->cost) {
+                        solvedNode = node;
+                    }
+			    }
+			    break;
+			}
+		}
+		if (goal_node_found_prev && (popped[0]->cost >= solvedNode->cost)) {
+		    // printf("%f, %f, %f\n", popped[0]->cost, solvedNode->cost, popped[popped.size()-1]->cost);
+		    isSolved = true;
+		}
+		remOpenTime = getTimeElapsed(t1,std::chrono::high_resolution_clock::now());
 
-    while (!isSolved) {
-        auto startTime = std::chrono::high_resolution_clock::now();
+		// Expand
+		//printf("EXPANDING\n");
+		t1 = std::chrono::high_resolution_clock::now();
+		std::vector<int> depths(popped.size());
+		std::vector<Node*> children(popped.size()*env->getNumActions());
 
-        // Remove from open
-        int openSize = open.size();
-        int numPop = std::min(openSize, numParallel);
-        std::vector<Node*> popped;
+		#pragma omp parallel for
+		for (unsigned int i=0; i<popped.size(); i++) {
+			std::vector<Environment*> children_env = popped[i]->env->getNextStates();
+			int depth = popped[i]->depth + 1;
+			depths[i] = depth;
 
-        for (int i = 0; i < numPop; ++i) {
-            Node* node = open.top();
-            popped.push_back(node);
-            open.pop();
+			for (unsigned int j=0; j<children_env.size(); j++) {
+			    float heuristic_lb = std::max(popped[i]->heuristic - 1, (float) 0.0);  //TODO replace with transition cost
+			    float cost = heuristic_lb*(!children_env[j]->isSolved()) + depthPenalty*((float) depth);
+				Node *node = new Node{children_env[j],depth,(int) j,cost,heuristic_lb,popped[i]};
 
-            if (node->env->isSolved()) {
-                if (solvedNode == nullptr || solvedNode->cost > node->cost) {
-                    solvedNode = node;
-                }
-                isSolved = true;
-                break;
-            }
-        }
+				children[i*env->getNumActions() + j] = node;
+			}
+		}
+		minDepth = *std::min_element(depths.begin(),depths.end());
+		maxDepth = *std::max_element(depths.begin(),depths.end());
+		expandingTime = getTimeElapsed(t1,std::chrono::high_resolution_clock::now());
 
-        // If the current best node's cost is greater or equal to the solved node's cost, we can stop searching
-        if (solvedNode != nullptr && !popped.empty() && popped[0]->cost >= solvedNode->cost) {
-            isSolved = true;
-        }
+		// Write children to file
+		t1 = std::chrono::high_resolution_clock::now();
+		writeFile(sockfd,children);
 
-        // Expand nodes
-        std::vector<Node*> children(popped.size() * env->getNumActions());
-        #pragma omp parallel for
-        for (size_t i = 0; i < popped.size(); ++i) {
-            auto children_env = popped[i]->env->getNextStates();
-            int depth = popped[i]->depth + 1;
+		//std::thread writeThread (writeFile,sockfd,children);
+		//writeThread.join();
+		dataWriteTime = getTimeElapsed(t1,std::chrono::high_resolution_clock::now());
 
-            for (size_t j = 0; j < children_env.size(); ++j) {
-                float heuristic_lb = std::max(popped[i]->heuristic - 1, 0.0f);
-                float cost = heuristic_lb * (!children_env[j]->isSolved()) + depthPenalty * static_cast<float>(depth);
-                Node* node = new Node{ children_env[j], depth, static_cast<int>(j), cost, heuristic_lb, popped[i] };
-                children[i * env->getNumActions() + j] = node;
-            }
-        }
+		//Check if in closed
+		t1 = std::chrono::high_resolution_clock::now();
+		std::vector<Node*> nodesToAdd;
+		std::vector<int> nodesToAdd_idx;
+		for (unsigned int i=0; i<children.size(); i++) {
+			Node *node = children[i];
+			std::unordered_set<Node*,Hash,NodePointerEq>::const_iterator found = closed.find(node);
 
-        // Check if in closed set
-        std::vector<Node*> nodesToAdd;
-        for (auto& node : children) {
-            if (closed.find(node) == closed.end()) {
+            if (found == closed.end()) {
                 closed.insert(node);
                 nodesToAdd.push_back(node);
+                nodesToAdd_idx.push_back(i);
+            } else if ((*found)->depth > node->depth) {
+                (*found)->depth = node->depth;
+                (*found)->parentMove = node->parentMove;
+                (*found)->parent = node->parent;
+
+                nodesToAdd.push_back(node);
+                nodesToAdd_idx.push_back(i);
             } else {
-                delete node;  // Node already exists, delete to avoid memory leak
+                delete node;
             }
+		}
+		numNodesGenerated += children.size();
+		checkClosedTime = getTimeElapsed(t1,std::chrono::high_resolution_clock::now());
+
+		//Get value
+		//printf("GETTING HEURISTIC\n");
+		t1 = std::chrono::high_resolution_clock::now();
+		std::vector<float> values(nodesToAdd_idx.size());
+		std::vector<float> values_temp;
+
+        float f;
+        for (unsigned int i=0; i<children.size(); i++) {
+            read(sockfd,reinterpret_cast<char*>(&f),4);
+            values_temp.push_back(f);
+        }
+        for (unsigned int i=0; i<nodesToAdd_idx.size(); i++) {
+            values[i] = values_temp[nodesToAdd_idx[i]];
         }
 
-        numNodesGenerated += children.size();
+		if (nodesToAdd.size() > 0) {
+			minValue = *std::min_element(values.begin(),values.end());
+			maxValue = *std::max_element(values.begin(),values.end());
+		}
 
-        // Compute cost
-        std::vector<float> costs(nodesToAdd.size());
-        #pragma omp parallel for
-        for (size_t i = 0; i < nodesToAdd.size(); ++i) {
-            float cost = nodesToAdd[i]->heuristic + depthPenalty * static_cast<float>(nodesToAdd[i]->depth);
-            costs[i] = cost;
-        }
+		heuristicTime = getTimeElapsed(t1,std::chrono::high_resolution_clock::now());
 
-        // Add to open set
-        for (size_t i = 0; i < nodesToAdd.size(); ++i) {
-            nodesToAdd[i]->cost = costs[i];
-            open.push(nodesToAdd[i]);
-        }
+		//Compute cost
+		t1 = std::chrono::high_resolution_clock::now();
+		std::vector<float> costs(nodesToAdd.size());
 
-        // Print stats
-        auto endTime = std::chrono::high_resolution_clock::now();
-        double itrTime = getTimeElapsed(startTime, endTime);
-        std::cout << "Iteration: " << searchItr << ", Open Size: " << open.size() << ", Closed Size: " << closed.size() << ", Time: " << itrTime << std::endl;
+		#pragma omp parallel for
+		for (unsigned int i=0; i<nodesToAdd.size(); i++) {
+			//float heuristic = std::max(nodesToAdd[i]->heuristic, values[i]);
+			float cost = values[i]*(!nodesToAdd[i]->env->isSolved()) + depthPenalty*((float) nodesToAdd[i]->depth);
+			costs[i] = cost;
+		}
 
-        ++searchItr;
-    }
+		if (nodesToAdd.size() > 0) {
+			minCost = *std::min_element(costs.begin(),costs.end());
+			maxCost = *std::max_element(costs.begin(),costs.end());
+		}
+		costTime = getTimeElapsed(t1,std::chrono::high_resolution_clock::now());
 
-    std::cout << "SOLVED!" << std::endl;
 
-    // Backtrack to get the moves
-    Node* currNode = solvedNode;
-    std::cout << "Moves: ";
-    while (currNode && currNode->depth > 0) {
-        std::cout << currNode->parentMove << " ";
-        currNode = currNode->parent;
-    }
-    std::cout << std::endl;
-    std::cout << "Nodes Generated: " << numNodesGenerated << std::endl;
-    double totalTime = getTimeElapsed(searchStartTime, std::chrono::high_resolution_clock::now());
-    std::cout << "Total time: " << totalTime << std::endl;
+		//Add to open
+		t1 = std::chrono::high_resolution_clock::now();
+		//printf("ADDING TO OPEN\n");
+		for (unsigned int i=0; i<nodesToAdd.size(); i++) {
+			Node *nodeToAdd = nodesToAdd[i];
+
+			nodeToAdd->cost = costs[i];
+			nodeToAdd->heuristic = values[i];
+
+			open.push(nodeToAdd);
+		}
+
+		addToQueueTime = getTimeElapsed(t1,std::chrono::high_resolution_clock::now());
+
+		printf("Times - remOpen: %f, exp: %f, write: %f, check: %f, heur: %f, cost: %f, add: %f, goal_p: %i\n",remOpenTime,expandingTime,dataWriteTime,checkClosedTime,heuristicTime,costTime,addToQueueTime,goal_node_found_prev);
+
+		itrTime = getTimeElapsed(startTime,std::chrono::high_resolution_clock::now());
+
+		printf("Iteration: %i, Min/Max - Depth: %i/%i, Heur: %.2f/%.2f, Cost: %.2f/%.2f, OpenSize: %li, ClosedSize: %li, Time: %f, Num Added: %li\n\n",searchItr,minDepth,maxDepth,minValue,maxValue,minCost,maxCost,open.size(),closed.size(),itrTime,nodesToAdd.size());
+
+		searchItr++;
+	}
+
+	printf("SOLVED!\n");
+
+	printf("Move nums:\n");
+
+	Node *currNode = solvedNode;
+	while (currNode->depth > 0) {
+		printf("%i ",currNode->parentMove);
+		currNode = currNode->parent;
+	}
+	printf("\n");
+	printf("Nodes Generated:\n%li\n",numNodesGenerated);
+
+	double totalTime = getTimeElapsed(searchStartTime,std::chrono::high_resolution_clock::now());
+	printf("Total time:\n%f\n",totalTime);
 }
+
+
+
+
 
 int main(int argc, const char *argv[]) {
 
@@ -274,7 +358,7 @@ int main(int argc, const char *argv[]) {
 	// printf("\n");
 
 	Environment *env = NULL;
-	if (envName == "game") {
+	if (envName == "GameState") {
 		env = new GameState(init , goal_init , n , m);
 	} 
 
