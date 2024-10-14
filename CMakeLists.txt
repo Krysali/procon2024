@@ -3,17 +3,13 @@ set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.c
 project(PROCON2024)
 # Add an executable target
 add_executable(main 
-<<<<<<< HEAD
-    search/weighted_astar.cpp
-=======
     # src/main.cpp 
     # src/ops.cpp 
     # src/types.cpp
     # src/procon_api.cpp
     src/environment.cpp
     src/weighted_astar.cpp
->>>>>>> cd5871638c4e0137265ea842bac3d11e2f8a1d41
-)
+)   
 
 # Specify include directories
 include_directories(src/includes)
