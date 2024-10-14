@@ -237,8 +237,6 @@ class SigmaX:
             best_action = np.array([best_action.die_index, (best_action.x + 255), (best_action.y + 255), best_action.direction])
             best_action = torch.tensor(best_action, dtype=torch.int64).to(self.device)
 
-            best_value = torch.tensor(best_value, dtype=torch.float16).to(self.device)
-
             training_data.append((encoded_initial_state, best_action, best_value))
 
             #print(f"type of states:{type(encoded_initial_state)}, type of best actions:{type(best_action)}, type of best_values{type(best_value)}")
@@ -252,10 +250,6 @@ class SigmaX:
         for batchIdx in range(0, len(memory), self.args["batch_size"]):
             sample = memory[batchIdx:min(len(memory) - 1, batchIdx + self.args["batch_size"])] 
             states, best_actions, best_values = zip(*sample)
-
-            # print(states)
-            # print(best_actions)
-            # print(best_values)
 
             states = torch.stack(states)
 
