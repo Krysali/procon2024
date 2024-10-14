@@ -1,8 +1,6 @@
-<<<<<<< Updated upstream
-=======
 #include "environment.h"
 #include <map>
-
+#include <math.h>
 
 
 bool is_inside(int x, int y, int n, int m, int dtype) {
@@ -967,4 +965,3 @@ bool GameState::isSolved() const {
 int GameState::getNumActions() const {
 	return(this->numActions);
 }
->>>>>>> Stashed changes
