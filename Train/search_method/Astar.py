@@ -3,10 +3,9 @@ from environments.environment_abstract import Environment, State
 import numpy as np
 from heapq import heappush, heappop
 from subprocess import Popen, PIPE
-from environments.Game import GameState
 from argparse import ArgumentParser
 import torch
-from utils import  nnet_utils, search_utils, misc_utils, data_utils
+from utils import env_utils, nnet_utils, search_utils, misc_utils, data_utils
 import pickle
 import time
 import sys
@@ -60,7 +59,7 @@ def main():
 
     # --env puzzle15
     # environment
-    env: Environment = GameState(args.goal_states, args.height, args.width)
+    env: Environment = env_utils.get_environment(args.env)
 
     # initialize results
     results: Dict[str, Any] = dict()
