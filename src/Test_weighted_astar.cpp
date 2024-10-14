@@ -198,6 +198,9 @@ void parallelWeightedAStar(const Environment* env, float depthPenalty, int numPa
 		std::vector<float> values(nodesToAdd_idx.size());
 		std::vector<float> values_temp;
 
+
+
+
         float f;
         for (unsigned int i=0; i<children.size(); i++) {
             read(sockfd,reinterpret_cast<char*>(&f),4);
@@ -211,6 +214,10 @@ void parallelWeightedAStar(const Environment* env, float depthPenalty, int numPa
 			minValue = *std::min_element(values.begin(),values.end());
 			maxValue = *std::max_element(values.begin(),values.end());
 		}
+
+
+
+
 
         // Compute cost
         std::vector<float> costs(nodesToAdd.size());
