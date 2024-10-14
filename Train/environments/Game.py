@@ -14,20 +14,20 @@ class Action:
 
 
 class GmState(State):
-    __slots__ = ['colors', 'hash']
+    __slots__ = ['board', 'hash']
 
-    def __init__(self, colors: np.ndarray):
-        self.colors: np.ndarray = colors
+    def __init__(self, board: np.ndarray):
+        self.board: np.ndarray = board
         self.hash = None
 
     def __hash__(self):
         if self.hash is None:
-            self.hash = hash(self.colors.tostring())
+            self.hash = hash(self.board.tostring())
 
         return self.hash
 
     def __eq__(self, other):
-        return np.array_equal(self.colors, other.colors)
+        return np.array_equal(self.board, other.board)
 
 
 def is_inside(x, y, dtype, n , m ):
@@ -62,7 +62,7 @@ class GameState(Environment):
         return self.state == self.goalstate
 
     def state_to_nnet_input(self, states: List[GmState]) -> List[np.ndarray]:
-        states_np = np.stack([state.colors for state in states], axis=0)
+        states_np = np.stack([state.board for state in states], axis=0)
 
         representation_np: np.ndarray = self.height_state*self.width_state
         representation_np: np.ndarray = representation_np.astype(self.dtype)
@@ -90,8 +90,8 @@ class GameState(Environment):
         states_exp: List[List[State]] = [[] for _ in range(num_states)]
         tc: np.ndarray = np.empty((num_states, num_env_moves))
 
-        # Create a numpy array from the state colors for efficient processing
-        states_np: np.ndarray = np.stack([state.colors for state in states])
+        # Create a numpy array from the state board for efficient processing
+        states_np: np.ndarray = np.stack([state.board for state in states])
 
         # Iterate over each possible move
         for move_idx in range(num_env_moves):

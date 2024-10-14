@@ -127,7 +127,7 @@ def bwas_cpp(args, env: Environment, states: List[State], results_file: str):
     for state_idx, state in enumerate(states):
         # Get string rep of state
         if args.env.upper() == "GameState":
-            state_str: str = " ".join([str(x) for x in state.colors])
+            state_str: str = " ".join([str(x) for x in state.board])
         else:
             raise ValueError("Unknown c++ environment: %s" % args.env)
 
