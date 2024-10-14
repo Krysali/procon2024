@@ -133,6 +133,8 @@ def bwas_cpp(args, env: Environment, states: List[State], results_file: str):
 
         popen = Popen(['./cpp/parallel_weighted_astar', state_str, str(args.goal_states),str(args.height), str(args.width), str(args.weight), str(args.batch_size),
                        socket_name, args.env, "0"], stdout=PIPE, stderr=PIPE, bufsize=1, universal_newlines=True)
+
+
         lines = []
         for stdout_line in iter(popen.stdout.readline, ""):
             stdout_line = stdout_line.strip('\n')
