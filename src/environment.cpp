@@ -1,8 +1,9 @@
+#define NOMINMAX
 #include "environment.h"
 #include <map>
 #include <math.h>
 #include <cmath>
-#define NOMINMAX
+
 
 
 bool is_inside(int x, int y, int n, int m, int dtype) {
