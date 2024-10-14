@@ -358,7 +358,7 @@ int main(int argc, const char *argv[]) {
 	// printf("\n");
 
 	Environment *env = NULL;
-	if (envName == "game") {
+	if (envName == "GameState") {
 		env = new GameState(init , goal_init , n , m);
 	} 
 
