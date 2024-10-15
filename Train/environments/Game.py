@@ -5,11 +5,12 @@ from random import randrange
 import math
 from utils.pytorch_models import ResnetModel
 from .environment_abstract import Environment, State
+
 class Action:
     def __init__(self, x: int = 0, y: int = 0, die_index: int = 0, direction: int = 0):
+        self.die_index = die_index
         self.x = x
         self.y = y
-        self.die_index = die_index
         self.direction = direction
 
 
@@ -90,7 +91,7 @@ class GameState(Environment):
         states_exp: List[List[State]] = [[] for _ in range(num_states)]
         tc: np.ndarray = np.empty((num_states, num_env_moves))
 
-        # Create a numpy array from the state board for efficient processing
+        # Create a numpy array from the state boards for efficient processing
         states_np: np.ndarray = np.stack([state.board for state in states])
 
         # Iterate over each possible move

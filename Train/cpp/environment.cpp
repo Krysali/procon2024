@@ -1,15 +1,17 @@
 #define NOMINMAX
+#define NOMINMAX
 #include "environment.h"
 #include <map>
 #include <math.h>
 #include <cmath>
 
 
+
 bool is_inside(int x, int y, int n, int m, int dtype) {
 	if (dtype == 3) {
+	if (dtype == 3) {
 		return (x >= 0 && x < m);
-	}
-	else {
+	}else {
 		return (y >= 0 && y < n);
 	}
 }

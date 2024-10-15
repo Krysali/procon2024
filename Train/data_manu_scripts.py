@@ -4,6 +4,11 @@ import random
 import os
 import pickle
 
+import time
+from typing import List
+from environments.Game import GmState
+from environments.environment_abstract import Environment, State
+
 def convert_to_4_color_grayscale(image_path, width, height):
     """
     Converts an image to a 4-color grayscale array.
@@ -35,7 +40,7 @@ def convert_to_4_color_grayscale(image_path, width, height):
 
 def GenerateGoalState(n, m, image_index):
     # Get user input picture path
-    image_path =  os.path.join(os.path.dirname(__file__), "images/" + str(image_index) + ".jpg")
+    image_path =  os.path.join(os.path.dirname(__file__), "validation_images/" + str(image_index) + ".jpg")
     
     height = n
     width = m
@@ -43,45 +48,10 @@ def GenerateGoalState(n, m, image_index):
     # Convert the image
     grayscale_array = convert_to_4_color_grayscale(image_path, width, height)
     
+    GmState()
+
     # Save the array in a .pkl file
-    file_name = "encoded_data/" + str(n) + "x" + str(n) + "/" + str(image_index) + ".pkl"
+    file_name = "encoded_validation_data/" + str(n) + "x" + str(n) + "/" + str(image_index) + ".pkl"
     with open(os.path.join(os.path.dirname(__file__), file_name), 'wb') as f:
         pickle.dump(grayscale_array, f)
 
-def gen_and_save_goal_states():
-    sz = 32
-    while sz <= 256:
-
-        for image_index in range(124):
-
-            GenerateGoalState(sz, sz, image_index)
-
-        sz *= 2
-
-def delete_files(directory, pattern):
-  """
-  Deletes files in a directory matching a specific pattern.
-
-  Args:
-      directory (str): The path to the directory containing the files.
-      pattern (str): The pattern to match for file deletion.
-  """
-
-  # Get a list of files in the directory
-  files = os.listdir(directory)
-
-  # Delete files matching the pattern
-  for file in files:
-    if pattern in file:
-      os.remove(os.path.join(directory, file))
-
-def delete_jpg_files():
-    sz = 32
-    while sz <= 256:
-        directory = os.path.join(os.path.dirname(__file__), "encoded_data/" + str(sz) + "x" + str(sz))  # Replace with the actual directory path
-        pattern = ".jpg"  # Delete all files with the ".txt" extension
-
-        delete_files(directory, pattern)
-        sz *= 2
-
-gen_and_save_goal_states()
