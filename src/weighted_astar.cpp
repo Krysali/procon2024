@@ -192,6 +192,7 @@ void parallelWeightedAStar(const Environment* env, float depthPenalty, int numPa
     // Backtrack to get the moves
     Node* currNode = solvedNode;
     std::cout << "Moves: ";
+
     while (currNode && currNode->depth > 0) {
         std::cout << currNode->parentMove << " ";
         currNode = currNode->parent;

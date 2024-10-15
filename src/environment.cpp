@@ -3,7 +3,7 @@
 #include <map>
 #include <math.h>
 #include <cmath>
-
+#include <iostream>
 
 #ifdef min
 #undef min
@@ -939,6 +939,16 @@ GameState *GameState::getNextState( int x , int y, int die_index, int dir) const
 			}
 		}
 	}
+
+
+
+	// for ( int i = 0 ; i< height_state ; i++  ){
+	// 	for ( int j = 0 ; j<width_state ; j++ ){
+	// 		std::cout << b[i][j]<< " " ;
+	// 	}
+	// 	std::cout << std::endl; 
+	// }
+	// std:: cout << std::endl ; 
 	// std::vector<Action> newActions = this->actions;
 	// newActions.push_back(action);
 	GameState *nextS =new GameState(b, this->goalstate, this->height_state, this->width_state );
@@ -954,6 +964,8 @@ std::vector<Environment*> GameState::getNextStates() const {
 	   int y=action.y; 
 	   int die_index=action.die_index; 
 	   int dir=action.direction; 
+	//    std::cout << "x :" << x << " y :" << y <<  " die_index :" << die_index << " dir :" << dir << std::endl ; 
+
         nextStates.push_back(this->getNextState(x, y, die_index, dir));
     }
     return (nextStates);
