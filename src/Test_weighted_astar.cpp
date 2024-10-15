@@ -11,12 +11,25 @@
 #include <cstdlib>
 #include "xxhash.hpp"
 #include "environment.h"
+#include <torch/torch.h>
 
 
-// void error(const char *msg) {
-//     perror(msg);
-//     exit(EXIT_FAILURE);
-// }
+struct PROCONNetImpl : torch::nn::Module {
+    torch::nn::Linear fc1{nullptr}, fc2{nullptr}, fc3{nullptr};
+
+    PROCONNetImpl(int input_size) {
+        fc1 = register_module("fc1", torch::nn::Linear(input_size, 128));
+        fc2 = register_module("fc2", torch::nn::Linear(128, 64));
+        fc3 = register_module("fc3", torch::nn::Linear(64, 1));
+    }
+
+    torch::Tensor forward(torch::Tensor x) {
+        x = torch::relu(fc1(x));
+        x = torch::relu(fc2(x));
+        return fc3(x);
+    }
+};
+TORCH_MODULE(PROCONNet);
 
 // void printArray(const std::vector<uint8_t>& arr) {
 //     for (const auto& val : arr) {
@@ -76,19 +89,8 @@ public:
     }
 };
 
-void writeFile(int sockfd, const std::vector<Node*>& children) {
-    std::vector<std::vector<int>> states;
-    for (const auto& child : children) {
-        const auto& state = child->env->getState();
-        states.insert(states.end(), state.begin(), state.end());
-    }
 
-    unsigned long long dataSendSize = sizeof(uint8_t) * states.size();
-    // write(sockfd, &dataSendSize, sizeof(dataSendSize));
-    // write(sockfd, states.data(), dataSendSize);
-}
-
-void parallelWeightedAStar(const Environment* env, float depthPenalty, int numParallel) {
+void parallelWeightedAStar(const Environment* env, float depthPenalty, int numParallel , PROCONNet& model) {
     /* Initialize Heuristics */
 	printf("INITIALIZING QUEUES\n");
     std::priority_queue<Node*, std::vector<Node*>, CompareNodeCost> open;
@@ -201,14 +203,21 @@ void parallelWeightedAStar(const Environment* env, float depthPenalty, int numPa
 
 
 
-        float f;
-        for (unsigned int i=0; i<children.size(); i++) {
-            read(sockfd,reinterpret_cast<char*>(&f),4);
-            values_temp.push_back(f);
+        // float f;
+        // for (unsigned int i=0; i<children.size(); i++) {
+        //     read(sockfd,reinterpret_cast<char*>(&f),4);
+        //     values_temp.push_back(f);
+        // }
+        
+        // for (unsigned int i=0; i<nodesToAdd_idx.size(); i++) {
+        //     values[i] = values_temp[nodesToAdd_idx[i]];
+        // }
+        for (unsigned int i = 0; i < nodesToAdd.size(); i++) {
+            auto state = torch::tensor(nodesToAdd[i]->env->getState()).flatten().to(torch::kFloat32);
+            torch::Tensor heuristic = model->forward(state);
+            values[i] = heuristic.item<float>();
         }
-        for (unsigned int i=0; i<nodesToAdd_idx.size(); i++) {
-            values[i] = values_temp[nodesToAdd_idx[i]];
-        }
+
 
 		if (nodesToAdd.size() > 0) {
 			minValue = *std::min_element(values.begin(),values.end());
@@ -348,7 +357,10 @@ int main() {
     Environment* env = nullptr;
     env = new GameState(init , goal_init , n , m);
 
-    parallelWeightedAStar(env, depthPenalty, numParallel);
+    PROCONNet model = PROCONNet(input_size);
+    torch::load(model, "heuristic_model.pt");  // Make sure to have a pre-trained model
+
+    parallelWeightedAStar(env, depthPenalty, numParallel ,  model);
 
     return 0;
 }
