@@ -358,7 +358,7 @@ int main() {
     env = new GameState(init , goal_init , n , m);
 
     PROCONNet model = PROCONNet(input_size);
-    torch::load(model, "heuristic_model.pt");  // Make sure to have a pre-trained model
+    torch::load(model, "model_0.pt");  // Make sure to have a pre-trained model
 
     parallelWeightedAStar(env, depthPenalty, numParallel ,  model);
 
