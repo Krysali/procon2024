@@ -5,32 +5,33 @@
       "generator": "Ninja",
       "configurationType": "Debug",
       "inheritEnvironments": [ "msvc_x64_x64" ],
-      "buildRoot": "${projectDir}\\build\\${name}",
-      "installRoot": "${projectDir}\\output\\install\\${name}",
+      "buildRoot": "${projectDir}/build/${name}",
+      "installRoot": "${projectDir}/output/install/${name}",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "cmakeToolchain": "${projectDir}\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
-      "cmakeExecutable": "C:\\Program Files\\CMake\\bin\\cmake.exe"
+      "cmakeToolchain": "${projectDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+      "cmakeExecutable": "C:/Program Files/CMake/bin/cmake.exe"
     },
     {
       "name": "Linux-Clang-Debug",
       "generator": "Ninja",
       "configurationType": "Debug",
-      "cmakeExecutable": "/usr/bin/cmake",
+      "cmakeExecutable": "cmake",
       "remoteCopySourcesExclusionList": [ ".vs", ".git", ".vscode", ".venv", "out", "output", "build", "App", "libtorch", "vcpkg" ],
+      "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "linux_clang_x64" ],
       "remoteMachineName": "${defaultRemoteMachineName}",
-      "remoteCMakeListsRoot": "$HOME/${projectDirName}/",
-      "remoteBuildRoot": "$HOME/${projectDirName}/build/",
-      "remoteInstallRoot": "$HOME/${projectDirName}/output/",
+      "remoteCMakeListsRoot": "$HOME/.vs/${projectDirName}/src",
+      "remoteBuildRoot": "$HOME/.vs/${projectDirName}/out/build/",
+      "remoteInstallRoot": "$HOME/.vs/${projectDirName}/out/install/",
       "remoteCopySources": true,
       "rsyncCommandArgs": "-t --delete",
       "remoteCopyBuildOutput": false,
       "remoteCopySourcesMethod": "rsync",
-      "remoteCopyUseCompilerDefaults": true
+      "variables": []
     }
   ]
 }

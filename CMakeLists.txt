@@ -18,7 +18,7 @@ find_package(CURL REQUIRED)
 target_link_libraries(main PRIVATE CURL::libcurl)
 
 set(CMAKE_CUDA_ARCHITECTURES "native")
-set(Torch_DIR "libtorch/share/cmake/Torch")
+set(Torch_DIR "~/libtorch/share/cmake/Torch")
 find_package(Torch REQUIRED)
 target_link_libraries(main PRIVATE "${TORCH_LIBRARIES}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
