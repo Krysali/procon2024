@@ -233,7 +233,9 @@ void parallelWeightedAStar(const Environment* env, float depthPenalty, int numPa
         #pragma omp parallel for
         for (unsigned int i=0; i<nodesToAdd.size(); i++) {
 			//float heuristic = std::max(nodesToAdd[i]->heuristic, values[i]);
-			float cost = values[i]*(!nodesToAdd[i]->env->isSolved()) + depthPenalty*((float) nodesToAdd[i]->depth);
+            // costs: np.ndarray = np.array(weights) * path_costs + heuristics * np.logical_not(is_solved)
+            // float cost = depthPenalty*((float) nodesToAdd[i]->depth)+heuristic*(!nodesToAdd[i]->env->isSolved()) ;
+			float cost = depthPenalty*((float) nodesToAdd[i]->depth)+values[i]*(!nodesToAdd[i]->env->isSolved()) ;
 			costs[i] = cost;
 		}
         if (nodesToAdd.size() > 0) {
