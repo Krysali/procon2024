@@ -4,14 +4,11 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 import random
-from collections import deque
 
 from Actions import *
 from tqdm import trange
 
 import numpy as np
-import cv2
-import random
 import os
 
 import pickle
@@ -27,7 +24,7 @@ class Game:
         self.actions = gen_actions(self.initial_state_state.shape[0], self.initial_state_state.shape[1])
 
     def random_action(self):
-        random_index = randint(1, len(self.actions) - 1)
+        random_index = randint(0, len(self.actions) - 1)
         return (self.actions[random_index])
 
     def encode_state(self, state, first):
@@ -51,7 +48,7 @@ class Game:
         # daraa harii bur chuhal
         res = np.stack((one, two, three, four))
         res = np.expand_dims(res, axis=0)
-        res = torch.tensor(res, dtype=torch.float16).to(self.device)  
+        res = torch.tensor(res, dtype=torch.float32).to(self.device)  
           
         # N C W H --> N W H C
         # res = res.permute(0, 2, 3, 1) 
@@ -71,16 +68,13 @@ class Game:
 
         # REWARD +1; -1
         if np.array_equal(state, self.goal_state):
-            output['heuristic_value'] = output['heuristic_value'] + 1
+            return (output['heuristic_value'] + 1)
         else:
-            output['heuristic_value'] = output['heuristic_value'] - 1
-
-        return output["heuristic_value"]
+            return (output['heuristic_value'] - 1)
 
     def gen_board(self):
         # Get user input picture path
         image_index = random.randint(0, 123)
-        image_path =  os.path.join(os.path.dirname(__file__), "images/" + str(image_index) + ".jpg")
 
         power = random.randint(5, 6)
         size = pow(2, power)
@@ -100,6 +94,73 @@ class Game:
 
         # returns (initial state and goal state)
         return (shuffled_array, grayscale_array)
+
+    def topK(self, input_tensor, K):
+
+        self.model.eval()
+        with torch.inference_mode():
+            output = self.model(input_tensor)
+
+        print(type(output['die_probs']))
+
+        die_pro, index_die = torch.sort(output['die_probs'][0], descending=True)
+        x_pro, index_x = torch.sort(output['x_probs'][0], descending=True)
+        y_pro, index_y = torch.sort(output['y_probs'][0], descending=True)
+        dir_pro, index_dir = torch.sort(output['direction_probs'][0], descending=True)
+
+        die_pro = torch.cat((die_pro, torch.tensor([-1])))
+        x_pro = torch.cat((x_pro, torch.tensor([-1])))
+        y_pro = torch.cat((y_pro, torch.tensor([-1])))
+        dir_pro = torch.cat((dir_pro, torch.tensor([-1])))
+
+        print(die_pro)
+        print(die_pro, index_die)
+
+        i = 0
+        j = 0
+        I = 0
+        J = 0
+
+        while (i + 1) * (j + 1) * (I + 1) * (J + 1) <= K:
+
+            highest = [(die_pro[i], 'i'), (x_pro[j], 'j'), (y_pro[I], 'I'), (dir_pro[J], 'J')]
+
+            p = 0
+            ind = -1
+            for high in highest:
+                if high[0] > p:
+                    p = high[0]
+                    ind = high[1]
+
+            if ind == 'i':
+                i += 1
+            elif ind == 'j':
+                j += 1
+            elif ind == 'I':
+                I += 1
+            else:
+                J += 1
+
+        values = []
+
+        for die in range(0, i + 1):
+            for x in range(0, j + 1):
+                for y in range(0, I + 1):
+                    for dir in range(0, J + 1):
+                        f = die_pro[die] * x_pro[x] * y_pro[y] * dir_pro[dir]
+                        s = (index_die[die], index_x[x], index_y[y], index_dir[dir])
+
+                        values.append((f, s))
+
+        values.sort(key=lambda x : x[0], reverse=True)
+
+        res = []
+        for i in range(0, K + 1):
+            res.append(Action(values[i][1][0], values[i][1][1], values[i][1][2], values[i][1][3]))
+            print(values[i][0], end=" ")
+            print(values[i][1])
+
+        return res
 
 class PROCONNet(nn.Module):
     def __init__(self):
@@ -188,8 +249,14 @@ class SigmaX:
             # Generate child states and evaluate their values using current model
             best_value = -float('inf')
             best_action = None
-                
-            for action in self.game.actions:
+            
+            
+            encoded_current_state = self.game.encode_state(state, False)
+            encoded_current_state = encoded_current_state.squeeze()
+
+            top_k_actions = self.game.topK(encoded_current_state, 1000)
+
+            for action in top_k_actions:
                 child = apply_die(state, action)
                 value = self.game.evaluate_state(child)
                 if value > best_value:
@@ -198,17 +265,14 @@ class SigmaX:
 
             # Store the state, best action, and value as a training sample
             
-            encoded_initial_state = self.game.encode_state(state, False)
-            encoded_initial_state = encoded_initial_state.squeeze()
-
             best_action = np.array([best_action.die_index, (best_action.x + 255), (best_action.y + 255), best_action.direction])
             best_action = torch.tensor(best_action, dtype=torch.int64).to(self.device)
 
-            best_value = torch.tensor(best_value, dtype=torch.float16).to(self.device)
+            best_value = torch.tensor(best_value, dtype=torch.float32).to(self.device)
 
-            training_data.append((encoded_initial_state, best_action, best_value))
+            training_data.append((encoded_current_state, best_action, best_value))
 
-            print(f"type of states:{type(encoded_initial_state)}, type of best actions:{type(best_action)}, type of best_values{type(best_value)}")
+            print(f"type of states:{type(encoded_current_state)}, type of best actions:{type(best_action)}, type of best_values{type(best_value)}")
 
         print("TRAINING DATA GENERATED")
         return training_data
@@ -217,7 +281,7 @@ class SigmaX:
 
         random.shuffle(memory)
         for batchIdx in range(0, len(memory), self.args["batch_size"]):
-            sample = memory[batchIdx:min(len(memory) - 1, batchIdx + self.args["batch_size"])] 
+            sample = memory[batchIdx:min(len(memory), batchIdx + self.args["batch_size"])] 
             states, best_actions, best_values = zip(*sample)
 
             # print(states)
@@ -281,91 +345,6 @@ class SigmaX:
             torch.save(self.model.state_dict(), f"model_{iteration}.pt")
             torch.save(self.optimizer.state_dict(), f"optimizer_{iteration}.pt")
         
-def test():
-    # Detect if CUDA (GPU) is available, otherwise use CPU
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    input_tensor = torch.randn(1, 4, 256, 256).to(device)  # Batch size of 1, 4 channels, 256x256 input
-    input_tensor.to(torch.float16)
-    model = PROCONNet().to(device)
-    model.eval()
-    with torch.inference_mode():
-        output = model(input_tensor)
-
-    print("Die Probabilities:", output['die_probs'])
-    print("X Probabilities:", output['x_probs'])
-    print("Y Probabilities:", output['y_probs'])
-    print("direction Probabilities:", output['direction_probs'])
-    print("Heuristic Value:", output['heuristic_value'])
-
-    sz1 = len(output['die_probs'])
-    sz2 = len(output['x_probs'])  
-    sz3 = len(output['y_probs'])
-    sz4 = len(output['direction_probs'])
-    
-    print(type(output['die_probs']))
-
-    die_pro, index_die = torch.sort(output['die_probs'][0], descending=True)
-    x_pro, index_x = torch.sort(output['x_probs'][0], descending=True)
-    y_pro, index_y = torch.sort(output['y_probs'][0], descending=True)
-    dir_pro, index_dir = torch.sort(output['direction_probs'][0], descending=True)
-
-    sz1 = len(die_pro)
-    sz2 = len(x_pro)
-    sz3 = len(y_pro)
-    sz4 = len(dir_pro)
-
-    die_pro = torch.cat((die_pro, torch.tensor([-1])))
-    x_pro = torch.cat((x_pro, torch.tensor([-1])))
-    y_pro = torch.cat((y_pro, torch.tensor([-1])))
-    dir_pro = torch.cat((dir_pro, torch.tensor([-1])))
-
-    print(die_pro)
-
-
-    print(die_pro, index_die)
-
-    i = 0
-    j = 0
-    I = 0
-    J = 0
-
-    while (i + 1) * (j + 1) * (I + 1) * (J + 1) <= 1000:
-        
-        highest = [(die_pro[i + 1], 'i'), (x_pro[j + 1], 'j'), (y_pro[I + 1], 'I'), (dir_pro[J + 1], 'J')]
-
-        p = 0
-        ind = -1
-        for high in highest:
-            if high[0] > p:
-                p = high[0]
-                ind = high[1]
-
-        if ind == 'i':
-            i += 1
-        elif ind == 'j':
-            j += 1
-        elif ind == 'I':
-            I += 1
-        else:
-            J += 1
-    
-    values = []
-
-    for die in range(0, i + 1):
-        for x in range(0, j + 1):
-            for y in range(0, I + 1):
-                for dir in range(0, J + 1):
-                    f = die_pro[die] * x_pro[x] * y_pro[y] * dir_pro[dir]
-                    s = (index_die[die], index_x[x], index_y[y], index_die[dir])
-
-                    values.append((f, s))
-
-    values.sort(key=lambda x : x[0], reverse=True)
-
-    for i in range(1, 1001):
-        print(values[i][0], end=" ")
-        print(values[i][1])
-
 def main():
 
     # Detect if CUDA (GPU) is available, otherwise use CPU
@@ -383,7 +362,7 @@ def main():
 
     # Instantiate the model, optimizer, and loss functions
     model = PROCONNet().to(device)
-    model.to(torch.float16)
+    model.to(torch.float32)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     policy_loss_fn = nn.CrossEntropyLoss()  # For policy head
     value_loss_fn = nn.MSELoss()  # For value head

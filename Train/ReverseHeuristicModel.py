@@ -404,10 +404,10 @@ def main():
     learning_rate = 0.001
     args = {
         "num_epochs": 10000,
-        "num_iterations": 5,    
-        "batch_size": 64,
-        "num_gen_data": 5,
-        "num_god" : 150
+        "num_iterations": 1,    
+        "batch_size": 32,
+        "num_gen_data": 2,
+        "num_god" : 50
     }
 
     # Instantiate the model, optimizer, and loss functions
