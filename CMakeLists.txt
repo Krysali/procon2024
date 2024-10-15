@@ -3,7 +3,8 @@ set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.c
 project(PROCON2024)
 # Add an executable target
 add_executable(main 
-    src/Goku.cpp 
+    src/planB.cpp
+    src/ops.cpp 
     src/types.cpp
 )
 
