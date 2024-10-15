@@ -7,16 +7,17 @@ add_executable(main
     # src/ops.cpp 
     # src/types.cpp
     # src/procon_api.cpp
-    src/model.cpp
-)
+    # src/environment.cpp
+    # src/weighted_astar.cpp
+)   
 
 # Specify include directories
 include_directories(src/includes)
 include_directories(vcpkg)
 
 # Link CURL
-find_package(CURL REQUIRED)
-target_link_libraries(main PRIVATE CURL::libcurl)
+#find_package(CURL REQUIRED)
+#target_link_libraries(main PRIVATE CURL::libcurl)
 
 # Set the C++ standard
 set(CMAKE_CXX_STANDARD 20)
@@ -24,3 +25,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set the output directory for the executable
 set_target_properties(main PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/output")
+
+ 
