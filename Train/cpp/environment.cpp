@@ -15,6 +15,7 @@ bool is_inside(int x, int y, int n, int m, int dtype) {
 		return (y >= 0 && y < n);
 	}
 }
+}
 
 int nearest(int x)
 {
