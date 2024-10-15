@@ -29,7 +29,6 @@ set<pair<int, int>> s0, s1, s2, s3;
 
 void solve(GameState game_state) {
 
-
 	vector<Action> actions;
 
 	vector<vector<int>>& a = game_state.board.pieces;
