@@ -4,7 +4,6 @@ project(PROCON2024)
 # Add an executable target
 add_executable(main 
     src/planB.cpp
-    src/ops.cpp 
     src/types.cpp
 )
 

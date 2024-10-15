@@ -1,59 +1,89 @@
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef TEST_H
+#define TEST_H
 
 #include <vector>
-#include <string>
-#include <nlohmann/json.hpp>
 
-const int MAX_DIMENSION = 256;
-
-// Structure to represent a die
-class Die {
+// Structure to represent a custom die
+class CustomDie {
 public:
     int width, height;
     std::vector<std::vector<bool>> cells;  // Use bool for 0/1 values
+
+    CustomDie(int width, int height){
+        this -> width = width;
+        this -> height = height;
+    }
 };
 
 // Structure to represent the game board
 class Board {
 public:
-    int width, height;
+    int height, width;
     std::vector<std::vector<int>> pieces;
+
+    Board() : height(0), width(0) {}
+
+    Board(int height, int width, std::vector<std::vector<int>> pieces){
+        this -> height = height;
+        this -> width = width;
+        this -> pieces = pieces;
+    }
 };
 
 // Structure to represent a move
 class Action {
 public:
-    int die_index;
     int x, y;
+    int die_index;
     int direction;
+    Action(int x = 0, int y = 0, int die_index = 0, int direction = 0) {
+        this -> x = x;
+        this -> y = y;
+        this -> die_index = die_index;
+        this -> direction = direction;
+    }
 };
 
 // Structure to represent the entire game state
 class GameState {
 public:
+    int h = 0, g, f;
     Board board;
     Board goal_state;
-    std::vector<Die> dies;  // Includes both fixed and general dies
-    std::vector<Action> actions;
-    void apply_die(const Action& action);
-	void display_current_board();
-private:
-    std::vector<int> punch_pieces(const Action& action);
-    void shift_pieces(const Action& action);
-    void put_back_pieces(const Action& action, std::vector<int>& punched_pieces);
+    Action action;
+    GameState* parent;
+
+    GameState(Board board, Board goal_state, GameState* parent = nullptr, Action action = Action(), int g = 0){
+        this -> board = board;
+        this -> goal_state = goal_state;
+        this -> parent = parent;
+        this -> action = action;
+        this -> g = g;
+        compute_heuristics();
+        f = g + h;
+    }
+    
+    void apply_die(Action action);
+    void raction(Action action);
+    void display_game_state();
+    void compute_heuristics();
+    void print_path();
+    void setter(GameState* parent = nullptr, Action action = Action(), int g = 0);
+
+    bool is_solved();
+    bool operator<(const GameState & other) const;
 };
 
-// DEPRECATED: Use only as a fallback when the API fails
-std::string ReadJsonFile(const std::string& file_path);
+void reverseTypeI(int X, int Y, int size, int s, int n, int m, Board& _board);
+void reverseTypeII(int X, int Y, int size, int s, int n, int m, Board& _board);
+void reverseTypeIII(int X, int Y, int size, int s, int n, int m, Board& _board);
 
-// Function to parse json data into a game state
-GameState ParseJson(const std::string& problem_json);
+int nearest(int x);
+std::vector<Action> gen_actions(int n, int m);
+bool is_inside(int x, int y, int n, int m, int dtype);
 
-// Function to output json using the game state
-std::string OutputJson(const GameState& game_state);
+int rowcheck(Board odoogiinstate , Board goalstate , int n , int m);
+int columncheck(Board odoogiinstate , Board goalstate , int n , int m);
 
-// Function to generate dies
-std::vector<Die> GenerateFixedDies();
 
-#endif // TYPES_H
+#endif //TYPES_H
