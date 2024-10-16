@@ -3,8 +3,7 @@ set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.c
 project(PROCON2024)
 # Add an executable target
 add_executable(main 
-    src/model.py
-    src/Astar.cpp)
+    src/model.py)
 
 # Specify include directories
 include_directories(src/includes)
