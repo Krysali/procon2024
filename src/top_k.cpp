@@ -99,8 +99,8 @@ int main() {
 
     model.to(device);
     // Example usage: You need to provide a proper input tensor
-    torch::Tensor input_tensor = torch::randn({1, 8, 256, 256})to(device);
-    
+    torch::Tensor input_tensor = torch::randn({1, 8, 256, 256}).to(device);
+
     std::vector<Action> top_actions = topK(model, input_tensor, 10); 
 
     std::cout << "Top " << 10 << " actions:" << std::endl;
