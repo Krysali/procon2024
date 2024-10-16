@@ -91,11 +91,13 @@ std::vector<Action> topK(torch::jit::script::Module& model, torch::Tensor input_
 
 int main() {
 
+    std::cout << "CUDA available: " << torch::cuda::is_available() << std::endl;
+
     torch::jit::script::Module model = torch::jit::load("/home/ubuntu/procon2024/src/models/pro_model.pt");
 
- 
+    
     // Example usage: You need to provide a proper input tensor
-    torch::Tensor input_tensor = torch::randn({1, 8, 256, 256}).to(torch::kCUDA);
+    torch::Tensor input_tensor = torch::randn({1, 8, 256, 256}).to("cuda");
 
     std::vector<Action> top_actions = topK(model, input_tensor, 10); 
 
