@@ -15,7 +15,7 @@ struct Action {
 };
 
 
-std::vector<Action> topK(torch::jit::TracedModule& model, torch::Tensor input_tensor, int K) {
+std::vector<Action> topK(torch::jit::script::Module& model, torch::Tensor input_tensor, int K) {
     model.eval();
 
     torch::NoGradGuard no_grad; 
@@ -89,7 +89,7 @@ int main() {
     // Example usage: You need to provide a proper input tensor
     torch::Tensor input_tensor = torch::randn({1, 8, 256, 256});
     std::vector<Action> top_actions = topK(model, input_tensor, 10); 
-    
+
     std::cout << "Top " << K << " actions:" << std::endl;
 
     for (const auto& action : top_actions) {
