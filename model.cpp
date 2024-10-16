@@ -89,7 +89,7 @@ int main() {
 
     // Forward pass
     auto [die_probs, x_probs, y_probs, direction_probs, heuristic_value] = model->forward(input);
-
+a
     // Print the outputs
     std::cout << "Die probs: " << die_probs << std::endl;
     std::cout << "X probs: " << x_probs << std::endl;

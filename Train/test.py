@@ -371,4 +371,12 @@ def main():
 
     sigmax.learn()
 
+
+    # An example input you would normally provide to your model's forward() method.
+    example = torch.randn(1, 8, 256, 256).to(device)
+
+    # Use torch.jit.trace to generate a torch.jit.ScriptModule via tracing.
+    traced_script_module = torch.jit.trace(model, example)
+    traced_script_module.save("traced_pro_model.pt")
+
 main()
