@@ -93,9 +93,9 @@ int main() {
 
     torch::jit::script::Module model = torch::jit::load("/home/ubuntu/procon2024/src/models/pro_model.pt");
 
-    model.to(device);
+ 
     // Example usage: You need to provide a proper input tensor
-    torch::Tensor input_tensor = torch::randn({1, 8, 256, 256}).to(device);
+    torch::Tensor input_tensor = torch::randn({1, 8, 256, 256}).to(torch::kCUDA);
 
     std::vector<Action> top_actions = topK(model, input_tensor, 10); 
 
