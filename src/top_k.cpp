@@ -104,6 +104,7 @@ int main() {
     for (const auto& action : top_actions) {
         std::cout << action << std::endl; 
     }
+    cout << "boooloo" ; 
 
     return 0;
 }
