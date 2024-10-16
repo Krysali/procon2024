@@ -12,6 +12,12 @@ struct Action {
     int dir;
 
     Action(int d, int x_val, int y_val, int dr) : die(d), x(x_val), y(y_val), dir(dr) {}
+
+    friend std::ostream& operator<<(std::ostream& os, const Action& action) {
+        os << "Die: " << action.die << ", X: " << action.x << ", Y: " << action.y << ", Dir: " << action.dir;
+        return os;
+    }
+
 };
 
 
@@ -84,7 +90,7 @@ std::vector<Action> topK(torch::jit::script::Module& model, torch::Tensor input_
 }
 
 int main() {
-    
+
     torch::jit::script::Module model = torch::jit::load("/home/ubuntu/procon2024/src/models/pro_model.pt");
 
     // Example usage: You need to provide a proper input tensor
