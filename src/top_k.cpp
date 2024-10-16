@@ -89,24 +89,46 @@ std::vector<Action> topK(torch::jit::script::Module& model, torch::Tensor input_
     return res;
 }
 
-int main() {
 
+
+
+int main() {
     std::cout << "CUDA available: " << torch::cuda::is_available() << std::endl;
 
-    torch::jit::script::Module model = torch::jit::load("/home/ubuntu/procon2024/src/models/pro_model.pt");
-
-    
-    // Example usage: You need to provide a proper input tensor
-    torch::Tensor input_tensor = torch::randn({1, 8, 256, 256}).to("cuda");
-
-    std::vector<Action> top_actions = topK(model, input_tensor, 10); 
-
-    std::cout << "Top " << 10 << " actions:" << std::endl;
-
-    for (const auto& action : top_actions) {
-        std::cout << action << std::endl; 
+    torch::jit::script::Module model;
+    try {
+        model = torch::jit::load("/home/ubuntu/procon2024/src/models/pro_model.pt");
+    } catch (const c10::Error& e) {
+        std::cerr << "Error loading the model: " << e.msg() << std::endl;
+        return 1;
     }
-    std::cout << "boooloo" ; 
+
+    torch::Device device(torch::kCPU);
+    if (torch::cuda::is_available()) {
+        device = torch::Device(torch::kCUDA);
+        model.to(device); // Move model to CUDA only if available.
+    }
+
+
+    try {
+        torch::Tensor input_tensor = torch::randn({1, 8, 256, 256}).to(device); // Use device here!
+
+        std::vector<Action> top_actions = topK(model, input_tensor, 10);
+
+        std::cout << "Top " << 10 << " actions:" << std::endl;
+        for (const auto& action : top_actions) {
+            std::cout << action << std::endl;
+        }
+        std::cout << "boooloo" << std::endl;
+
+    } catch (const c10::Error& e) {
+        std::cerr << "Error during inference: " << e.msg() << std::endl;
+        return 1;
+    } catch (const std::exception& e) {  // Catch other standard exceptions
+       std::cerr << "A standard exception occurred: " << e.what() << std::endl;
+        return 1;
+    }
+
 
     return 0;
 }
