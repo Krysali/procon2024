@@ -637,3 +637,7 @@ gmon.out
 
 # server file
 !procon-server.exe
+
+# model file
+libtorch/
+*.pt
