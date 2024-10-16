@@ -31,6 +31,9 @@
 *.out
 *.app
 
+# server file
+!procon-server.exe
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -207,7 +210,6 @@ _deps
 CMakeUserPresets.json
 
 .vs
-.vscode
 vcpkg
 
 # Ignore Visual Studio temporary files, build results, and
@@ -245,8 +247,6 @@ bld/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
-.vscode/
-vcpkg/
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
 
@@ -607,6 +607,7 @@ rules.ninja
 
 #
 gmon.out
+.vscode/
 *.PVS-Studio.stacktrace.txt
 
 # Siv3D
