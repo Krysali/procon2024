@@ -58,7 +58,7 @@ std::vector<Action> topK(torch::jit::script::Module& model, torch::Tensor input_
     std::priority_queue<std::pair<float, std::tuple<int, int, int, int>>, std::vector<std::pair<float, std::tuple<int, int, int, int>>>, std::greater<std::pair<float, std::tuple<int, int, int, int>>>> pq;
 
     for (int die = 0; die < die_size; ++die) {
-        for (int x = 0; x < x_size; ++x) {
+        for (int x = 0; x < x_size; ++x) {  
             for (int y = 0; y < y_size; ++y) {
                 for (int dir = 0; dir < dir_size; ++dir) {
                     float prob = die_pro[die].item<float>() * x_pro[x].item<float>() * y_pro[y].item<float>() * dir_pro[dir].item<float>();
@@ -92,9 +92,15 @@ std::vector<Action> topK(torch::jit::script::Module& model, torch::Tensor input_
 int main() {
 
     torch::jit::script::Module model = torch::jit::load("/home/ubuntu/procon2024/src/models/pro_model.pt");
+    torch::Device device(torch::kCPU);
+    if (torch::cuda::is_available()) {
+        device = torch::Device(torch::kCUDA);
+    }
 
+    model.to(device);
     // Example usage: You need to provide a proper input tensor
-    torch::Tensor input_tensor = torch::randn({1, 8, 256, 256});
+    torch::Tensor input_tensor = torch::randn({1, 8, 256, 256})to(device);
+    
     std::vector<Action> top_actions = topK(model, input_tensor, 10); 
 
     std::cout << "Top " << 10 << " actions:" << std::endl;
