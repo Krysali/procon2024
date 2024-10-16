@@ -92,10 +92,6 @@ std::vector<Action> topK(torch::jit::script::Module& model, torch::Tensor input_
 int main() {
 
     torch::jit::script::Module model = torch::jit::load("/home/ubuntu/procon2024/src/models/pro_model.pt");
-    torch::Device device(torch::kCPU);
-    if (torch::cuda::is_available()) {
-        device = torch::Device(torch::kCUDA);
-    }
 
     model.to(device);
     // Example usage: You need to provide a proper input tensor
