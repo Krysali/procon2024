@@ -84,13 +84,14 @@ std::vector<Action> topK(torch::jit::script::Module& model, torch::Tensor input_
 }
 
 int main() {
+    
     torch::jit::script::Module model = torch::jit::load("/home/ubuntu/procon2024/src/models/pro_model.pt");
 
     // Example usage: You need to provide a proper input tensor
     torch::Tensor input_tensor = torch::randn({1, 8, 256, 256});
     std::vector<Action> top_actions = topK(model, input_tensor, 10); 
 
-    std::cout << "Top " << K << " actions:" << std::endl;
+    std::cout << "Top " << 10 << " actions:" << std::endl;
 
     for (const auto& action : top_actions) {
         std::cout << action << std::endl; 
