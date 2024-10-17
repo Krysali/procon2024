@@ -6,6 +6,8 @@
 
 void Main() {
 	std::string serverUrl = "localhost:8080";
+
+	//new_mongold97d641d60f622182ccfa9044d258e1d1d931afde9ca0299e21360
 	std::string teamToken = "token1";
 	std::string problemData;
 
@@ -26,7 +28,7 @@ void Main() {
 	GUI game(game_state);
 	game.serverUrl = serverUrl;
 	game.token = teamToken;
-
+	
 	while (System::Update()) {
 		game.Render();
 	}
