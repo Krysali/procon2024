@@ -22,11 +22,18 @@ public:
 };
 
 // Structure to represent a move
+
 class Action {
 public:
     int die_index;
     int x, y;
     int direction;
+    Action(int die_index = 0, int x = 0, int y = 0, int direction = 0) {
+        this -> die_index = die_index;
+        this -> x = x;
+        this -> y = y;
+        this -> direction = direction;
+    }
 };
 
 // Structure to represent the entire game state

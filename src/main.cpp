@@ -24,6 +24,13 @@ void Main() {
 
 	// Parse the problem data into a GameState object
 	GameState game_state = ParseJson(problemData);
+
+	solve(game_state);
+
+	std::cout << game_state.actions.size() << '\n';
+
+
+	std::cout << "bolloo\n";
 	
 	GUI game(game_state);
 	game.serverUrl = serverUrl;
